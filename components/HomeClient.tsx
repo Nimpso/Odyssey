@@ -348,29 +348,33 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
                 </a>
               )}
             </div>
-            {/* Eyebrow */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.5rem' }}>
+            {/* Eyebrow — légèrement descendu */}
+            <p className="hero-sub" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '2rem', marginTop: '1rem' }}>
               — Récits de voyageurs
             </p>
 
-            {/* Giant title */}
-            <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(4rem, 12vw, 10rem)', lineHeight: 0.9, color: 'white', marginBottom: '2rem', maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            {/* Giant title — remonté, moins de marge basse */}
+            <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 10vw, 10rem)', lineHeight: 0.9, color: 'white', marginBottom: '1.25rem', maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
               Laissez<br/>
               <span style={{ color: 'var(--gold)' }}>l'aventure</span><br/>
               arriver.
             </h1>
 
             {/* Sub */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1rem, 2vw, 1.35rem)', color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.65, marginBottom: '3rem' }}>
+            <p className="hero-sub" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1rem, 2vw, 1.35rem)', color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.65, marginBottom: '0' }}>
               Des milliers d'itinéraires vécus, racontés et photographiés par de vrais voyageurs.
             </p>
+          </div>
+
+          {/* ── Barre basse : CTAs à gauche + Stats à droite ── */}
+          <div style={{ position: 'absolute', bottom: '3rem', left: 'clamp(2rem,6vw,6rem)', right: 'clamp(1.5rem,4vw,4rem)', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', animation: 'fadeIn 1s 1s both' }}>
 
             {/* CTAs */}
-            <div className="hero-cta" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="hero-cta" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <a href="#explore" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-                padding: '1rem 2.25rem', background: 'var(--gold)', color: 'var(--ink)',
-                fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600,
+                padding: '0.85rem 2rem', background: 'var(--gold)', color: 'var(--ink)',
+                fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 600,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
                 transition: 'filter 0.2s',
               }}
@@ -381,9 +385,9 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               </a>
               <a href="/create" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-                padding: '1rem 2.25rem', background: 'transparent',
+                padding: '0.85rem 2rem', background: 'transparent',
                 border: '1px solid rgba(255,255,255,0.4)', color: 'white',
-                fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 500,
+                fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 500,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
                 transition: 'border-color 0.2s, color 0.2s',
               }}
@@ -393,20 +397,21 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
                 + Créer le mien
               </a>
             </div>
-          </div>
 
-          {/* Stats bottom right */}
-          <div style={{ position: 'absolute', bottom: '3rem', right: 'clamp(1.5rem,4vw,4rem)', zIndex: 20, display: 'flex', gap: '2.5rem', animation: 'fadeIn 1s 1s both' }}>
-            {[
-              { n: `${trips.length}+`, l: 'Récits' },
-              { n: '40+', l: 'Pays' },
-              { n: '100%', l: 'Authentique' },
-            ].map(({ n, l }) => (
-              <div key={l} style={{ textAlign: 'center' }}>
-                <p style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--gold)', lineHeight: 1 }}>{n}</p>
-                <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{l}</p>
-              </div>
-            ))}
+            {/* Stats */}
+            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+              {[
+                { n: `${trips.length}+`, l: 'Récits' },
+                { n: '40+', l: 'Pays' },
+                { n: '100%', l: 'Authentique' },
+              ].map(({ n, l }) => (
+                <div key={l} style={{ textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--gold)', lineHeight: 1 }}>{n}</p>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{l}</p>
+                </div>
+              ))}
+            </div>
+
           </div>
 
           {/* Scroll indicator */}
