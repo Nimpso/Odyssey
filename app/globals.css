@@ -112,7 +112,7 @@ body::after {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--sand);
-  z-index: 50;   /* en dessous des boutons utilisateur (z:100) */
+  z-index: 1000; /* au-dessus de tout sauf grain overlay (z:9999) */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -351,3 +351,7 @@ main:has(.page-fullscreen) { padding-top: 0; }
   box-shadow: 0 0 0 4px var(--gold-pale);
 }
 .field::placeholder { color: #bbb; }
+
+/* ── Masque la NavBar globale sur la page création (qui a sa propre top bar) ── */
+body:has(.create-page) .nav { display: none; }
+body:has(.create-page) main { padding-top: 0; }

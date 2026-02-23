@@ -186,30 +186,24 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           z-index: 20;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          padding: clamp(2rem, 6vw, 6rem);
-          padding-top: calc(64px + 1.5rem);
+          justify-content: flex-end; /* aligne en bas pour garantir la visibilité des CTAs */
+          padding: clamp(1.5rem, 5vw, 6rem);
+          padding-bottom: clamp(5rem, 10vh, 8rem);
         }
         @media (max-width: 768px) {
           .hero-content {
-            padding-top: calc(56px + 1rem);
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+            padding: 1.25rem;
+            padding-bottom: 4.5rem;
+            justify-content: flex-end;
           }
         }
 
-        /* Bouton profil responsive */
-        .hero-profile-btn {
-          position: fixed;
-          top: calc(64px + 1.25rem);
-          right: 1.5rem;
-          z-index: 100;
-        }
-        @media (max-width: 768px) {
-          .hero-profile-btn {
-            top: calc(56px + 0.75rem);
-            right: 1rem;
-          }
+        /* Bouton profil — masqué, géré par la NavBar */
+        .hero-profile-btn { display: none; }
+
+        /* Stats bottom right — masquées sur mobile */
+        @media (max-width: 600px) {
+          .hero-stats { display: none !important; }
         }
 
         .trip-card-cinema {
@@ -350,27 +344,27 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               )}
             </div>
             {/* Eyebrow */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.5rem' }}>
+            <p className="hero-sub" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 'clamp(0.75rem, 2vh, 1.5rem)' }}>
               — Récits de voyageurs
             </p>
 
             {/* Giant title */}
-            <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(4rem, 12vw, 10rem)', lineHeight: 0.9, color: 'white', marginBottom: '2rem', maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 10vw, 10rem)', lineHeight: 0.9, color: 'white', marginBottom: 'clamp(1rem, 3vh, 2rem)', maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
               Laissez<br/>
               <span style={{ color: 'var(--gold)' }}>l'aventure</span><br/>
               arriver.
             </h1>
 
             {/* Sub */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1rem, 2vw, 1.35rem)', color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.65, marginBottom: '3rem' }}>
+            <p className="hero-sub" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(0.9rem, 2vw, 1.35rem)', color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.65, marginBottom: 'clamp(1.25rem, 3vh, 3rem)' }}>
               Des milliers d'itinéraires vécus, racontés et photographiés par de vrais voyageurs.
             </p>
 
             {/* CTAs */}
-            <div className="hero-cta" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="hero-cta" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <a href="#explore" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-                padding: '1rem 2.25rem', background: 'var(--gold)', color: 'var(--ink)',
+                padding: 'clamp(0.7rem, 2vw, 1rem) clamp(1.25rem, 3vw, 2.25rem)', background: 'var(--gold)', color: 'var(--ink)',
                 fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
                 transition: 'filter 0.2s',
@@ -382,7 +376,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               </a>
               <a href="/create" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
-                padding: '1rem 2.25rem', background: 'transparent',
+                padding: 'clamp(0.7rem, 2vw, 1rem) clamp(1.25rem, 3vw, 2.25rem)', background: 'transparent',
                 border: '1px solid rgba(255,255,255,0.4)', color: 'white',
                 fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 500,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
@@ -397,7 +391,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           </div>
 
           {/* Stats bottom right */}
-          <div style={{ position: 'absolute', bottom: '3rem', right: 'clamp(1.5rem,4vw,4rem)', zIndex: 20, display: 'flex', gap: '2.5rem', animation: 'fadeIn 1s 1s both' }}>
+          <div className="hero-stats" style={{ position: 'absolute', bottom: '3rem', right: 'clamp(1.5rem,4vw,4rem)', zIndex: 20, display: 'flex', gap: '2.5rem', animation: 'fadeIn 1s 1s both' }}>
             {[
               { n: `${trips.length}+`, l: 'Récits' },
               { n: '40+', l: 'Pays' },

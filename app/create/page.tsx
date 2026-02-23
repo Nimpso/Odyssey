@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ const SIDEBAR_CATS: { id: string; label: string; icon: string; items: SidebarIte
   { id: 'voyage', label: 'Voyage', icon: '✈️', items: [
       { type: 'hotel',      icon: '🏨', label: 'Hôtel',         w: 560, h: 300, data: { name:'',link:'',price:'',rating:'',review:'',photo:'' } },
       { type: 'restaurant', icon: '🍽️', label: 'Restaurant',    w: 560, h: 280, data: { name:'',link:'',price:'',rating:'',review:'',cuisine:'' } },
-      { type: 'pros_cons',  icon: '⚖️', label: 'Pour / Contre', w: 700, h: 320, data: { pros:[''], cons:[''] } },
+      { type: 'pros_cons',  icon: '⚖️', label: 'Pour / Contre', w: 700, h: 320, data: { pros:[''],cons:[''] } },
   ]},
 ];
 
@@ -109,7 +109,7 @@ const blk = (type: BlockType, x: number, y: number, w: number, h: number, data: 
   type, data, x, y, w, h,
   font: s.font || 'sans', bg: s.bg || 'transparent',
   textColor: s.textColor || '#0d0d0d', fontSize: s.fontSize || 1, zIndex: s.zIndex || 5,
-}) as CanvasBlock;
+});
 
 // ─── ROAD TRIP modules ────────────────────────────────────────────────────────
 const ROADTRIP_MODULES: Module[] = [
@@ -153,7 +153,7 @@ const GUIDE_MODULES: Module[] = [
   { id:'gp_transport', icon:'🚌', label:'+ Ajouter transport',
     generate:(y)=>[
       blk('text',60,y,1080,140,{html:`<div style="padding:20px 28px"><p style="font-family:'DM Sans',system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#2d7a72;margin-bottom:12px">🚌 Comment s'y rendre</p><div style="display:flex;gap:10px;flex-wrap:wrap"><span style="background:#f0ede8;padding:6px 14px;font-family:'DM Sans',system-ui;font-size:0.82rem;color:#555">✈️ Vol direct</span><span style="background:#f0ede8;padding:6px 14px;font-family:'DM Sans',system-ui;font-size:0.82rem;color:#555">🚂 Train</span><span style="background:#f0ede8;padding:6px 14px;font-family:'DM Sans',system-ui;font-size:0.82rem;color:#555">🚗 Location</span></div></div>`},{bg:'#fff',textColor:'#0d0d0d'}),
-    ] as CanvasBlock[]},
+    ]},
   { id:'gp_conseil', icon:'⭐', label:'+ Ajouter Pour / Contre',
     generate:(y)=>[ blk('pros_cons',60,y,1080,280,{pros:[''],cons:['']},{bg:'#fff',textColor:'#0d0d0d'}) ]},
   { id:'gp_resto', icon:'🍽️', label:'+ Ajouter un restaurant',
@@ -231,7 +231,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
     desc: 'Bande pellicule verticale + grande photo panoramique',
     color: '#1a0a0a',
     canvasH: 1800,
-    generate: (): CanvasBlock[] => {
+    generate: () => {
       const id = uid;
       return [
         // Dark background
@@ -263,7 +263,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
         { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1200, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
         { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1428, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
         { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1560, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-      ] as CanvasBlock[];
+      ];
     },
   },
   {
@@ -273,7 +273,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
     desc: 'Typographie asymétrique, textes croisés, style éditorial',
     color: '#f5f0e8',
     canvasH: 2000,
-    generate: (): CanvasBlock[] => {
+    generate: () => {
       const id = uid;
       return [
         // Cream background
@@ -303,7 +303,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
         // Bottom section — 2 col
         { id: id(), type: 'text', data: { html: '<p style="line-height:1.85;color:#333">Partagez vos impressions finales. Ce voyage valait-il le détour ? Que recommanderiez-vous à quelqu\'un qui veut vivre la même expérience ?</p>' }, x: 60, y: 1880, w: 500, h: 150, font: 'sans', bg: 'transparent', textColor: '#333', fontSize: 1, zIndex: 4 },
         { id: id(), type: 'text', data: { html: '<p style="font-family:Bebas Neue,sans-serif;font-size:5rem;line-height:1;color:rgba(0,0,0,0.06)">FIN</p>' }, x: 700, y: 1860, w: 400, h: 150, font: 'display', bg: 'transparent', textColor: 'rgba(0,0,0,0.06)', fontSize: 5, zIndex: 3 },
-      ] as CanvasBlock[];
+      ];
     },
   },
   {
@@ -313,7 +313,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
     desc: 'Sections alternées image/texte, ambiance nature et luxe',
     color: '#1e3a2f',
     canvasH: 2200,
-    generate: (): CanvasBlock[] => {
+    generate: () => {
       const id = uid;
       return [
         // Section 1 — Full hero
@@ -334,7 +334,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
         { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:16px">02 — Découverte</p><div style="font-family:Fraunces,serif;font-size:2rem;font-weight:300;line-height:1.2;color:#0d0d0d;margin-bottom:20px">Les trésors<br/>cachés</div><p style="line-height:1.8;color:#555;font-size:0.92rem">Parlez des endroits inattendus, des ruelles oubliées, des restaurants sans menu, des couchers de soleil volés au détour d\'un chemin.</p>' }, x: 620, y: 1420, w: 480, h: 340, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1, zIndex: 2 },
         // Section 5 — mosaic gallery
         { id: id(), type: 'gallery', data: { images: [], layout: 'mosaic' }, x: 0, y: 1800, w: 1200, h: 400, font: 'sans', bg: '#111', textColor: '#fff', fontSize: 1, zIndex: 2 },
-      ] as CanvasBlock[];
+      ];
     },
   },
   {
@@ -344,7 +344,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
     desc: 'Grande photo pleine page avec titre monumental',
     color: '#0d0d0d',
     canvasH: 1400,
-    generate: (): CanvasBlock[] => {
+    generate: () => {
       const id = uid;
       return [
         // Full bleed photo
@@ -365,19 +365,19 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
         { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.8rem;font-weight:500;letter-spacing:0.12em;color:rgba(255,255,255,0.5)">Été 2024 · 14 jours</p>' }, x: 60, y: 1330, w: 400, h: 40, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.5)', fontSize: 0.8, zIndex: 4 },
         // Watermark right
         { id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-size:1rem;font-weight:300;letter-spacing:0.2em;color:rgba(255,255,255,0.25);text-align:right">Odyssey</p>' }, x: 900, y: 1330, w: 260, h: 40, font: 'serif', bg: 'transparent', textColor: 'rgba(255,255,255,0.25)', fontSize: 1, zIndex: 4 },
-      ] as CanvasBlock[];
+      ];
     },
   },
 ];
 
-// ─── Template Modal ─────────────────────────────────────────────────────────
+// ─── Template Modal ───────────────────────────────────────────────────────────
 function TemplateModal({ onApply, onClose }: {
   onApply: (blocks: any[], canvasH: number) => void;
   onClose: () => void;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }} />
       <div style={{ position: 'relative', width: '90vw', maxWidth: 900, background: '#111', border: '1px solid #2a2a2a', borderRadius: 6, overflow: 'hidden', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
@@ -742,9 +742,9 @@ function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload
       const dy = ev.clientY - dragStart.current.my;
       onUpdate({ ...block, x: Math.max(0, dragStart.current.bx + dx), y: Math.max(0, dragStart.current.by + dy) });
     };
-    const onUp = () => { dragStart.current = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    const onUp = () => { dragStart.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
   };
 
   const onMouseDownResize = (e: React.MouseEvent, handle: Handle) => {
@@ -766,9 +766,9 @@ function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload
 
       onUpdate({ ...block, x: nx, y: ny, w: nw, h: nh });
     };
-    const onUp = () => { resizeStart.current = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    const onUp = () => { resizeStart.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
   };
 
   const handleCursors: Record<Handle, string> = {
@@ -942,9 +942,16 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
   return (
     <div style={{ width: 240, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ── La fameuse "cale" invisible pour descendre le contenu ── */}
-      <div style={{ height: '70px', flexShrink: 0 }}></div>
-      
+      {/* ── Template / Modules CTA ── */}
+      <div style={{ padding: '0.75rem', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
+        <button type="button" onClick={onTemplate}
+          style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', border: 'none', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          onMouseEnter={e => (e.currentTarget.style.opacity='0.85')} onMouseLeave={e => (e.currentTarget.style.opacity='1')}>
+          <span style={{ fontSize: 15 }}>✨</span>
+          <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, color:'white', letterSpacing:'0.08em', textTransform:'uppercase' }}>Templates visuels</span>
+        </button>
+      </div>
+
       {/* ── Tab switcher ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
         {(['elements','modules'] as const).map(t => (
@@ -1050,15 +1057,6 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
             style={{ padding:'0.4rem 0.6rem', background:'#c9a84c', color:'#0d0d0d', border:'none', cursor:'pointer', fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, borderRadius:2 }}>+</button>
         </div>
       </div>
-      {/* ── Template / Modules CTA ── */}
-      <div style={{ padding: '0.75rem', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
-        <button type="button" onClick={onTemplate}
-          style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', border: 'none', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-          onMouseEnter={e => (e.currentTarget.style.opacity='0.85')} onMouseLeave={e => (e.currentTarget.style.opacity='1')}>
-          <span style={{ fontSize: 15 }}>✨</span>
-          <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, color:'white', letterSpacing:'0.08em', textTransform:'uppercase' }}>Templates visuels</span>
-        </button>
-      </div>
     </div>
   );
 }
@@ -1128,7 +1126,7 @@ export default function CreateTrip() {
     const rawBlocks = mod.generate(bottomY, count);
     const newBlocks: CanvasBlock[] = rawBlocks.map(b => ({ ...b, id: uid() }));
     const totalH = Math.max(...newBlocks.map(b => b.y + b.h)) + 60;
-    if (totalH > canvasH) setCanvasH(Math.ceil(totalH / 100) * 100);
+    if (totalH > canvasH) setCanvasH(totalH);
     setBlocks(p => [...p, ...newBlocks]);
     setSelectedId(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1250,13 +1248,13 @@ export default function CreateTrip() {
 
   return (
     <>
-      {isMounted && <style dangerouslySetInnerHTML={{ __html: globalCss }} />}
+      <style dangerouslySetInnerHTML={{ __html: globalCss }} />
       {/* Neutralise le padding-top:64px du layout pour avoir 100vh réel */}
       <div style={{ marginTop: '-64px' }}>
-      <div className="page-fullscreen" style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden', paddingTop: '120px' }}>
+      <div className="page-fullscreen create-page" style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden' }}>
 
         {/* ── Top bar ── */}
-        <div style={{ position: 'fixed', top: '64px', left: 0, right: 0, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 9999 }}>
+        <div style={{ height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 50 }}>
           {/* Logo + title + home button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {/* Home button */}
@@ -1528,7 +1526,6 @@ export default function CreateTrip() {
             </div>
           )}
         </div>
-      </div>
       </div>
 
       {/* Template modal */}
