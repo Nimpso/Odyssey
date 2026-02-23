@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function NavBar() {
@@ -9,6 +10,10 @@ export default function NavBar() {
   const [visible, setVisible] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const lastY = useRef(0);
+  const pathname = usePathname();
+
+  // Masquée entièrement sur la page création (elle a sa propre top bar)
+  if (pathname === '/create') return null;
 
   useEffect(() => {
     setIsMounted(true);

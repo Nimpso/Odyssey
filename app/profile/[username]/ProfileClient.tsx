@@ -181,9 +181,9 @@ export default function ProfileClient({ initialProfile, username }: { initialPro
       <main style={{ minHeight: '100vh', background: '#0d0d0d' }}>
 
         {/* ── Bannière ── */}
-        <div style={{ position: 'relative', height: 260, background: coverCss }}>
+        <div style={{ position: 'relative', height: 300, background: coverCss }}>
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,transparent 50%,#0d0d0d 100%)' }} />
-          <nav style={{ position: 'absolute', top: 20, left: 24, right: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
+          <nav style={{ position: 'absolute', top: 80, left: 24, right: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
             <a href="/"
               style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => ((e.target as HTMLElement).style.color = 'white')}

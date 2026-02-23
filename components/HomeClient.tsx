@@ -184,9 +184,10 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           z-index: 20;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: flex-start;
+          padding-top: clamp(5rem, 12vh, 9rem); /* espace pour la nav + respiration */
           padding: clamp(2rem, 6vw, 6rem);
-          padding-top: clamp(1.5rem, 5vw, 4rem);
+          padding-top: 2rem;
         }
         @media (max-width: 768px) {
           .hero-content {
