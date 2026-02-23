@@ -316,14 +316,14 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           {/* ── HERO CONTENT : tout en position absolute pour contrôle précis ── */}
 
           {/* Eyebrow — bien en bas du premier tiers */}
-          <div style={{ position: 'absolute', top: '42%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.5s both' }}>
+          <div style={{ position: 'absolute', top: '28%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.5s both' }}>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', margin: 0 }}>
               — Récits de voyageurs
             </p>
           </div>
 
           {/* Titre — centré verticalement, légèrement au-dessus du centre */}
-          <div style={{ position: 'absolute', top: '47%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.3s both' }}>
+          <div style={{ position: 'absolute', top: '33%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.3s both' }}>
             <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 10vw, 10rem)', lineHeight: 0.88, color: 'white', margin: 0, maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
               Laissez<br/>
               <span style={{ color: 'var(--gold)' }}>l'aventure</span><br/>
