@@ -942,8 +942,9 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
   return (
     <div style={{ width: 240, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
+      {/* ── La fameuse "cale" invisible pour descendre le contenu ── */}
+      <div style={{ height: '70px', flexShrink: 0 }}></div>
       
-
       {/* ── Tab switcher ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
         {(['elements','modules'] as const).map(t => (
