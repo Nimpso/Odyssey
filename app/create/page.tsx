@@ -942,15 +942,7 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
   return (
     <div style={{ width: 240, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* ── Template / Modules CTA ── */}
-      <div style={{ padding: '0.75rem', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
-        <button type="button" onClick={onTemplate}
-          style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', border: 'none', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-          onMouseEnter={e => (e.currentTarget.style.opacity='0.85')} onMouseLeave={e => (e.currentTarget.style.opacity='1')}>
-          <span style={{ fontSize: 15 }}>✨</span>
-          <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, color:'white', letterSpacing:'0.08em', textTransform:'uppercase' }}>Templates visuels</span>
-        </button>
-      </div>
+      
 
       {/* ── Tab switcher ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
@@ -1056,6 +1048,15 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
           <button type="button" onClick={() => setCanvasH(canvasH + 800)}
             style={{ padding:'0.4rem 0.6rem', background:'#c9a84c', color:'#0d0d0d', border:'none', cursor:'pointer', fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, borderRadius:2 }}>+</button>
         </div>
+      </div>
+      {/* ── Template / Modules CTA ── */}
+      <div style={{ padding: '0.75rem', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
+        <button type="button" onClick={onTemplate}
+          style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', border: 'none', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          onMouseEnter={e => (e.currentTarget.style.opacity='0.85')} onMouseLeave={e => (e.currentTarget.style.opacity='1')}>
+          <span style={{ fontSize: 15 }}>✨</span>
+          <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, color:'white', letterSpacing:'0.08em', textTransform:'uppercase' }}>Templates visuels</span>
+        </button>
       </div>
     </div>
   );
