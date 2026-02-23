@@ -377,7 +377,7 @@ function TemplateModal({ onApply, onClose }: {
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }} />
       <div style={{ position: 'relative', width: '90vw', maxWidth: 900, background: '#111', border: '1px solid #2a2a2a', borderRadius: 6, overflow: 'hidden', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
