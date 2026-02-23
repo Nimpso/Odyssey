@@ -313,70 +313,40 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           <div style={{ position: 'absolute', inset: 0, zIndex: 5, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)', pointerEvents: 'none' }} />
 
           {/* Content — toujours au-dessus */}
-          <div className="hero-content">
+          {/* ── HERO CONTENT : tout en position absolute pour contrôle précis ── */}
 
-            {/* ── Bouton profil / connexion — coin supérieur droit ── */}
-            <div className="hero-profile-btn" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {currentUser && userProfile?.username ? (
-                <a href={`/profile/${userProfile.username}`}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.4rem 0.85rem 0.4rem 0.45rem', background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, textDecoration: 'none', backdropFilter: 'blur(8px)', transition: 'border-color 0.2s' }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = '#c9a84c')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)')}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)' }}>
-                    {/* Avatar mini */}
-                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, color: 'white' }}>
-                      {userProfile.username.charAt(0).toUpperCase()}
-                    </div>
-                  </div>
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
-                    @{userProfile.username}
-                  </span>
-                </a>
-              ) : currentUser ? (
-                <a href="/settings"
-                  style={{ padding: '0.4rem 0.85rem', background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, textDecoration: 'none', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', transition: 'all 0.2s' }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#c9a84c')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)')}>
-                  Configurer mon profil
-                </a>
-              ) : (
-                <a href="/login"
-                  style={{ padding: '0.4rem 0.85rem', background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, textDecoration: 'none', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)', transition: 'all 0.2s' }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#c9a84c')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.7)')}>
-                  Se connecter
-                </a>
-              )}
-            </div>
-            {/* Eyebrow — légèrement descendu */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '2rem', marginTop: '1rem' }}>
+          {/* Eyebrow — bien en bas du premier tiers */}
+          <div style={{ position: 'absolute', top: '42%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.5s both' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.25em', textTransform: 'uppercase', color: 'var(--gold)', margin: 0 }}>
               — Récits de voyageurs
             </p>
+          </div>
 
-            {/* Giant title — remonté, moins de marge basse */}
-            <h1 className="hero-title" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 10vw, 10rem)', lineHeight: 0.9, color: 'white', marginBottom: '1.25rem', maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+          {/* Titre — centré verticalement, légèrement au-dessus du centre */}
+          <div style={{ position: 'absolute', top: '47%', left: 'clamp(2rem,6vw,6rem)', zIndex: 20, animation: 'slideUp 1s 0.3s both' }}>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 10vw, 10rem)', lineHeight: 0.88, color: 'white', margin: 0, maxWidth: '700px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
               Laissez<br/>
               <span style={{ color: 'var(--gold)' }}>l'aventure</span><br/>
               arriver.
             </h1>
-
-            {/* Sub */}
-            <p className="hero-sub" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1rem, 2vw, 1.35rem)', color: 'rgba(255,255,255,0.75)', maxWidth: 420, lineHeight: 1.65, marginBottom: '0' }}>
-              Des milliers d'itinéraires vécus, racontés et photographiés par de vrais voyageurs.
-            </p>
           </div>
 
-          {/* ── Barre basse : CTAs à gauche + Stats à droite ── */}
-          <div style={{ position: 'absolute', bottom: '3rem', left: 'clamp(2rem,6vw,6rem)', right: 'clamp(1.5rem,4vw,4rem)', zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '2rem', animation: 'fadeIn 1s 1s both' }}>
+          {/* Bas du hero : sous-texte à gauche + boutons au centre-gauche + stats à droite */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20, padding: '2rem clamp(2rem,6vw,6rem)', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '2rem', animation: 'fadeIn 1s 1s both' }}>
 
-            {/* CTAs */}
-            <div className="hero-cta" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Sous-texte */}
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(0.9rem, 1.5vw, 1.2rem)', color: 'rgba(255,255,255,0.7)', maxWidth: 340, lineHeight: 1.6, margin: 0, flexShrink: 0 }}>
+              Des milliers d'itinéraires vécus,<br/>racontés et photographiés<br/>par de vrais voyageurs.
+            </p>
+
+            {/* CTAs — au centre */}
+            <div className="hero-cta" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexShrink: 0 }}>
               <a href="#explore" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
                 padding: '0.85rem 2rem', background: 'var(--gold)', color: 'var(--ink)',
                 fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 600,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
-                transition: 'filter 0.2s',
+                transition: 'filter 0.2s', whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.filter = 'brightness(1.1)'}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.filter = 'brightness(1)'}
@@ -389,7 +359,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
                 border: '1px solid rgba(255,255,255,0.4)', color: 'white',
                 fontFamily: 'var(--font-sans)', fontSize: '0.78rem', fontWeight: 500,
                 letterSpacing: '0.12em', textTransform: 'uppercase', textDecoration: 'none',
-                transition: 'border-color 0.2s, color 0.2s',
+                transition: 'border-color 0.2s, color 0.2s', whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold)'; (e.currentTarget as HTMLElement).style.color = 'var(--gold)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.4)'; (e.currentTarget as HTMLElement).style.color = 'white'; }}
@@ -398,7 +368,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               </a>
             </div>
 
-            {/* Stats */}
+            {/* Stats — à droite */}
             <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               {[
                 { n: `${trips.length}+`, l: 'Récits' },
@@ -406,8 +376,8 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
                 { n: '100%', l: 'Authentique' },
               ].map(({ n, l }) => (
                 <div key={l} style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--gold)', lineHeight: 1 }}>{n}</p>
-                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{l}</p>
+                  <p style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', color: 'var(--gold)', lineHeight: 1, margin: 0 }}>{n}</p>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 0 }}>{l}</p>
                 </div>
               ))}
             </div>
