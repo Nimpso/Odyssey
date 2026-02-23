@@ -112,7 +112,7 @@ body::after {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--sand);
-  z-index: 1000;   /* au-dessus du hero (z:20) et du canvas editor (z:50) */
+  z-index: 50;   /* en dessous des boutons utilisateur (z:100) */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -121,12 +121,28 @@ body::after {
 }
 .nav.scrolled { box-shadow: 0 2px 16px rgba(13,13,15,0.05); }
 
+/* Responsive navbar */
+@media (max-width: 768px) {
+  .nav {
+    padding: 0 1rem;
+    height: 56px;
+  }
+}
+
 /* ── Compensation nav fixe ─────────────────────────────────────────────────── */
 main { padding-top: 64px; }
+
+@media (max-width: 768px) {
+  main { padding-top: 56px; }
+}
 
 /* Pages plein écran (homepage hero, profil, create) — annule le padding */
 main:has(.page-fullscreen) { padding-top: 0; }
 .page-fullscreen { margin-top: -64px; }
+
+@media (max-width: 768px) {
+  .page-fullscreen { margin-top: -56px; }
+}
 
 /* ── Search ── */
 .search-wrap { position: relative; }

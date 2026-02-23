@@ -162,6 +162,56 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         .hero-cta   { animation: slideUp 1s cubic-bezier(0.22,1,0.36,1) 0.7s both; }
         .hero-scroll{ animation: pulse 2s ease-in-out 1.5s infinite; }
 
+        /* Hero section responsive */
+        .hero-section {
+          position: relative;
+          height: calc(100vh - 64px);
+          min-height: 600px;
+          overflow: hidden;
+          background: #0a0f0a;
+          margin-top: -64px;
+        }
+        @media (max-width: 768px) {
+          .hero-section {
+            height: calc(100vh - 56px);
+            margin-top: -56px;
+            min-height: 500px;
+          }
+        }
+
+        /* Contenu hero responsive */
+        .hero-content {
+          position: absolute;
+          inset: 0;
+          z-index: 20;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: clamp(2rem, 6vw, 6rem);
+          padding-top: calc(64px + 1.5rem);
+        }
+        @media (max-width: 768px) {
+          .hero-content {
+            padding-top: calc(56px + 1rem);
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+          }
+        }
+
+        /* Bouton profil responsive */
+        .hero-profile-btn {
+          position: fixed;
+          top: calc(64px + 1.25rem);
+          right: 1.5rem;
+          z-index: 100;
+        }
+        @media (max-width: 768px) {
+          .hero-profile-btn {
+            top: calc(56px + 0.75rem);
+            right: 1rem;
+          }
+        }
+
         .trip-card-cinema {
           position: relative;
           overflow: hidden;
@@ -235,7 +285,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         {/* ══════════════════════════════════════════════════════
             HERO — Full bleed cinematic
         ══════════════════════════════════════════════════════ */}
-        <section style={{ position: 'relative', height: 'calc(100vh - 64px)', minHeight: 600, overflow: 'hidden', background: '#0a0f0a', marginTop: '-64px' }}>
+        <section className="hero-section">
           {/* Slideshow */}
           {HERO_SLIDES.map((slide, i) => (
             <div key={slide.url} style={{
@@ -264,10 +314,10 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           <div style={{ position: 'absolute', inset: 0, zIndex: 5, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)', pointerEvents: 'none' }} />
 
           {/* Content — toujours au-dessus */}
-          <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(2rem,6vw,6rem)', paddingTop: 'calc(64px + 1.5rem)' }}>
+          <div className="hero-content">
 
             {/* ── Bouton profil / connexion — coin supérieur droit ── */}
-            <div style={{ position: 'fixed', top: 'calc(64px + 1.25rem)', right: '1.5rem', display: 'flex', alignItems: 'center', gap: 10, zIndex: 100 }}>
+            <div className="hero-profile-btn" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {currentUser && userProfile?.username ? (
                 <a href={`/profile/${userProfile.username}`}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.4rem 0.85rem 0.4rem 0.45rem', background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 24, textDecoration: 'none', backdropFilter: 'blur(8px)', transition: 'border-color 0.2s' }}
