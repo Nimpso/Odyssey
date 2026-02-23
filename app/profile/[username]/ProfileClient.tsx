@@ -178,7 +178,7 @@ export default function ProfileClient({ initialProfile, username }: { initialPro
         @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
       `}</style>
 
-      <main className="page-fullscreen" style={{ minHeight: '100vh', background: '#0d0d0d' }}>
+      <main style={{ minHeight: '100vh', background: '#0d0d0d' }}>
 
         {/* ── Bannière ── */}
         <div style={{ position: 'relative', height: 260, background: coverCss }}>

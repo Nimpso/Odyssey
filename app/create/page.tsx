@@ -1249,7 +1249,7 @@ export default function CreateTrip() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: globalCss }} />
-      <div className="page-fullscreen create-page" style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden' }}>
 
         {/* ── Top bar ── */}
         <div style={{ height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 50 }}>

@@ -107,12 +107,12 @@ body::after {
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 64px;
+  height: 56px;
   background: rgba(250,248,244,0.90);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--sand);
-  z-index: 1000; /* au-dessus de tout sauf grain overlay (z:9999) */
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -129,20 +129,8 @@ body::after {
   }
 }
 
-/* ── Compensation nav fixe ─────────────────────────────────────────────────── */
-main { padding-top: 64px; }
-
-@media (max-width: 768px) {
-  main { padding-top: 56px; }
-}
-
-/* Pages plein écran (homepage hero, profil, create) — annule le padding */
-main:has(.page-fullscreen) { padding-top: 0; }
-.page-fullscreen { margin-top: -64px; }
-
-@media (max-width: 768px) {
-  .page-fullscreen { margin-top: -56px; }
-}
+/* ── Pas de padding-top sur main — la NavBar glisse et ne bloque rien ───────── */
+/* La NavBar se cache au scroll vers le bas, réapparaît au scroll vers le haut */
 
 /* ── Search ── */
 .search-wrap { position: relative; }
@@ -351,7 +339,3 @@ main:has(.page-fullscreen) { padding-top: 0; }
   box-shadow: 0 0 0 4px var(--gold-pale);
 }
 .field::placeholder { color: #bbb; }
-
-/* ── Masque la NavBar globale sur la page création (qui a sa propre top bar) ── */
-body:has(.create-page) .nav { display: none; }
-body:has(.create-page) main { padding-top: 0; }
