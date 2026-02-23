@@ -370,7 +370,7 @@ const TEMPLATES: { id: string; label: string; icon: string; desc: string; color:
   },
 ];
 
-// ─── Template Modal ───────────────────────────────────────────────────────────
+// ─── Template Modal ─────────────────────────────────────────────────────────
 function TemplateModal({ onApply, onClose }: {
   onApply: (blocks: any[], canvasH: number) => void;
   onClose: () => void;
