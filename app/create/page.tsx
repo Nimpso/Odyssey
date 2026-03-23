@@ -221,18 +221,463 @@ const MODULAR_TEMPLATES: Record<string,{label:string;icon:string;modules:Module[
   cityguide: { label:'City Guide',     icon:'🌆', modules:CITYGUIDE_MODULES, accentColor:'#c9a84c', bgColor:'#f5f0e8' },
 };
 
-// ─── Templates adaptatifs ─────────────────────────────────────────────────────
-// generate(canvasH) : titre unique en haut, puis répétition de blocs "section"
-// jusqu'à remplir canvasH. Chaque section fait SECTION_H pixels.
+// ─── 8 Templates adaptatifs ───────────────────────────────────────────────────
+// Chaque template : titre unique en haut (titleH) + sections répétées (sectionH)
+// generate(canvasH) calcule automatiquement le nombre de sections.
 
 type ScalableTemplate = {
   id: string; label: string; icon: string; desc: string;
   accentColor: string; bgColor: string;
-  sectionH: number;   // hauteur d'une section répétable
-  titleH: number;     // hauteur de la partie titre (non répétée)
+  sectionH: number; titleH: number;
   generate: (canvasH: number) => any[];
-  preview: React.ReactNode;
 };
+
+const SCALABLE_TEMPLATES: ScalableTemplate[] = [
+
+  // ── 1. JOURNAL DE BORD ────────────────────────────────────────────
+  {
+    id: 'journal', label: 'Journal de bord', icon: '📓',
+    desc: 'Photo + récit alternés gauche/droite. Un jour par section.',
+    accentColor: '#c9a84c', bgColor: '#0d0d0d', titleH: 500, sectionH: 700,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:420, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:420, bg:'linear-gradient(to top,#0d0d0d 0%,rgba(0,0,0,0.5) 60%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c">Journal de voyage</p>'}, x:80,y:260,w:500,h:36, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.62,zIndex:5 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:4.5rem;line-height:0.9;color:white">Mon<br/><em>Voyage</em></div>'}, x:80,y:300,w:700,h:200, bg:'transparent',textColor:'#fff',font:'serif',fontSize:4.5,zIndex:5 });
+      const n = Math.max(1, Math.floor((canvasH - 500) / 700));
+      for (let i = 0; i < n; i++) {
+        const y = 500 + i*700; const ev = i%2===0;
+        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:700, bg:ev?'#111':'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:Bebas Neue,sans-serif;font-size:4rem;color:rgba(201,168,76,0.15);line-height:1">JOUR ${String(i+1).padStart(2,'0')}</div>`}, x:ev?60:640,y:y+30,w:500,h:80, bg:'transparent',textColor:'rgba(201,168,76,0.15)',font:'display',fontSize:4,zIndex:3 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?0:600,y:y+60,w:560,h:420, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px">Jour ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.8rem;line-height:1.2;color:white;margin-bottom:18px">Titre de l'étape</div><p style="font-family:DM Sans,system-ui;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.6)">Racontez cette journée — les routes, les paysages, les rencontres inattendues.</p>`}, x:ev?620:40,y:y+80,w:520,h:380, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'divider', data:{style:'line'}, x:ev?620:40,y:y+640,w:400,h:24, bg:'transparent',textColor:'rgba(201,168,76,0.3)',font:'sans',fontSize:1,zIndex:3 });
+      }
+      return b;
+    },
+  },
+
+  // ── 2. MAGAZINE NOIR ──────────────────────────────────────────────
+  {
+    id: 'noir', label: 'Magazine Noir', icon: '🖤',
+    desc: 'Éditorial sombre, typo monumentale, galeries pleine largeur.',
+    accentColor: '#ffffff', bgColor: '#111', titleH: 680, sectionH: 760,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:12rem;line-height:0.82;color:rgba(255,255,255,0.04)">OD</div>'}, x:-20,y:-20,w:700,h:380, bg:'transparent',textColor:'rgba(255,255,255,0.04)',font:'display',fontSize:12,zIndex:2 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.35)">VOL. 01 · ODYSSEY MAGAZINE</p>'}, x:80,y:60,w:600,h:32, bg:'transparent',textColor:'rgba(255,255,255,0.35)',font:'sans',fontSize:0.6,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:white;text-transform:uppercase">MON<br/>GRAND<br/>VOYAGE</div>'}, x:60,y:110,w:680,h:420, bg:'transparent',textColor:'#fff',font:'display',fontSize:8,zIndex:4 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:680,y:0,w:520,h:680, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'divider', data:{style:'line'}, x:60,y:560,w:500,h:24, bg:'transparent',textColor:'rgba(255,255,255,0.15)',font:'sans',fontSize:1,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.25rem;line-height:1.7;color:rgba(255,255,255,0.55)">Une ligne accroche poétique, précise, inoubliable.</p>'}, x:60,y:600,w:580,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.55)',font:'serif',fontSize:1.25,zIndex:4 });
+      const n = Math.max(1, Math.floor((canvasH - 680) / 760));
+      for (let i = 0; i < n; i++) {
+        const y = 680 + i*760;
+        b.push({ id:id(), type:'gallery', data:{images:[],layout:'grid'}, x:0,y,w:1200,h:320, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:DM Sans,system-ui;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:10px">Chapitre ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.2rem;line-height:1.15;color:white;margin-bottom:18px">Titre du chapitre</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.5)">Développez ici une partie de votre récit.</p>`}, x:80,y:y+350,w:500,h:320, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'quote', data:{text:'Une citation qui marque ce chapitre du voyage.',author:''}, x:620,y:y+380,w:520,h:200, bg:'rgba(255,255,255,0.03)',textColor:'rgba(255,255,255,0.7)',font:'serif',fontSize:1.3,zIndex:3 });
+      }
+      return b;
+    },
+  },
+
+  // ── 3. PANORAMA ───────────────────────────────────────────────────
+  {
+    id: 'panorama', label: 'Panorama', icon: '🌅',
+    desc: 'Fond clair, photos pleine largeur, texte centré épuré.',
+    accentColor: '#c9a84c', bgColor: '#faf8f4', titleH: 600, sectionH: 800,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#faf8f4',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:480, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:480, bg:'linear-gradient(to top,#faf8f4 0%,rgba(250,248,244,0.3) 40%,transparent 100%)',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c;text-align:center">Récit de voyage</p>'}, x:300,y:390,w:600,h:32, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.6,zIndex:5 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:3.8rem;line-height:1;color:#0d0d0d;text-align:center">Mon Voyage</div>'}, x:200,y:430,w:800,h:140, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:3.8,zIndex:5 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.15rem;color:#888;line-height:1.6;text-align:center">Un sous-titre poétique pour votre aventure…</p>'}, x:250,y:540,w:700,h:60, bg:'transparent',textColor:'#888',font:'serif',fontSize:1.15,zIndex:5 });
+      const n = Math.max(1, Math.floor((canvasH - 600) / 800));
+      for (let i = 0; i < n; i++) {
+        const y = 600 + i*800;
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y,w:1200,h:480, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;text-align:center;margin-bottom:12px">Étape ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.4rem;line-height:1.1;color:#0d0d0d;text-align:center;margin-bottom:20px">Titre du lieu</div><p style="font-family:DM Sans,system-ui;font-size:0.92rem;line-height:1.85;color:#555;text-align:center">Décrivez ce lieu, son ambiance, ce qui vous a touché.</p>`}, x:100,y:y+500,w:1000,h:280, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1,zIndex:3 });
+      }
+      return b;
+    },
+  },
+
+  // ── 4. CARNET NATURE ──────────────────────────────────────────────
+  {
+    id: 'nature', label: 'Carnet Nature', icon: '🌿',
+    desc: 'Fond forêt sombre, mosaïques, fiches terrain. Aventure brute.',
+    accentColor: '#4caf7d', bgColor: '#0f1a14', titleH: 560, sectionH: 720,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0f1a14',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:480, bg:'#162a1c',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:480, bg:'linear-gradient(to top,#0f1a14 0%,rgba(15,26,20,0.6) 50%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#4caf7d">Exploration · Nature</p>'}, x:80,y:300,w:500,h:32, bg:'transparent',textColor:'#4caf7d',font:'sans',fontSize:0.6,zIndex:5 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:4rem;line-height:0.92;color:white">Dans les<br/><em>profondeurs</em><br/>du monde</div>'}, x:80,y:340,w:700,h:220, bg:'transparent',textColor:'#fff',font:'serif',fontSize:4,zIndex:5 });
+      b.push({ id:id(), type:'divider', data:{style:'dots'}, x:80,y:500,w:200,h:40, bg:'transparent',textColor:'#4caf7d',font:'sans',fontSize:1,zIndex:4 });
+      const n = Math.max(1, Math.floor((canvasH - 560) / 720));
+      for (let i = 0; i < n; i++) {
+        const y = 560 + i*720;
+        b.push({ id:id(), type:'gallery', data:{images:[],layout:'mosaic'}, x:0,y,w:1200,h:360, bg:'#0a1410',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'spacer', data:{}, x:0,y:y+360,w:1200,h:360, bg:'#111d15',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'text', data:{html:`<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px"><div style="width:32px;height:32px;background:#4caf7d;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui;font-weight:700;color:#0d0d0d;font-size:0.85rem">${i+1}</div><p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#4caf7d">Observation ${i+1}</p></div><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.75rem;line-height:1.2;color:white;margin-bottom:16px">Titre de l'exploration</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.55)">Décrivez ce que vous avez observé, ressenti, découvert.</p>`}, x:80,y:y+390,w:540,h:300, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'text', data:{html:'<div style="padding:20px 24px"><p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4caf7d;margin-bottom:12px">🌡 Infos terrain</p><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(76,175,125,0.15);padding-bottom:6px"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Altitude</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:white;font-weight:600">— m</span></div><div style="display:flex;justify-content:space-between"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Difficulté</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:#4caf7d;font-weight:600">Modérée</span></div></div></div>'}, x:680,y:y+390,w:440,h:270, bg:'rgba(76,175,125,0.06)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      }
+      return b;
+    },
+  },
+
+  // ── 5. FILM STRIP ─────────────────────────────────────────────────
+  {
+    id: 'film', label: 'Film Strip', icon: '🎞️',
+    desc: 'Bande pellicule à gauche, contenu éditorial à droite. Style cinéma.',
+    accentColor: '#c9a84c', bgColor: '#0a0a0a', titleH: 560, sectionH: 660,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0a0a0a',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      // Bande pellicule gauche — fixe toute la hauteur
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:220,h:canvasH, bg:'#050505',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="display:flex;flex-direction:column;gap:28px;padding:12px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>'}, x:0,y:0,w:24,h:canvasH, bg:'transparent',textColor:'#111',font:'sans',fontSize:0.5,zIndex:3 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="display:flex;flex-direction:column;gap:28px;padding:12px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>'}, x:196,y:0,w:24,h:canvasH, bg:'transparent',textColor:'#111',font:'sans',fontSize:0.5,zIndex:3 });
+      // Titre unique
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:5.5rem;line-height:0.9;color:#c9a84c;text-transform:uppercase">MON<br/>VOYAGE</div>'}, x:260,y:60,w:680,h:280, bg:'transparent',textColor:'#c9a84c',font:'display',fontSize:5,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.3rem;color:rgba(255,255,255,0.7);line-height:1.6">Racontez votre aventure ici.</p>'}, x:260,y:360,w:500,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.7)',font:'serif',fontSize:1.3,zIndex:4 });
+      b.push({ id:id(), type:'divider', data:{style:'line'}, x:260,y:455,w:400,h:24, bg:'transparent',textColor:'rgba(201,168,76,0.4)',font:'sans',fontSize:1,zIndex:4 });
+      // Photos pellicule gauche — titre zone
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:40,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:246,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      // Sections répétables
+      const n = Math.max(1, Math.floor((canvasH - 560) / 660));
+      for (let i = 0; i < n; i++) {
+        const y = 560 + i*660;
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:y+20,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:y+226,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:240,y,w:820,h:400, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:4 });
+        b.push({ id:id(), type:'text', data:{html:`<span style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.8rem;letter-spacing:0.18em;text-transform:uppercase;color:#0d0d0d">Scène ${i+1}</span>`}, x:240,y:y+428,w:160,h:36, bg:'#c9a84c',textColor:'#0d0d0d',font:'sans',fontSize:0.9,zIndex:5 });
+        b.push({ id:id(), type:'text', data:{html:'<p style="line-height:1.8;color:rgba(255,255,255,0.75)">Décrivez ce moment — l\'ambiance, la lumière, les sons. Faites revivre la scène.</p>'}, x:240,y:y+490,w:600,h:140, bg:'transparent',textColor:'rgba(255,255,255,0.75)',font:'sans',fontSize:1,zIndex:4 });
+        b.push({ id:id(), type:'quote', data:{text:'Une citation qui illustre ce moment du voyage.',author:''}, x:240,y:y+445,w:720,h:180, bg:'rgba(201,168,76,0.06)',textColor:'#fff',font:'serif',fontSize:1.2,zIndex:4 });
+      }
+      return b;
+    },
+  },
+
+  // ── 6. MAGAZINE CLAIR ─────────────────────────────────────────────
+  {
+    id: 'magazine', label: 'Magazine Clair', icon: '📰',
+    desc: 'Fond parchemin, typo asymétrique, style éditorial luxe.',
+    accentColor: '#c9a84c', bgColor: '#f5f0e8', titleH: 620, sectionH: 740,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#f5f0e8',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:32rem;line-height:1;color:rgba(0,0,0,0.04);user-select:none">V</div>'}, x:-40,y:-80,w:700,h:700, bg:'transparent',textColor:'rgba(0,0,0,0.04)',font:'display',fontSize:32,zIndex:2 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#c9a84c">— Récit de voyage · Édition 2024</p>'}, x:80,y:60,w:600,h:36, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.65,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:#0d0d0d;text-transform:uppercase">MON<br/>VOYAGE<br/><span style="color:#c9a84c">INCROYABLE</span></div>'}, x:60,y:100,w:700,h:420, bg:'transparent',textColor:'#0d0d0d',font:'display',fontSize:8,zIndex:4 });
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:640,y:0,w:560,h:560, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'divider', data:{style:'line'}, x:60,y:540,w:400,h:24, bg:'transparent',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;line-height:1.65;color:#0d0d0d">Un voyage qui a tout changé. Des paysages à couper le souffle.</p>'}, x:60,y:578,w:760,h:100, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1.4,zIndex:4 });
+      const n = Math.max(1, Math.floor((canvasH - 620) / 740));
+      for (let i = 0; i < n; i++) {
+        const y = 620 + i*740; const ev = i%2===0;
+        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:740, bg:ev?'#f5f0e8':'#fff',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?60:620,y:y+40,w:440,h:380, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;border-top:2px solid #c9a84c;padding-top:8px;margin-bottom:14px">0${i+1} — Section</p><div style="font-family:Fraunces,serif;font-size:2rem;font-weight:300;line-height:1.2;color:#0d0d0d;margin-bottom:18px">Titre de la section</div><p style="line-height:1.85;color:#555;font-size:0.92rem">Racontez cette partie de votre voyage — les impressions, les détails qui font toute la différence.</p>`}, x:ev?560:60,y:y+60,w:500,h:360, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1,zIndex:3 });
+        if (i === n-1) b.push({ id:id(), type:'quote', data:{text:'Chaque lieu nous apprend quelque chose sur nous-mêmes.',author:''}, x:100,y:y+480,w:900,h:180, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1.8,zIndex:4 });
+      }
+      return b;
+    },
+  },
+
+  // ── 7. CARTE POSTALE ──────────────────────────────────────────────
+  {
+    id: 'postcard', label: 'Carte Postale', icon: '🏷️',
+    desc: 'Grande photo pleine page, titre monumental, ambiance minimaliste.',
+    accentColor: '#c9a84c', bgColor: '#0d0d0d', titleH: 700, sectionH: 680,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:Math.min(canvasH,700), bg:'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:Math.min(canvasH,700)-300,w:1200,h:300, bg:'linear-gradient(to top,rgba(0,0,0,0.92) 0%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:200, bg:'linear-gradient(to bottom,rgba(0,0,0,0.4),transparent)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Odyssey · Récit de voyage</p>'}, x:60,y:50,w:500,h:36, bg:'transparent',textColor:'rgba(255,255,255,0.6)',font:'sans',fontSize:0.65,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#0d0d0d;text-align:center">📍 PAYS</p>'}, x:980,y:40,w:170,h:44, bg:'#c9a84c',textColor:'#0d0d0d',font:'sans',fontSize:0.75,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:10rem;line-height:0.85;color:white;text-transform:uppercase;text-shadow:0 4px 40px rgba(0,0,0,0.5)">DESTI<br/>NATION</div>'}, x:50,y:340,w:900,h:320, bg:'transparent',textColor:'#fff',font:'display',fontSize:10,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;color:rgba(255,255,255,0.8);line-height:1.5">Une phrase qui capture l\'essence de votre voyage.</p>'}, x:60,y:580,w:700,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.8)',font:'serif',fontSize:1.4,zIndex:4 });
+      // Sections — fond sombre + photo + texte
+      const n = Math.max(1, Math.floor((canvasH - 700) / 680));
+      for (let i = 0; i < n; i++) {
+        const y = 700 + i*680;
+        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:680, bg:i%2===0?'#0d0d0d':'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:y+40,w:560,h:400, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px">Lieu ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:2rem;line-height:1.2;color:white;margin-bottom:18px">Nom de la destination</div><p style="font-family:DM Sans,system-ui;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.6)">Ce lieu vous a marqué pour une raison particulière. Décrivez-la.</p>`}, x:620,y:y+60,w:520,h:360, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
+      }
+      return b;
+    },
+  },
+
+  // ── 8. ROAD TRIP ──────────────────────────────────────────────────
+  {
+    id: 'roadtrip', label: 'Road Trip', icon: '🚗',
+    desc: 'Fond asphalte, km et étapes. Pour les carnets de route.',
+    accentColor: '#e8a020', bgColor: '#0d0d0d', titleH: 580, sectionH: 750,
+    generate: (canvasH) => {
+      const b: any[] = []; const id = uid;
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
+      // Ligne de route verticale centrale
+      b.push({ id:id(), type:'spacer', data:{}, x:598,y:0,w:4,h:canvasH, bg:'linear-gradient(to bottom,transparent,#e8a020 5%,#e8a020 95%,transparent)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+      // Titre
+      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:460, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:460, bg:'linear-gradient(to top,#0d0d0d 0%,rgba(0,0,0,0.5) 60%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:4 });
+      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#e8a020">Road Trip · Odyssey</p>'}, x:80,y:280,w:500,h:32, bg:'transparent',textColor:'#e8a020',font:'sans',fontSize:0.6,zIndex:6 });
+      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:5rem;line-height:0.88;color:white;text-transform:uppercase;letter-spacing:0.02em">La Route<br/><span style="color:#e8a020">Sans fin</span></div>'}, x:80,y:320,w:700,h:240, bg:'transparent',textColor:'#fff',font:'display',fontSize:5,zIndex:6 });
+      // Sections — chaque section = un jour de route
+      const n = Math.max(1, Math.floor((canvasH - 580) / 750));
+      for (let i = 0; i < n; i++) {
+        const y = 580 + i*750; const ev = i%2===0;
+        // Marqueur de route (point sur la ligne)
+        b.push({ id:id(), type:'text', data:{html:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><div style="width:28px;height:28px;background:#e8a020;border:3px solid #0d0d0d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui;font-weight:700;color:#0d0d0d;font-size:0.75rem">${i+1}</div></div>`}, x:572,y:y+20,w:56,h:56, bg:'transparent',textColor:'#fff',font:'sans',fontSize:1,zIndex:6 });
+        b.push({ id:id(), type:'spacer', data:{}, x:0,y:y+80,w:ev?560:640,h:600, bg:ev?'#111':'transparent',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
+        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?0:640,y:y+80,w:560,h:380, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:Bebas Neue,sans-serif;font-size:3.5rem;line-height:1;color:rgba(232,160,32,0.15);margin-bottom:8px">JOUR ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.8rem;line-height:1.2;color:white;margin-bottom:16px">Titre de l'étape</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.8;color:rgba(255,255,255,0.6)">Racontez la route, les haltes, les panoramas. Chaque kilomètre a son histoire.</p><div style="margin-top:16px;display:flex;gap:20px"><span style="font-family:DM Sans,system-ui;font-size:0.72rem;color:#e8a020">📍 Départ : —</span><span style="font-family:DM Sans,system-ui;font-size:0.72rem;color:#e8a020">🏁 — km</span></div>`}, x:ev?640:40,y:y+100,w:520,h:380, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
+      }
+      return b;
+    },
+  },
+];
+
+// ─── Template Modal — 2 étapes : choix + taille ───────────────────────────────
+const HEIGHT_OPTIONS = [1500, 2000, 2500, 3000, 3500, 4000, 5000];
+
+function TemplateModal({ onApply, onClose }: {
+  onApply: (blocks: any[], canvasH: number) => void;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [canvasH, setCanvasH] = useState(2500);
+  const [customH, setCustomH] = useState('');
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const tpl = SCALABLE_TEMPLATES.find(t => t.id === selected);
+  const sectionCount = tpl ? Math.max(1, Math.floor((canvasH - tpl.titleH) / tpl.sectionH)) : 0;
+  const finalH = tpl ? tpl.titleH + sectionCount * tpl.sectionH : canvasH;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      onClick={onClose}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)' }} />
+      <div style={{ position: 'relative', width: '94vw', maxWidth: 1100, background: '#111', border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.4rem', fontWeight: 300, color: 'white', marginBottom: 3 }}>
+              {selected ? `② Hauteur du canvas — ${tpl?.label}` : '① Choisir un template'}
+            </h2>
+            <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
+              {selected ? 'Titre unique en haut · sections répétées selon la hauteur choisie' : '8 templates adaptatifs · tout est modifiable après application'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {selected && (
+              <button type="button" onClick={() => setSelected(null)}
+                style={{ padding: '0.4rem 1rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#888', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3 }}>
+                ← Retour
+              </button>
+            )}
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: 22, lineHeight: 1, padding: '4px 8px' }}>×</button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+
+          {/* ── ÉTAPE 1 : grille 4×2 ── */}
+          {!selected && (
+            <div style={{ padding: '1.5rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.85rem' }}>
+              {SCALABLE_TEMPLATES.map(t => (
+                <div key={t.id}
+                  onMouseEnter={() => setHovered(t.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => { setSelected(t.id); setCanvasH(2500); setCustomH(''); }}
+                  style={{ cursor: 'pointer', border: `2px solid ${hovered === t.id ? t.accentColor : '#2a2a2a'}`, borderRadius: 5, overflow: 'hidden', transition: 'all 0.2s', transform: hovered === t.id ? 'translateY(-3px)' : 'none', boxShadow: hovered === t.id ? `0 8px 24px ${t.accentColor}22` : 'none' }}>
+                  {/* Miniature */}
+                  <div style={{ height: 120, background: t.bgColor, position: 'relative', overflow: 'hidden' }}>
+                    {/* Zone titre */}
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center', zIndex: 2 }}>
+                      <div style={{ width: 28, height: 2, background: t.accentColor, borderRadius: 1 }} />
+                      <div style={{ width: '80%', height: 10, background: t.id === 'panorama' || t.id === 'magazine' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
+                      <div style={{ width: '55%', height: 7, background: t.id === 'panorama' || t.id === 'magazine' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.3)', borderRadius: 1 }} />
+                    </div>
+                    {/* Zones sections */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '62%', display: 'flex', flexDirection: 'column', gap: 2, padding: '3px 0' }}>
+                      {[0,1,2].map(i => (
+                        <div key={i} style={{ flex: 1, display: 'flex', gap: 2, padding: '0 8px', opacity: 0.7 }}>
+                          {(t.id === 'journal' || t.id === 'postcard' || t.id === 'roadtrip') && <>
+                            <div style={{ flex: i%2===0?1:2, background: `${t.accentColor}25`, borderRadius: 1 }} />
+                            <div style={{ flex: i%2===0?2:1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
+                          </>}
+                          {(t.id === 'noir' || t.id === 'film') && <>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }} />
+                          </>}
+                          {t.id === 'panorama' && <div style={{ flex: 1, background: 'rgba(0,0,0,0.08)', borderRadius: 1 }} />}
+                          {t.id === 'magazine' && <>
+                            <div style={{ flex: 1, background: 'rgba(0,0,0,0.07)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: `${t.accentColor}20`, borderRadius: 1 }} />
+                          </>}
+                          {t.id === 'nature' && <>
+                            <div style={{ flex: 2, background: `${t.accentColor}20`, borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 1 }} />
+                          </>}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Hover overlay */}
+                    <div style={{ position: 'absolute', inset: 0, background: `${t.accentColor}20`, opacity: hovered === t.id ? 1 : 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
+                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.68rem', fontWeight: 700, color: '#0d0d0d', background: t.accentColor, padding: '0.35rem 0.9rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 2 }}>Choisir →</span>
+                    </div>
+                  </div>
+                  {/* Infos */}
+                  <div style={{ padding: '0.65rem 0.85rem', background: '#161616' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                      <span style={{ fontSize: 14 }}>{t.icon}</span>
+                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 600, color: '#e0e0e0' }}>{t.label}</span>
+                    </div>
+                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: '#555', lineHeight: 1.45 }}>{t.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── ÉTAPE 2 : sélecteur de taille ── */}
+          {selected && tpl && (
+            <div style={{ padding: '1.75rem 2rem' }}>
+
+              {/* Rappel du template */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1.75rem', padding: '0.9rem 1.25rem', background: '#1a1a1a', borderRadius: 5, border: `1px solid ${tpl.accentColor}33` }}>
+                <span style={{ fontSize: 22 }}>{tpl.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', fontWeight: 600, color: 'white', marginBottom: 2 }}>{tpl.label}</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.7rem', color: '#555' }}>{tpl.desc}</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#555', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Section</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', color: tpl.accentColor, fontWeight: 600 }}>{tpl.sectionH}px</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', alignItems: 'start' }}>
+                <div>
+                  {/* Boutons rapides */}
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.75rem' }}>Taille rapide</p>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                    {HEIGHT_OPTIONS.map(h => (
+                      <button key={h} type="button" onClick={() => { setCanvasH(h); setCustomH(''); }}
+                        style={{ padding: '0.5rem 1rem', border: '1.5px solid', borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s',
+                          borderColor: canvasH === h && !customH ? tpl.accentColor : '#2a2a2a',
+                          background: canvasH === h && !customH ? `${tpl.accentColor}18` : '#1a1a1a',
+                          color: canvasH === h && !customH ? tpl.accentColor : '#666' }}>
+                        {h >= 1000 ? `${h/1000}k` : h}px
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Slider */}
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Ajustement précis</p>
+                  <input type="range" min={1000} max={6000} step={100} value={canvasH}
+                    onChange={e => { setCanvasH(Number(e.target.value)); setCustomH(''); }}
+                    style={{ width: '100%', accentColor: tpl.accentColor, marginBottom: 4 }} />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', color: '#444' }}>1 000 px</span>
+                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: tpl.accentColor, fontWeight: 600 }}>{canvasH} px</span>
+                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', color: '#444' }}>6 000 px</span>
+                  </div>
+
+                  {/* Valeur personnalisée */}
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Valeur personnalisée (px)</p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input type="number" min={800} max={10000} step={100}
+                      placeholder="ex : 3800"
+                      value={customH}
+                      onChange={e => { setCustomH(e.target.value); if (Number(e.target.value) >= 800) setCanvasH(Number(e.target.value)); }}
+                      style={{ flex: 1, padding: '0.6rem 0.85rem', background: '#1a1a1a', border: `1px solid ${customH ? tpl.accentColor : '#2a2a2a'}`, color: '#e0e0e0', fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', outline: 'none', borderRadius: 3 }} />
+                    {customH && (
+                      <button type="button" onClick={() => { setCustomH(''); setCanvasH(2500); }}
+                        style={{ padding: '0.6rem 0.85rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', borderRadius: 3, fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem' }}>
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Schéma proportionnel */}
+                <div style={{ width: 72, flexShrink: 0 }}>
+                  <div style={{ width: 72, background: '#0d0d0d', border: `1px solid ${tpl.accentColor}44`, borderRadius: 3, overflow: 'hidden' }}>
+                    {/* Titre */}
+                    <div style={{ height: Math.max(18, Math.round(tpl.titleH / finalH * 260)), background: `${tpl.accentColor}22`, borderBottom: `1px solid ${tpl.accentColor}55`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ fontSize: 7, color: tpl.accentColor, fontFamily: "'DM Sans',system-ui", letterSpacing: '0.08em', textTransform: 'uppercase', writingMode: 'horizontal-tb' }}>TITRE</span>
+                    </div>
+                    {/* Sections */}
+                    {Array.from({ length: sectionCount }).map((_, i) => (
+                      <div key={i} style={{ height: Math.max(14, Math.round(tpl.sectionH / finalH * 260)), background: i%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 6, color: 'rgba(255,255,255,0.25)', fontFamily: "'DM Sans',system-ui" }}>§{i+1}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.52rem', color: '#555', textAlign: 'center', marginTop: 5 }}>{finalH}px</p>
+                </div>
+              </div>
+
+              {/* Résumé */}
+              <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 4, display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 10, height: 10, background: tpl.accentColor, borderRadius: 1 }} />
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>1 titre unique ({tpl.titleH}px)</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>
+                    <span style={{ color: tpl.accentColor, fontWeight: 700 }}>{sectionCount} section{sectionCount > 1 ? 's' : ''}</span> × {tpl.sectionH}px
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#666' }}>Hauteur finale : {finalH}px</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '1rem 2rem', borderTop: '1px solid #1e1e1e', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.68rem', color: '#444' }}>
+            {selected ? '⚠️ Appliquer remplace les blocs actuels' : `${SCALABLE_TEMPLATES.length} templates · taille au choix de 1 000 à 6 000 px`}
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={onClose}
+              style={{ padding: '0.45rem 1.25rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', borderRadius: 3 }}>
+              Annuler
+            </button>
+            {selected && tpl && (
+              <button type="button"
+                onClick={() => { onApply(tpl.generate(finalH), finalH); onClose(); }}
+                style={{ padding: '0.45rem 1.75rem', background: tpl.accentColor, color: '#0d0d0d', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3 }}>
+                Appliquer →
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const SCALABLE_TEMPLATES: ScalableTemplate[] = [
   // ── 1. JOURNAL DE BORD ─────────────────────────────────────────────
