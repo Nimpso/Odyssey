@@ -1078,7 +1078,7 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
       </div>
       {/* ── Collapse toggle ── */}
       <button type="button" onClick={onToggle} title="Réduire la sidebar"
-        style={{ padding:'0.5rem', borderTop:'1px solid #1e1e1e', background:'transparent', border:'none', borderTop:'1px solid #1e1e1e', cursor:'pointer', color:'#444', fontSize:'0.7rem', fontFamily:"'DM Sans',system-ui", letterSpacing:'0.08em', display:'flex', alignItems:'center', justifyContent:'center', gap:6, flexShrink:0, transition:'color 0.2s' }}
+        style={{ padding:'0.5rem', borderTop:'1px solid #1e1e1e', background:'transparent', border:'none', cursor:'pointer', color:'#444', fontSize:'0.7rem', fontFamily:"'DM Sans',system-ui", letterSpacing:'0.08em', display:'flex', alignItems:'center', justifyContent:'center', gap:6, flexShrink:0, transition:'color 0.2s' }}
         onMouseEnter={e => (e.currentTarget.style.color='#c9a84c')}
         onMouseLeave={e => (e.currentTarget.style.color='#444')}>
         ◀ Réduire
