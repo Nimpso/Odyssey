@@ -1087,7 +1087,7 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
   );
 }
 
-// ─── Steps indicator s ──────────────────────────────────────────────────────────
+// ─── Steps indicator ──────────────────────────────────────────────────────────
 function Steps({ current }: { current: number }) {
   const steps = ['Détails', 'Couverture', 'Mise en page', 'Publier'];
   return (
@@ -1117,6 +1117,10 @@ export default function CreateTrip() {
   const [loading, setLoading] = useState(false);
   const [published, setPublished] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  // Mode édition — trip existant chargé depuis ?edit=<id>
+  const [editTripId, setEditTripId] = useState<string | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   // Metadata
   const [meta, setMeta] = useState<Metadata>({ country:'',city:'',travelers:'1',duration:'',budget:'',category:'',season:'' });
@@ -1219,6 +1223,54 @@ export default function CreateTrip() {
   // Montage — anti-hydratation
   useEffect(() => { setIsMounted(true); }, []);
 
+  // ── Mode édition : charge le trip existant si ?edit=<id> dans l'URL ──
+  useEffect(() => {
+    if (!isMounted) return;
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('edit');
+    if (!id) return;
+
+    setEditLoading(true);
+    (async () => {
+      // Vérifier que l'utilisateur connecté est bien l'auteur
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { alert('Connectez-vous pour modifier un récit.'); setEditLoading(false); return; }
+
+      const { data: trip, error } = await supabase
+        .from('trips')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !trip) { alert('Récit introuvable.'); setEditLoading(false); return; }
+      if (trip.author_id !== user.id) { alert('Vous ne pouvez modifier que vos propres récits.'); window.location.href = '/'; return; }
+
+      // Pré-remplir tous les états
+      setEditTripId(id);
+      setTitle(trip.title || '');
+      setSubtitle(trip.subtitle || '');
+      setCoverUrl(trip.cover_image || '');
+      setMeta({
+        country:   trip.country   || '',
+        city:      trip.city      || '',
+        travelers: String(trip.travelers || 1),
+        duration:  String(trip.duration_days || ''),
+        budget:    trip.budget    || '',
+        category:  trip.category  || '',
+        season:    trip.season    || '',
+      });
+      if (trip.content && Array.isArray(trip.content)) {
+        setBlocks(trip.content as CanvasBlock[]);
+      }
+      if (trip.canvas_height) setCanvasH(trip.canvas_height);
+
+      // Sauter directement à l'étape canvas (step 2)
+      setStep(2);
+      setEditLoading(false);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMounted]);
+
   // ── Dynamic canvas scaling — adapte le canvas à la largeur disponible ──
   useEffect(() => {
     if (step !== 2) return;
@@ -1257,9 +1309,9 @@ export default function CreateTrip() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert('Connectez-vous pour publier.'); setLoading(false); return; }
-    const slug = title.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const { error } = await supabase.from('trips').insert({
-      title, subtitle, slug: `${slug}-${uid()}`, author_id: user.id,
+
+    const tripPayload = {
+      title, subtitle,
       cover_image: coverUrl || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200',
       country: meta.country, city: meta.city, duration_days: Number(meta.duration) || null,
       travelers: Number(meta.travelers) || 1, budget: meta.budget, category: meta.category, season: meta.season,
@@ -1268,9 +1320,42 @@ export default function CreateTrip() {
       canvas: true,
       canvas_height: canvasH,
       total_size_mb: 0,
-    });
+    };
+
+    let error: any = null;
+    let redirectSlug: string | null = null;
+
+    if (editTripId) {
+      // ── Mode édition : UPDATE en vérifiant que l'auteur est bien le user connecté ──
+      const { data: updated, error: updateErr } = await supabase
+        .from('trips')
+        .update(tripPayload)
+        .eq('id', editTripId)
+        .eq('author_id', user.id) // sécurité côté client (RLS Supabase doit aussi protéger)
+        .select('slug')
+        .single();
+      error = updateErr;
+      redirectSlug = updated?.slug ?? null;
+    } else {
+      // ── Mode création : INSERT ──
+      const slug = title.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const { data: inserted, error: insertErr } = await supabase
+        .from('trips')
+        .insert({ ...tripPayload, slug: `${slug}-${uid()}`, author_id: user.id })
+        .select('slug')
+        .single();
+      error = insertErr;
+      redirectSlug = inserted?.slug ?? null;
+    }
+
     if (error) { alert('Erreur : ' + error.message); }
-    else { setPublished(true); setTimeout(() => { window.location.href = '/'; }, 2000); }
+    else {
+      setPublished(true);
+      // Redirige vers le profil de l'utilisateur après publication/mise à jour
+      const { data: prof } = await supabase.from('profiles').select('username').eq('id', user.id).single();
+      const dest = prof?.username ? `/profile/${prof.username}` : (redirectSlug ? `/trip/${redirectSlug}` : '/');
+      setTimeout(() => { window.location.href = dest; }, 2000);
+    }
     setLoading(false);
   };
 
@@ -1283,6 +1368,17 @@ export default function CreateTrip() {
 
   // ── Guard anti-hydratation ──
   if (!isMounted) return null;
+
+  // ── Chargement du trip en mode édition ──
+  if (editLoading) return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}}` }} />
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div style={{ width: 36, height: 36, border: '3px solid #222', borderTopColor: '#c9a84c', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', color: '#555' }}>Chargement du récit…</p>
+      </div>
+    </>
+  );
 
   const globalCss = [
     "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500;600;700&display=swap');",
@@ -1351,7 +1447,8 @@ export default function CreateTrip() {
             </div>
             <div className="topbar-divider" style={{ width: 1, height: 20, background: '#2a2a2a' }} />
             <span className="topbar-title" style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
-              {title || 'Nouveau récit'}
+              {editTripId && <span style={{ color: 'rgba(201,168,76,0.7)', marginRight: 6 }}>✏️</span>}
+              {title || (editTripId ? 'Modifier le récit' : 'Nouveau récit')}
             </span>
           </div>
 
@@ -1379,7 +1476,7 @@ export default function CreateTrip() {
               <button type="button" onClick={publishTrip} disabled={loading || published}
                 style={{ padding: '0.45rem 1.5rem', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6,
                   background: published ? '#2d7a72' : '#c9a84c', color: '#0d0d0d' }}>
-                {loading ? <><div style={{width:14,height:14,border:'2px solid rgba(0,0,0,0.3)',borderTopColor:'#0d0d0d',borderRadius:'50%'}} className="spin"/>En cours…</> : published ? '✓ Publié !' : '🚀 Publier'}
+                {loading ? <><div style={{width:14,height:14,border:'2px solid rgba(0,0,0,0.3)',borderTopColor:'#0d0d0d',borderRadius:'50%'}} className="spin"/>En cours…</> : published ? '✓ Publié !' : editTripId ? '💾 Mettre à jour' : '🚀 Publier'}
               </button>
             )}
           </div>
@@ -1657,8 +1754,12 @@ export default function CreateTrip() {
           {step === 3 && (
             <div className="recap-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
               <div style={{ width: '100%', maxWidth: 640 }}>
-                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>Prêt à publier ?</h2>
-                <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>Vérifiez avant de partager votre récit.</p>
+                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>
+                  {editTripId ? 'Mettre à jour le récit ?' : 'Prêt à publier ?'}
+                </h2>
+                <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>
+                  {editTripId ? 'Vérifiez vos modifications avant de sauvegarder.' : 'Vérifiez avant de partager votre récit.'}
+                </p>
                 <div style={{ border: '1px solid #1e1e1e', background: '#111', overflow: 'hidden', borderRadius: 4, marginBottom: '1.5rem' }}>
                   {coverUrl && (
                     <div style={{ height: 200, overflow: 'hidden', position: 'relative' }}>
@@ -1696,7 +1797,9 @@ export default function CreateTrip() {
                 {published && (
                   <div style={{ marginTop: '1.25rem', padding: '1rem 1.25rem', background: 'rgba(45,122,114,0.15)', border: '1px solid #2d7a72', display: 'flex', gap: '0.75rem', alignItems: 'center', borderRadius: 3 }}>
                     <span style={{ fontSize: 22 }}>✅</span>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.92rem', color: '#2d7a72', fontWeight: 600 }}>Publié avec succès ! Redirection…</p>
+                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.92rem', color: '#2d7a72', fontWeight: 600 }}>
+                      {editTripId ? 'Mis à jour avec succès ! Redirection…' : 'Publié avec succès ! Redirection…'}
+                    </p>
                   </div>
                 )}
               </div>

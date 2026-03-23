@@ -25,7 +25,7 @@ export function AvatarDisplay({ avatarId, size = 40 }: { avatarId?: string; size
 }
 
 // ─── Carte voyage ─────────────────────────────────────────────────────────────
-function TripCard({ trip }: { trip: any }) {
+function TripCard({ trip, isOwn }: { trip: any; isOwn: boolean }) {
   const supabase = createClientComponentClient();
   const [likesCount, setLikesCount] = useState(0);
 
@@ -43,49 +43,75 @@ function TripCard({ trip }: { trip: any }) {
   const bgCss = COVERS.find(c => c.id === trip.cover_gradient)?.css ?? 'linear-gradient(135deg,#1a1a2e,#1e3a2f)';
   
   return (
-    <a href={`/trip/${trip.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div
-        style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: 6, overflow: 'hidden', transition: 'all 0.25s', cursor: 'pointer' }}
-        onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 20px 50px rgba(0,0,0,0.55)'; el.style.borderColor = '#2a2a2a'; }}
-        onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; el.style.borderColor = '#1e1e1e'; }}
-      >
-        <div style={{ height: 190, position: 'relative', overflow: 'hidden', background: bgCss }}>
-          {trip.cover_image && (
-            <img src={trip.cover_image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-          )}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 55%)' }} />
+    <div style={{ position: 'relative' }}>
+      <a href={`/trip/${trip.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
+        <div
+          style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: 6, overflow: 'hidden', transition: 'all 0.25s', cursor: 'pointer' }}
+          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-4px)'; el.style.boxShadow = '0 20px 50px rgba(0,0,0,0.55)'; el.style.borderColor = '#2a2a2a'; }}
+          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = ''; el.style.borderColor = '#1e1e1e'; }}
+        >
+          <div style={{ height: 190, position: 'relative', overflow: 'hidden', background: bgCss }}>
+            {trip.cover_image && (
+              <img src={trip.cover_image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            )}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 55%)' }} />
 
-          {trip.category && (
-            <div style={{ position: 'absolute', top: 10, left: 10, padding: '3px 10px', background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, backdropFilter: 'blur(6px)' }}>
-              <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: '#c9a84c' }}>{trip.category}</span>
+            {trip.category && (
+              <div style={{ position: 'absolute', top: 10, left: 10, padding: '3px 10px', background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, backdropFilter: 'blur(6px)' }}>
+                <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', color: '#c9a84c' }}>{trip.category}</span>
+              </div>
+            )}
+
+            <div style={{ position: 'absolute', top: 8, right: 8 }}>
+              <LikeButton tripId={trip.id} initialCount={likesCount} size="sm" />
             </div>
-          )}
 
-          <div style={{ position: 'absolute', top: 8, right: 8 }}>
-            <LikeButton tripId={trip.id} initialCount={likesCount} size="sm" />
+            <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}>
+              <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.05rem', fontWeight: 300, color: 'white', lineHeight: 1.3, textShadow: '0 1px 10px rgba(0,0,0,0.6)' }}>
+                {trip.title}
+              </h3>
+            </div>
           </div>
 
-          <div style={{ position: 'absolute', bottom: 12, left: 12, right: 12 }}>
-            <h3 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.05rem', fontWeight: 300, color: 'white', lineHeight: 1.3, textShadow: '0 1px 10px rgba(0,0,0,0.6)' }}>
-              {trip.title}
-            </h3>
+          <div style={{ padding: '0.7rem 1rem', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {(trip.city || trip.country) && (
+              <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
+                📍 {[trip.city, trip.country].filter(Boolean).join(', ')}
+              </span>
+            )}
+            {trip.duration && (
+              <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
+                ⏱ {trip.duration}
+              </span>
+            )}
           </div>
         </div>
+      </a>
 
-        <div style={{ padding: '0.7rem 1rem', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {(trip.city || trip.country) && (
-            <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
-              📍 {[trip.city, trip.country].filter(Boolean).join(', ')}
-            </span>
-          )}
-          {trip.duration && (
-            <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
-              ⏱ {trip.duration}
-            </span>
-          )}
-        </div>
-      </div>
-    </a>
+      {/* Bouton modifier — visible uniquement pour le propriétaire */}
+      {isOwn && (
+        <a
+          href={`/create?edit=${trip.id}`}
+          onClick={e => e.stopPropagation()}
+          style={{
+            position: 'absolute', bottom: 52, right: 10,
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            padding: '0.35rem 0.85rem',
+            background: 'rgba(13,13,13,0.85)', border: '1px solid rgba(201,168,76,0.4)',
+            backdropFilter: 'blur(8px)',
+            color: '#c9a84c', fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem',
+            fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+            textDecoration: 'none', borderRadius: 3,
+            transition: 'background 0.2s, border-color 0.2s',
+            zIndex: 5,
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(201,168,76,0.15)'; (e.currentTarget as HTMLElement).style.borderColor = '#c9a84c'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(13,13,13,0.85)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(201,168,76,0.4)'; }}
+        >
+          ✏️ Modifier
+        </a>
+      )}
+    </div>
   );
 }
 
@@ -276,7 +302,7 @@ export default function ProfileClient({ initialProfile, username }: { initialPro
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '1.25rem', paddingBottom: '5rem', animation: 'up 0.5s ease 0.12s both' }}>
               {trips.map(trip => (
-                <TripCard key={trip.id} trip={trip} />
+                <TripCard key={trip.id} trip={trip} isOwn={isOwn} />
               ))}
             </div>
           )}
