@@ -221,253 +221,373 @@ const MODULAR_TEMPLATES: Record<string,{label:string;icon:string;modules:Module[
   cityguide: { label:'City Guide',     icon:'🌆', modules:CITYGUIDE_MODULES, accentColor:'#c9a84c', bgColor:'#f5f0e8' },
 };
 
-// ─── Templates ────────────────────────────────────────────────────────────────
-// Each template returns a fresh array of CanvasBlock with new uids
-const TEMPLATES: { id: string; label: string; icon: string; desc: string; color: string; canvasH: number; generate: () => any[] }[] = [
+// ─── Templates adaptatifs ─────────────────────────────────────────────────────
+// generate(canvasH) : titre unique en haut, puis répétition de blocs "section"
+// jusqu'à remplir canvasH. Chaque section fait SECTION_H pixels.
+
+type ScalableTemplate = {
+  id: string; label: string; icon: string; desc: string;
+  accentColor: string; bgColor: string;
+  sectionH: number;   // hauteur d'une section répétable
+  titleH: number;     // hauteur de la partie titre (non répétée)
+  generate: (canvasH: number) => any[];
+  preview: React.ReactNode;
+};
+
+const SCALABLE_TEMPLATES: ScalableTemplate[] = [
+  // ── 1. JOURNAL DE BORD ─────────────────────────────────────────────
   {
-    id: 'film',
-    label: 'Film Strip',
-    icon: '🎞️',
-    desc: 'Bande pellicule verticale + grande photo panoramique',
-    color: '#1a0a0a',
-    canvasH: 1800,
-    generate: () => {
+    id: 'journal',
+    label: 'Journal de bord',
+    icon: '📓',
+    desc: 'Chaque section = un jour. Photo + récit côte à côte.',
+    accentColor: '#c9a84c',
+    bgColor: '#0d0d0d',
+    titleH: 500,
+    sectionH: 700,
+    preview: null,
+    generate: (canvasH) => {
+      const blocks: any[] = [];
       const id = uid;
-      return [
-        // Dark background
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 1800, font: 'sans', bg: '#111', textColor: '#fff', fontSize: 1, zIndex: 1 },
-        // Film strip bar (left)
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 220, h: 1800, font: 'sans', bg: '#0a0a0a', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        // Film perforations top
-        { id: id(), type: 'text', data: { html: '<div style="display:flex;flex-direction:column;gap:32px;padding:16px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>' }, x: 0, y: 0, w: 24, h: 1800, font: 'sans', bg: 'transparent', textColor: '#1a1a1a', fontSize: 0.5, zIndex: 3 },
-        { id: id(), type: 'text', data: { html: '<div style="display:flex;flex-direction:column;gap:32px;padding:16px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>' }, x: 196, y: 0, w: 24, h: 1800, font: 'sans', bg: 'transparent', textColor: '#1a1a1a', fontSize: 0.5, zIndex: 3 },
-        // Film photos (left strip)
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 40, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 268, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 496, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 724, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 952, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        // Main title
-        { id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:5.5rem;line-height:0.9;color:#c9a84c;text-transform:uppercase;letter-spacing:0.02em">MON<br/>VOYAGE</div>' }, x: 260, y: 80, w: 680, h: 280, font: 'display', bg: 'transparent', textColor: '#c9a84c', fontSize: 5, zIndex: 4 },
-        // Subtitle italic
-        { id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.3rem;color:rgba(255,255,255,0.7);line-height:1.6">Racontez votre aventure ici.<br/>Remplacez ce texte par votre histoire.</p>' }, x: 260, y: 370, w: 500, h: 120, font: 'serif', bg: 'transparent', textColor: 'rgba(255,255,255,0.7)', fontSize: 1.2, zIndex: 4 },
-        // Big landscape photo
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 240, y: 520, w: 820, h: 480, font: 'sans', bg: '#1a1a1a', textColor: '#fff', fontSize: 1, zIndex: 4 },
-        // Season badge
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.9rem;letter-spacing:0.18em;text-transform:uppercase;color:#0d0d0d">Été 2024</p>' }, x: 260, y: 1040, w: 180, h: 44, font: 'sans', bg: '#c9a84c', textColor: '#0d0d0d', fontSize: 0.9, zIndex: 5 },
-        // Body text
-        { id: id(), type: 'text', data: { html: '<p style="line-height:1.8;color:rgba(255,255,255,0.75)">Votre récit de voyage commence ici. Décrivez vos expériences, les lieux que vous avez visités, les rencontres inoubliables et les moments qui ont marqué votre aventure.</p>' }, x: 260, y: 1110, w: 600, h: 180, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.75)', fontSize: 1, zIndex: 4 },
-        // Quote block
-        { id: id(), type: 'quote', data: { text: 'Le voyage est la seule chose que l\'on achète qui nous rend plus riches.', author: '— Anonyme' }, x: 240, y: 1340, w: 720, h: 200, font: 'serif', bg: 'rgba(201,168,76,0.08)', textColor: '#fff', fontSize: 1.3, zIndex: 4 },
-        // Second landscape
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1200, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1428, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 26, y: 1560, w: 168, h: 200, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 },
-      ];
+      // ── Titre (unique) ──
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: canvasH, font: 'sans', bg: '#0d0d0d', textColor: '#fff', fontSize: 1, zIndex: 1 });
+      blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 420, font: 'sans', bg: '#1a1a1a', textColor: '#fff', fontSize: 1, zIndex: 2 });
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 420, font: 'sans', bg: 'linear-gradient(to top,#0d0d0d 0%,rgba(0,0,0,0.5) 60%,transparent 100%)', textColor: '#fff', fontSize: 1, zIndex: 3 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c">Journal de voyage</p>' }, x: 80, y: 260, w: 500, h: 36, font: 'sans', bg: 'transparent', textColor: '#c9a84c', fontSize: 0.62, zIndex: 5 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<div style="font-family:Fraunces,serif;font-weight:300;font-size:4.5rem;line-height:0.9;color:white">Mon<br/><em>Voyage</em></div>' }, x: 80, y: 300, w: 700, h: 200, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 4.5, zIndex: 5 });
+      // ── Sections répétables ──
+      const sections = Math.max(1, Math.floor((canvasH - 500) / 700));
+      for (let i = 0; i < sections; i++) {
+        const y = 500 + i * 700;
+        const isEven = i % 2 === 0;
+        blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y, w: 1200, h: 700, font: 'sans', bg: isEven ? '#111' : '#0d0d0d', textColor: '#fff', fontSize: 1, zIndex: 2 });
+        blocks.push({ id: id(), type: 'text', data: { html: `<div style="font-family:Bebas Neue,sans-serif;font-size:4rem;color:rgba(201,168,76,0.15);line-height:1">JOUR ${String(i+1).padStart(2,'0')}</div>` }, x: isEven ? 60 : 640, y: y + 30, w: 500, h: 80, font: 'display', bg: 'transparent', textColor: 'rgba(201,168,76,0.15)', fontSize: 4, zIndex: 3 });
+        blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: isEven ? 0 : 600, y: y + 60, w: 560, h: 420, font: 'sans', bg: '#1a1a1a', textColor: '#fff', fontSize: 1, zIndex: 3 });
+        blocks.push({ id: id(), type: 'text', data: { html: `<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px">Jour ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.8rem;line-height:1.2;color:white;margin-bottom:18px">Titre de l'étape</div><p style="font-family:DM Sans,system-ui;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.6)">Racontez cette journée — les routes, les paysages, les rencontres inattendues et les émotions du moment.</p>` }, x: isEven ? 620 : 40, y: y + 80, w: 520, h: 380, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 1, zIndex: 3 });
+        blocks.push({ id: id(), type: 'divider', data: { style: 'line' }, x: isEven ? 620 : 40, y: y + 640, w: 400, h: 24, font: 'sans', bg: 'transparent', textColor: 'rgba(201,168,76,0.3)', fontSize: 1, zIndex: 3 });
+      }
+      return blocks;
     },
   },
+
+  // ── 2. MAGAZINE NOIR ───────────────────────────────────────────────
   {
-    id: 'magazine',
-    label: 'Magazine',
-    icon: '📰',
-    desc: 'Typographie asymétrique, textes croisés, style éditorial',
-    color: '#f5f0e8',
-    canvasH: 2000,
-    generate: () => {
+    id: 'noir',
+    label: 'Magazine Noir',
+    icon: '🖤',
+    desc: 'Éditorial sombre, typo contrastée, galeries pleine largeur.',
+    accentColor: '#ffffff',
+    bgColor: '#111',
+    titleH: 680,
+    sectionH: 760,
+    preview: null,
+    generate: (canvasH) => {
+      const blocks: any[] = [];
       const id = uid;
-      return [
-        // Cream background
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 2000, font: 'sans', bg: '#f5f0e8', textColor: '#0d0d0d', fontSize: 1, zIndex: 1 },
-        // Giant background letter
-        { id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:32rem;line-height:1;color:rgba(0,0,0,0.04);user-select:none">V</div>' }, x: -40, y: -80, w: 700, h: 700, font: 'display', bg: 'transparent', textColor: 'rgba(0,0,0,0.04)', fontSize: 32, zIndex: 2 },
-        // Top eyebrow
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#c9a84c">— Récit de voyage · Édition 2024</p>' }, x: 80, y: 60, w: 600, h: 36, font: 'sans', bg: 'transparent', textColor: '#c9a84c', fontSize: 0.65, zIndex: 4 },
-        // Huge asymmetric title
-        { id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:#0d0d0d;text-transform:uppercase;letter-spacing:0.01em">MON<br/>VOYAGE<br/><span style="color:#c9a84c">INCROYABLE</span></div>' }, x: 60, y: 100, w: 700, h: 420, font: 'display', bg: 'transparent', textColor: '#0d0d0d', fontSize: 8, zIndex: 4 },
-        // Full bleed hero photo (right side)
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 640, y: 0, w: 560, h: 560, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 3 },
-        // Diagonal accent line
-        { id: id(), type: 'divider', data: { style: 'line' }, x: 60, y: 540, w: 400, h: 24, font: 'sans', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1, zIndex: 4 },
-        // Lead paragraph — wide
-        { id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;line-height:1.65;color:#0d0d0d">Un voyage qui a tout changé. Des paysages à couper le souffle, des rencontres qui marquent une vie, et des souvenirs que l\'on garde pour toujours.</p>' }, x: 60, y: 574, w: 760, h: 180, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1.4, zIndex: 4 },
-        // Small photo left
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 60, y: 790, w: 360, h: 440, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 4 },
-        // Column text right of small photo
-        { id: id(), type: 'text', data: { html: '<p style="line-height:1.85;color:#333;font-size:0.95rem">Racontez ici votre première impression. Comment tout a commencé, l\'arrivée, les premières heures dans ce pays inconnu. Qu\'est-ce qui vous a frappé en premier ?<br/><br/>Continuez votre récit en décrivant les lieux, les odeurs, les sons. Faites vivre votre aventure à travers les mots.</p>' }, x: 460, y: 790, w: 420, h: 300, font: 'sans', bg: 'transparent', textColor: '#333', fontSize: 1, zIndex: 4 },
-        // Section label rotated feel
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;border-top:2px solid #c9a84c;padding-top:8px">02 — Découvertes</p>' }, x: 460, y: 1110, w: 300, h: 40, font: 'sans', bg: 'transparent', textColor: '#c9a84c', fontSize: 0.62, zIndex: 4 },
-        // Full width photo strip
-        { id: id(), type: 'gallery', data: { images: [], layout: 'grid' }, x: 0, y: 1280, w: 1200, h: 320, font: 'sans', bg: '#eee', textColor: '#fff', fontSize: 1, zIndex: 4 },
-        // Big quote
-        { id: id(), type: 'quote', data: { text: 'Chaque lieu nous apprend quelque chose sur nous-mêmes.', author: '' }, x: 100, y: 1650, w: 900, h: 200, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 2, zIndex: 4 },
-        // Bottom section — 2 col
-        { id: id(), type: 'text', data: { html: '<p style="line-height:1.85;color:#333">Partagez vos impressions finales. Ce voyage valait-il le détour ? Que recommanderiez-vous à quelqu\'un qui veut vivre la même expérience ?</p>' }, x: 60, y: 1880, w: 500, h: 150, font: 'sans', bg: 'transparent', textColor: '#333', fontSize: 1, zIndex: 4 },
-        { id: id(), type: 'text', data: { html: '<p style="font-family:Bebas Neue,sans-serif;font-size:5rem;line-height:1;color:rgba(0,0,0,0.06)">FIN</p>' }, x: 700, y: 1860, w: 400, h: 150, font: 'display', bg: 'transparent', textColor: 'rgba(0,0,0,0.06)', fontSize: 5, zIndex: 3 },
-      ];
+      // ── Titre (unique) ──
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: canvasH, font: 'sans', bg: '#111', textColor: '#fff', fontSize: 1, zIndex: 1 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:12rem;line-height:0.82;color:rgba(255,255,255,0.04);letter-spacing:0.01em;user-select:none">OD</div>' }, x: -20, y: -20, w: 700, h: 380, font: 'display', bg: 'transparent', textColor: 'rgba(255,255,255,0.04)', fontSize: 12, zIndex: 2 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.35)">VOL. 01 · ODYSSEY MAGAZINE</p>' }, x: 80, y: 60, w: 600, h: 32, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.35)', fontSize: 0.6, zIndex: 4 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:white;text-transform:uppercase;letter-spacing:0.01em">MON<br/>GRAND<br/>VOYAGE</div>' }, x: 60, y: 110, w: 680, h: 420, font: 'display', bg: 'transparent', textColor: '#fff', fontSize: 8, zIndex: 4 });
+      blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: 680, y: 0, w: 520, h: 680, font: 'sans', bg: '#222', textColor: '#fff', fontSize: 1, zIndex: 3 });
+      blocks.push({ id: id(), type: 'divider', data: { style: 'line' }, x: 60, y: 560, w: 500, h: 24, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.15)', fontSize: 1, zIndex: 4 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.25rem;line-height:1.7;color:rgba(255,255,255,0.55)">Une ligne accroche qui résume l\'esprit du voyage — poétique, précise, inoubliable.</p>' }, x: 60, y: 600, w: 580, h: 80, font: 'serif', bg: 'transparent', textColor: 'rgba(255,255,255,0.55)', fontSize: 1.25, zIndex: 4 });
+      // ── Sections répétables ──
+      const sections = Math.max(1, Math.floor((canvasH - 680) / 760));
+      for (let i = 0; i < sections; i++) {
+        const y = 680 + i * 760;
+        blocks.push({ id: id(), type: 'gallery', data: { images: [], layout: 'grid' }, x: 0, y, w: 1200, h: 320, font: 'sans', bg: '#0d0d0d', textColor: '#fff', fontSize: 1, zIndex: 2 });
+        blocks.push({ id: id(), type: 'text', data: { html: `<div style="font-family:Bebas Neue,sans-serif;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:10px">Chapitre ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.2rem;line-height:1.15;color:white;margin-bottom:18px">Titre du chapitre</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.5)">Développez ici une partie de votre récit. Chaque chapitre peut couvrir un lieu, une journée ou une émotion particulière.</p>` }, x: 80, y: y + 350, w: 500, h: 320, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 1, zIndex: 3 });
+        blocks.push({ id: id(), type: 'quote', data: { text: 'Une citation qui marque ce chapitre du voyage.', author: '' }, x: 620, y: y + 380, w: 520, h: 200, font: 'serif', bg: 'rgba(255,255,255,0.03)', textColor: 'rgba(255,255,255,0.7)', fontSize: 1.3, zIndex: 3 });
+      }
+      return blocks;
     },
   },
+
+  // ── 3. CARTE POSTALE PANORAMA ──────────────────────────────────────
   {
-    id: 'bali',
-    label: 'Mosaïque',
+    id: 'panorama',
+    label: 'Panorama',
+    icon: '🌅',
+    desc: 'Grandes photos pleine largeur alternées avec texte centré.',
+    accentColor: '#c9a84c',
+    bgColor: '#faf8f4',
+    titleH: 600,
+    sectionH: 800,
+    preview: null,
+    generate: (canvasH) => {
+      const blocks: any[] = [];
+      const id = uid;
+      // ── Titre (unique) ──
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: canvasH, font: 'sans', bg: '#faf8f4', textColor: '#0d0d0d', fontSize: 1, zIndex: 1 });
+      blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 480, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 2 });
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 480, font: 'sans', bg: 'linear-gradient(to top,#faf8f4 0%,rgba(250,248,244,0.3) 40%,transparent 100%)', textColor: '#0d0d0d', fontSize: 1, zIndex: 3 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c;text-align:center">Récit de voyage</p>' }, x: 300, y: 390, w: 600, h: 32, font: 'sans', bg: 'transparent', textColor: '#c9a84c', fontSize: 0.6, zIndex: 5 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<div style="font-family:Fraunces,serif;font-weight:300;font-size:3.8rem;line-height:1;color:#0d0d0d;text-align:center">Mon Voyage</div>' }, x: 200, y: 430, w: 800, h: 140, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 3.8, zIndex: 5 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.15rem;color:#888;line-height:1.6;text-align:center">Un sous-titre poétique pour votre aventure…</p>' }, x: 250, y: 540, w: 700, h: 60, font: 'serif', bg: 'transparent', textColor: '#888', fontSize: 1.15, zIndex: 5 });
+      // ── Sections répétables ──
+      const sections = Math.max(1, Math.floor((canvasH - 600) / 800));
+      for (let i = 0; i < sections; i++) {
+        const y = 600 + i * 800;
+        blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y, w: 1200, h: 480, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 2 });
+        blocks.push({ id: id(), type: 'text', data: { html: `<p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;text-align:center;margin-bottom:12px">Étape ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.4rem;line-height:1.1;color:#0d0d0d;text-align:center;margin-bottom:20px">Titre du lieu</div><p style="font-family:DM Sans,system-ui;font-size:0.92rem;line-height:1.85;color:#555;max-width:600px;margin:0 auto;text-align:center">Décrivez ce lieu, son ambiance, ce qui vous a touché. Chaque étape raconte une partie de votre histoire.</p>` }, x: 100, y: y + 500, w: 1000, h: 280, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1, zIndex: 3 });
+      }
+      return blocks;
+    },
+  },
+
+  // ── 4. CARNET NATURE ──────────────────────────────────────────────
+  {
+    id: 'nature',
+    label: 'Carnet Nature',
     icon: '🌿',
-    desc: 'Sections alternées image/texte, ambiance nature et luxe',
-    color: '#1e3a2f',
-    canvasH: 2200,
-    generate: () => {
+    desc: 'Fond sombre forêt, galeries mosaïque, ambiance aventure.',
+    accentColor: '#4caf7d',
+    bgColor: '#0f1a14',
+    titleH: 560,
+    sectionH: 720,
+    preview: null,
+    generate: (canvasH) => {
+      const blocks: any[] = [];
       const id = uid;
-      return [
-        // Section 1 — Full hero
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 600, font: 'sans', bg: '#1e3a2f', textColor: '#fff', fontSize: 1, zIndex: 1 },
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 600, font: 'sans', bg: 'linear-gradient(to top,rgba(0,0,0,0.7),transparent)', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        { id: id(), type: 'text', data: { html: '<div style="font-family:Fraunces,serif;font-weight:300;font-size:3.5rem;color:white;line-height:1.1">Un paradis<br/><em>retrouvé</em></div>' }, x: 80, y: 400, w: 600, h: 180, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 3.5, zIndex: 3 },
-        // Section 2 — text left, photo right
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 600, w: 1200, h: 400, font: 'sans', bg: '#f5f0e8', textColor: '#0d0d0d', fontSize: 1, zIndex: 1 },
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:16px">01 — Arrivée</p><div style="font-family:Fraunces,serif;font-size:2.2rem;font-weight:300;line-height:1.2;color:#0d0d0d;margin-bottom:20px">Le premier<br/>regard</div><p style="line-height:1.8;color:#555;font-size:0.95rem">Décrivez votre arrivée, vos premières impressions, ce sentiment unique de débarquer dans un pays inconnu.</p>' }, x: 80, y: 640, w: 480, h: 320, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1, zIndex: 2 },
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 640, y: 600, w: 560, h: 400, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        // Section 3 — full dark + quote
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 1000, w: 1200, h: 380, font: 'sans', bg: '#1e3a2f', textColor: '#fff', fontSize: 1, zIndex: 1 },
-        { id: id(), type: 'quote', data: { text: 'Certains endroits vous changent. Pas juste pour quelques jours — pour toujours.', author: '' }, x: 120, y: 1040, w: 960, h: 200, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 1.8, zIndex: 2 },
-        { id: id(), type: 'divider', data: { style: 'dots' }, x: 120, y: 1290, w: 200, h: 40, font: 'sans', bg: 'transparent', textColor: '#c9a84c', fontSize: 1, zIndex: 2 },
-        // Section 4 — photo left, text right
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 1380, w: 560, h: 420, font: 'sans', bg: '#ddd', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        { id: id(), type: 'spacer', data: {}, x: 560, y: 1380, w: 640, h: 420, font: 'sans', bg: '#f0ede8', textColor: '#0d0d0d', fontSize: 1, zIndex: 1 },
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:16px">02 — Découverte</p><div style="font-family:Fraunces,serif;font-size:2rem;font-weight:300;line-height:1.2;color:#0d0d0d;margin-bottom:20px">Les trésors<br/>cachés</div><p style="line-height:1.8;color:#555;font-size:0.92rem">Parlez des endroits inattendus, des ruelles oubliées, des restaurants sans menu, des couchers de soleil volés au détour d\'un chemin.</p>' }, x: 620, y: 1420, w: 480, h: 340, font: 'serif', bg: 'transparent', textColor: '#0d0d0d', fontSize: 1, zIndex: 2 },
-        // Section 5 — mosaic gallery
-        { id: id(), type: 'gallery', data: { images: [], layout: 'mosaic' }, x: 0, y: 1800, w: 1200, h: 400, font: 'sans', bg: '#111', textColor: '#fff', fontSize: 1, zIndex: 2 },
-      ];
-    },
-  },
-  {
-    id: 'postcard',
-    label: 'Carte Postale',
-    icon: '🏷️',
-    desc: 'Grande photo pleine page avec titre monumental',
-    color: '#0d0d0d',
-    canvasH: 1400,
-    generate: () => {
-      const id = uid;
-      return [
-        // Full bleed photo
-        { id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 1400, font: 'sans', bg: '#111', textColor: '#fff', fontSize: 1, zIndex: 1 },
-        // Gradient overlay bottom
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 600, w: 1200, h: 800, font: 'sans', bg: 'linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.4) 50%,transparent 100%)', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        // Gradient overlay top subtle
-        { id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 300, font: 'sans', bg: 'linear-gradient(to bottom,rgba(0,0,0,0.4),transparent)', textColor: '#fff', fontSize: 1, zIndex: 2 },
-        // Top label
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Odyssey · Récit de voyage</p>' }, x: 60, y: 50, w: 500, h: 36, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.6)', fontSize: 0.65, zIndex: 4 },
-        // Country badge top right
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#0d0d0d;text-align:center">📍 PAYS</p>' }, x: 980, y: 40, w: 170, h: 44, font: 'sans', bg: '#c9a84c', textColor: '#0d0d0d', fontSize: 0.75, zIndex: 4 },
-        // Giant destination name
-        { id: id(), type: 'text', data: { html: '<div style="font-family:Bebas Neue,sans-serif;font-size:10rem;line-height:0.85;color:white;text-transform:uppercase;letter-spacing:0.02em;text-shadow:0 4px 40px rgba(0,0,0,0.5)">DESTI<br/>NATION</div>' }, x: 50, y: 720, w: 900, h: 400, font: 'display', bg: 'transparent', textColor: '#fff', fontSize: 10, zIndex: 4 },
-        // Tagline
-        { id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;color:rgba(255,255,255,0.8);line-height:1.5">Remplacez ce texte par une phrase qui<br/>capture l\'essence de votre voyage.</p>' }, x: 60, y: 1150, w: 700, h: 140, font: 'serif', bg: 'transparent', textColor: 'rgba(255,255,255,0.8)', fontSize: 1.4, zIndex: 4 },
-        // Date + duration
-        { id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.8rem;font-weight:500;letter-spacing:0.12em;color:rgba(255,255,255,0.5)">Été 2024 · 14 jours</p>' }, x: 60, y: 1330, w: 400, h: 40, font: 'sans', bg: 'transparent', textColor: 'rgba(255,255,255,0.5)', fontSize: 0.8, zIndex: 4 },
-        // Watermark right
-        { id: id(), type: 'text', data: { html: '<p style="font-family:Fraunces,serif;font-size:1rem;font-weight:300;letter-spacing:0.2em;color:rgba(255,255,255,0.25);text-align:right">Odyssey</p>' }, x: 900, y: 1330, w: 260, h: 40, font: 'serif', bg: 'transparent', textColor: 'rgba(255,255,255,0.25)', fontSize: 1, zIndex: 4 },
-      ];
+      // ── Titre (unique) ──
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: canvasH, font: 'sans', bg: '#0f1a14', textColor: '#fff', fontSize: 1, zIndex: 1 });
+      blocks.push({ id: id(), type: 'photo', data: { url: '', caption: '' }, x: 0, y: 0, w: 1200, h: 480, font: 'sans', bg: '#162a1c', textColor: '#fff', fontSize: 1, zIndex: 2 });
+      blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: 0, w: 1200, h: 480, font: 'sans', bg: 'linear-gradient(to top,#0f1a14 0%,rgba(15,26,20,0.6) 50%,transparent 100%)', textColor: '#fff', fontSize: 1, zIndex: 3 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#4caf7d">Exploration · Nature</p>' }, x: 80, y: 300, w: 500, h: 32, font: 'sans', bg: 'transparent', textColor: '#4caf7d', fontSize: 0.6, zIndex: 5 });
+      blocks.push({ id: id(), type: 'text', data: { html: '<div style="font-family:Fraunces,serif;font-weight:300;font-size:4rem;line-height:0.92;color:white">Dans les<br/><em>profondeurs</em><br/>du monde</div>' }, x: 80, y: 340, w: 700, h: 220, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 4, zIndex: 5 });
+      blocks.push({ id: id(), type: 'divider', data: { style: 'dots' }, x: 80, y: 500, w: 200, h: 40, font: 'sans', bg: 'transparent', textColor: '#4caf7d', fontSize: 1, zIndex: 4 });
+      // ── Sections répétables ──
+      const sections = Math.max(1, Math.floor((canvasH - 560) / 720));
+      for (let i = 0; i < sections; i++) {
+        const y = 560 + i * 720;
+        blocks.push({ id: id(), type: 'gallery', data: { images: [], layout: 'mosaic' }, x: 0, y, w: 1200, h: 360, font: 'sans', bg: '#0a1410', textColor: '#fff', fontSize: 1, zIndex: 2 });
+        blocks.push({ id: id(), type: 'spacer', data: {}, x: 0, y: y + 360, w: 1200, h: 360, font: 'sans', bg: '#111d15', textColor: '#fff', fontSize: 1, zIndex: 2 });
+        blocks.push({ id: id(), type: 'text', data: { html: `<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px"><div style="width:32px;height:32px;background:#4caf7d;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui;font-weight:700;color:#0d0d0d;font-size:0.85rem;flex-shrink:0">${i+1}</div><p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#4caf7d">Observation ${i+1}</p></div><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.75rem;line-height:1.2;color:white;margin-bottom:16px">Titre de l'exploration</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.55)">Décrivez ce que vous avez observé, ressenti, découvert. La nature a ses propres règles — racontez comment elle vous a surpris.</p>` }, x: 80, y: y + 390, w: 540, h: 300, font: 'serif', bg: 'transparent', textColor: '#fff', fontSize: 1, zIndex: 3 });
+        blocks.push({ id: id(), type: 'text', data: { html: '<div style="padding:20px 24px;height:100%;box-sizing:border-box"><p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4caf7d;margin-bottom:12px">🌡 Infos terrain</p><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(76,175,125,0.15);padding-bottom:6px"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Altitude</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:white;font-weight:600">— m</span></div><div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(76,175,125,0.15);padding-bottom:6px"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Météo</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:white;font-weight:600">—</span></div><div style="display:flex;justify-content:space-between"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Difficulté</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:#4caf7d;font-weight:600">Modérée</span></div></div></div>' }, x: 680, y: y + 390, w: 440, h: 270, font: 'sans', bg: 'rgba(76,175,125,0.06)', textColor: '#fff', fontSize: 1, zIndex: 3 });
+      }
+      return blocks;
     },
   },
 ];
 
-// ─── Template Modal ───────────────────────────────────────────────────────────
+// ─── Template Modal avec sélecteur de taille ──────────────────────────────────
+const HEIGHT_OPTIONS = [1500, 2000, 2500, 3000, 3500, 4000, 5000];
+
 function TemplateModal({ onApply, onClose }: {
   onApply: (blocks: any[], canvasH: number) => void;
   onClose: () => void;
 }) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [canvasH, setCanvasH] = useState(2500);
   const [hovered, setHovered] = useState<string | null>(null);
+
+  const tpl = SCALABLE_TEMPLATES.find(t => t.id === selected);
+
+  // Nombre de sections calculé dynamiquement pour l'affichage
+  const sectionCount = tpl
+    ? Math.max(1, Math.floor((canvasH - tpl.titleH) / tpl.sectionH))
+    : 0;
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }} />
-      <div style={{ position: 'relative', width: '90vw', maxWidth: 900, background: '#111', border: '1px solid #2a2a2a', borderRadius: 6, overflow: 'hidden', maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+      <div style={{ position: 'relative', width: '92vw', maxWidth: 960, background: '#111', border: '1px solid #2a2a2a', borderRadius: 6, overflow: 'hidden', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
         onClick={e => e.stopPropagation()}>
+
         {/* Header */}
-        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', fontWeight: 300, color: 'white', marginBottom: 4 }}>Choisir un template</h2>
-            <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', color: '#555' }}>Blocs pré-placés · Tout est modifiable après application</p>
+            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.4rem', fontWeight: 300, color: 'white', marginBottom: 3 }}>
+              {selected ? '② Choisir la taille' : '① Choisir un template'}
+            </h2>
+            <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', color: '#555' }}>
+              {selected ? 'Le titre est unique · les sections se répètent selon la hauteur' : 'Blocs pré-placés · tout est modifiable après application'}
+            </p>
           </div>
-          <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: 22, padding: '4px 8px' }}>×</button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {selected && (
+              <button type="button" onClick={() => setSelected(null)}
+                style={{ padding: '0.4rem 1rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#888', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3 }}>
+                ← Retour
+              </button>
+            )}
+            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: 22, padding: '4px 8px' }}>×</button>
+          </div>
         </div>
-        {/* Grid */}
-        <div style={{ padding: '1.5rem 2rem', overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1rem' }}>
-          {TEMPLATES.map(tpl => (
-            <div key={tpl.id}
-              onMouseEnter={() => setHovered(tpl.id)} onMouseLeave={() => setHovered(null)}
-              onClick={() => { onApply(tpl.generate(), tpl.canvasH); onClose(); }}
-              style={{ cursor: 'pointer', border: `2px solid ${hovered === tpl.id ? '#c9a84c' : '#2a2a2a'}`, borderRadius: 4, overflow: 'hidden', transition: 'all 0.2s', transform: hovered === tpl.id ? 'translateY(-3px)' : 'none' }}>
-              {/* Preview */}
-              <div style={{ height: 160, background: tpl.color, position: 'relative', overflow: 'hidden' }}>
-                {tpl.id === 'film' && (
-                  <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-                    <div style={{ width: '26%', background: '#0a0a0a', display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 6px' }}>
-                      {[0,1,2,3,4].map(i => <div key={i} style={{ height: 22, background: '#2a2a2a', borderRadius: 1 }} />)}
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+
+          {/* ── STEP 1 : grille des templates ── */}
+          {!selected && (
+            <div style={{ padding: '1.5rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '1rem' }}>
+              {SCALABLE_TEMPLATES.map(t => (
+                <div key={t.id}
+                  onMouseEnter={() => setHovered(t.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => setSelected(t.id)}
+                  style={{ cursor: 'pointer', border: `2px solid ${hovered === t.id ? t.accentColor : '#2a2a2a'}`, borderRadius: 4, overflow: 'hidden', transition: 'all 0.2s', transform: hovered === t.id ? 'translateY(-3px)' : 'none' }}>
+                  {/* Miniature visuelle */}
+                  <div style={{ height: 140, background: t.bgColor, position: 'relative', overflow: 'hidden' }}>
+                    {/* Titre zone */}
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45%', background: `linear-gradient(to bottom,${t.bgColor},transparent)`, zIndex: 2, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '10px 14px', gap: 5 }}>
+                      <div style={{ width: 40, height: 3, background: t.accentColor, borderRadius: 2 }} />
+                      <div style={{ width: 110, height: 14, background: t.id === 'panorama' ? '#0d0d0d' : 'white', borderRadius: 2, opacity: 0.85 }} />
+                      <div style={{ width: 75, height: 10, background: t.id === 'panorama' ? '#0d0d0d' : 'white', borderRadius: 2, opacity: 0.35 }} />
                     </div>
-                    <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      <div style={{ fontFamily: 'sans-serif', fontSize: '2rem', fontWeight: 900, lineHeight: 0.9, color: '#c9a84c', letterSpacing: '0.05em' }}>MON<br/>VOYAGE</div>
-                      <div style={{ height: 50, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }} />
-                      <div style={{ height: 16, background: 'rgba(201,168,76,0.3)', width: '50%', borderRadius: 1 }} />
+                    {/* Sections répétées (visualisation) */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', display: 'flex', flexDirection: 'column', gap: 3, padding: '4px 0' }}>
+                      {[0,1].map(i => (
+                        <div key={i} style={{ flex: 1, display: 'flex', gap: 3, padding: '0 10px', opacity: 0.75 }}>
+                          {t.id === 'journal' && <>
+                            <div style={{ flex: i%2===0?1:2, background: 'rgba(255,255,255,0.08)', borderRadius: 1 }} />
+                            <div style={{ flex: i%2===0?2:1, background: t.accentColor, opacity: 0.2, borderRadius: 1 }} />
+                          </>}
+                          {t.id === 'noir' && <>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
+                          </>}
+                          {t.id === 'panorama' && <div style={{ flex: 1, background: 'rgba(0,0,0,0.1)', borderRadius: 1 }} />}
+                          {t.id === 'nature' && <>
+                            <div style={{ flex: 2, background: 'rgba(76,175,125,0.2)', borderRadius: 1 }} />
+                            <div style={{ flex: 1, background: 'rgba(76,175,125,0.08)', borderRadius: 1 }} />
+                          </>}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                )}
-                {tpl.id === 'magazine' && (
-                  <div style={{ width: '100%', height: '100%', background: '#f5f0e8', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: -10, left: 6, fontFamily: 'sans-serif', fontSize: '6rem', fontWeight: 900, color: 'rgba(0,0,0,0.06)', lineHeight: 1 }}>M</div>
-                    <div style={{ position: 'absolute', top: 8, left: 10, fontFamily: 'sans-serif', fontSize: '2.8rem', fontWeight: 900, lineHeight: 0.88, color: '#0d0d0d' }}>MAG<br/><span style={{ color: '#c9a84c' }}>AZINE</span></div>
-                    <div style={{ position: 'absolute', top: 0, right: 0, width: '40%', height: '65%', background: '#bbb' }} />
-                    <div style={{ position: 'absolute', bottom: 10, left: 10, right: 10, height: 28, background: 'rgba(0,0,0,0.06)', borderRadius: 2 }} />
-                    <div style={{ position: 'absolute', bottom: 46, left: 10, width: 60, height: 4, background: '#c9a84c', borderRadius: 2 }} />
-                  </div>
-                )}
-                {tpl.id === 'bali' && (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <div style={{ flex: 3, background: '#2d5a45', display: 'flex', alignItems: 'flex-end', padding: '8px 10px' }}>
-                      <div style={{ fontFamily: 'sans-serif', fontSize: '1.3rem', fontStyle: 'italic', fontWeight: 300, color: 'rgba(255,255,255,0.9)' }}>Un paradis retrouvé</div>
-                    </div>
-                    <div style={{ flex: 2, display: 'flex', gap: 2 }}>
-                      <div style={{ flex: 1, background: '#f5f0e8', padding: 8 }}>
-                        <div style={{ height: 5, background: '#c9a84c', width: '50%', marginBottom: 5, borderRadius: 1 }} />
-                        <div style={{ height: 4, background: '#ccc', width: '80%', borderRadius: 1 }} />
-                        <div style={{ height: 4, background: '#ccc', width: '65%', marginTop: 3, borderRadius: 1 }} />
-                      </div>
-                      <div style={{ flex: 1, background: '#8aab95' }} />
-                    </div>
-                    <div style={{ height: 24, background: '#1e3a2f' }} />
-                  </div>
-                )}
-                {tpl.id === 'postcard' && (
-                  <div style={{ width: '100%', height: '100%', background: '#1e1e1e', position: 'relative', display: 'flex', alignItems: 'flex-end' }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.2) 100%)' }} />
-                    <div style={{ position: 'relative', zIndex: 2, padding: '10px 12px' }}>
-                      <div style={{ fontFamily: 'sans-serif', fontSize: '2.5rem', fontWeight: 900, lineHeight: 0.88, color: 'white', letterSpacing: '0.02em' }}>DESTI<br/>NATION</div>
-                      <div style={{ fontFamily: 'sans-serif', fontStyle: 'italic', fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>Une phrase qui capture votre voyage…</div>
-                    </div>
-                    <div style={{ position: 'absolute', top: 8, right: 8, background: '#c9a84c', padding: '4px 10px', zIndex: 2 }}>
-                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#0d0d0d' }}>📍 PAYS</div>
+                    {/* Hover */}
+                    <div style={{ position: 'absolute', inset: 0, background: `${t.accentColor}22`, opacity: hovered === t.id ? 1 : 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
+                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, color: '#0d0d0d', background: t.accentColor, padding: '0.4rem 1rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Choisir →</span>
                     </div>
                   </div>
-                )}
-                {/* Hover */}
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(201,168,76,0.18)', opacity: hovered === tpl.id ? 1 : 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', fontWeight: 700, color: '#0d0d0d', background: '#c9a84c', padding: '0.5rem 1.25rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Utiliser ce template →</span>
+                  <div style={{ padding: '0.75rem 1rem', background: '#161616' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                      <span style={{ fontSize: 16 }}>{t.icon}</span>
+                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', fontWeight: 600, color: '#e0e0e0' }}>{t.label}</span>
+                    </div>
+                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.7rem', color: '#555', lineHeight: 1.5 }}>{t.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── STEP 2 : sélecteur de taille ── */}
+          {selected && tpl && (
+            <div style={{ padding: '2rem' }}>
+              {/* Template choisi — rappel */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '2rem', padding: '1rem', background: '#1a1a1a', borderRadius: 4, border: `1px solid ${tpl.accentColor}33` }}>
+                <span style={{ fontSize: 24 }}>{tpl.icon}</span>
+                <div>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', fontWeight: 600, color: 'white', marginBottom: 2 }}>{tpl.label}</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>{tpl.desc}</p>
                 </div>
               </div>
-              {/* Info */}
-              <div style={{ padding: '0.85rem 1rem', background: '#161616' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 18 }}>{tpl.icon}</span>
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', fontWeight: 600, color: '#e0e0e0' }}>{tpl.label}</span>
+
+              {/* Hauteur */}
+              <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '1rem' }}>Hauteur du canvas</p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                {HEIGHT_OPTIONS.map(h => (
+                  <button key={h} type="button" onClick={() => setCanvasH(h)}
+                    style={{ padding: '0.5rem 1.1rem', border: `1.5px solid`, borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 600, transition: 'all 0.18s',
+                      borderColor: canvasH === h ? tpl.accentColor : '#2a2a2a',
+                      background: canvasH === h ? `${tpl.accentColor}18` : '#1a1a1a',
+                      color: canvasH === h ? tpl.accentColor : '#666' }}>
+                    {h >= 1000 ? `${h/1000}k` : h} px
+                  </button>
+                ))}
+              </div>
+
+              {/* Aperçu du contenu généré */}
+              <div style={{ background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 4, padding: '1.25rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {/* Schéma proportionnel */}
+                  <div style={{ width: 60, flexShrink: 0 }}>
+                    <div style={{ width: 60, background: '#111', border: `1px solid ${tpl.accentColor}44`, borderRadius: 2, overflow: 'hidden' }}>
+                      {/* Titre */}
+                      <div style={{ height: Math.round(tpl.titleH / canvasH * 200), background: `${tpl.accentColor}22`, borderBottom: `1px solid ${tpl.accentColor}44`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 8, color: tpl.accentColor, fontFamily: "'DM Sans',system-ui", letterSpacing: '0.1em' }}>TITRE</span>
+                      </div>
+                      {/* Sections */}
+                      {Array.from({ length: sectionCount }).map((_, i) => (
+                        <div key={i} style={{ height: Math.round(tpl.sectionH / canvasH * 200), background: i%2===0 ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', fontFamily: "'DM Sans',system-ui" }}>§{i+1}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.55rem', color: '#555', textAlign: 'center', marginTop: 4 }}>{canvasH}px</p>
+                  </div>
+
+                  {/* Détails texte */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 10, height: 10, background: tpl.accentColor, borderRadius: 1, flexShrink: 0 }} />
+                        <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', color: 'white' }}>
+                          1 titre unique ({tpl.titleH}px)
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 1, flexShrink: 0 }} />
+                        <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', color: 'white' }}>
+                          <span style={{ color: tpl.accentColor, fontWeight: 700 }}>{sectionCount} section{sectionCount > 1 ? 's' : ''}</span> répétée{sectionCount > 1 ? 's' : ''} ({tpl.sectionH}px chacune)
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 1, flexShrink: 0 }} />
+                        <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#666' }}>
+                          Hauteur réelle : {tpl.titleH + sectionCount * tpl.sectionH}px
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555', lineHeight: 1.5 }}>{tpl.desc}</p>
+              </div>
+
+              {/* Slider fin */}
+              <div style={{ marginBottom: '1.5rem' }}>
+                <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.6rem' }}>
+                  Ajustement précis
+                </p>
+                <input type="range" min={1000} max={6000} step={100} value={canvasH}
+                  onChange={e => setCanvasH(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: tpl.accentColor }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#444' }}>1 000 px</span>
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#444' }}>6 000 px</span>
+                </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
+
         {/* Footer */}
         <div style={{ padding: '1rem 2rem', borderTop: '1px solid #1e1e1e', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#444' }}>⚠️ Appliquer remplace les blocs actuels du canvas</p>
-          <button type="button" onClick={onClose} style={{ padding: '0.45rem 1.25rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', borderRadius: 3 }}>Annuler</button>
+          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.7rem', color: '#444' }}>
+            {selected
+              ? `⚠️ Appliquer remplace les blocs actuels du canvas`
+              : '4 templates adaptatifs disponibles'}
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="button" onClick={onClose}
+              style={{ padding: '0.45rem 1.25rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', borderRadius: 3 }}>
+              Annuler
+            </button>
+            {selected && tpl && (
+              <button type="button"
+                onClick={() => {
+                  const finalH = tpl.titleH + Math.max(1, Math.floor((canvasH - tpl.titleH) / tpl.sectionH)) * tpl.sectionH;
+                  onApply(tpl.generate(finalH), finalH);
+                  onClose();
+                }}
+                style={{ padding: '0.45rem 1.5rem', background: tpl.accentColor, color: '#0d0d0d', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3 }}>
+                Appliquer →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
