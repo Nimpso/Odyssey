@@ -43,7 +43,7 @@ async function getInitialTrips() {
     .select('id, title, slug, cover_image, category, city, country, duration, created_at, author:profiles!author_id(username)')
     .eq('is_published', true)
     .order('published_at', { ascending: false })
-    .limit(50);
+    .limit(8);
   return data ?? [];
 }
 

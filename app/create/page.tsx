@@ -1244,6 +1244,36 @@ export default function CreateTrip() {
     "::-webkit-scrollbar-track{background:#111}",
     "::-webkit-scrollbar-thumb{background:#333;border-radius:3px}",
     "::-webkit-scrollbar-thumb:hover{background:#555}",
+
+    /* ── Top bar responsive ── */
+    `@media (max-width: 768px) {
+      .topbar-title { display: none !important; }
+      .topbar-divider { display: none !important; }
+      .topbar-steps { width: auto !important; flex: 1 !important; min-width: 0 !important; }
+      .topbar-steps > div { zoom: 0.8; }
+    }`,
+    `@media (max-width: 480px) {
+      .topbar-logo-label { display: none !important; }
+      .topbar-steps > div { zoom: 0.65; }
+    }`,
+
+    /* ── Steps 0 & 1 : formulaires ── */
+    `@media (max-width: 640px) {
+      .form-grid-2col { grid-template-columns: 1fr !important; }
+      .form-container { padding: 1.5rem 1rem !important; }
+      .form-inner { padding: 0 !important; }
+    }`,
+
+    /* ── Step 3 : recap ── */
+    `@media (max-width: 640px) {
+      .recap-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .recap-container { padding: 1.5rem 1rem !important; }
+    }`,
+
+    /* ── Canvas (step 2) : message mobile ── */
+    `@media (max-width: 900px) {
+      .canvas-mobile-warn { display: flex !important; }
+    }`,
   ].join('\n');
 
   return (
@@ -1252,32 +1282,32 @@ export default function CreateTrip() {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden' }}>
 
         {/* ── Top bar ── */}
-        <div style={{ height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 1100 }}>
+        <div style={{ height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 1100, gap: '0.5rem' }}>
           {/* Logo + title + home button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
             {/* Home button */}
             <button type="button"
               onClick={() => { if (blocks.length === 0 || confirm('Quitter ? Votre récit non publié sera perdu.')) window.location.href = '/'; }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.35rem 0.75rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3, transition: 'all 0.2s' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.35rem 0.75rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#ccc'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}>
               ← Accueil
             </button>
-            <div style={{ width: 1, height: 20, background: '#2a2a2a' }} />
+            <div className="topbar-divider" style={{ width: 1, height: 20, background: '#2a2a2a' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 26, height: 26, background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 26, height: 26, background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: 'white', fontSize: 13 }}>O</span>
               </div>
-              <span style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', color: '#c9a84c', letterSpacing: '0.1em' }}>Odyssey</span>
+              <span className="topbar-logo-label" style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', color: '#c9a84c', letterSpacing: '0.1em' }}>Odyssey</span>
             </div>
-            <div style={{ width: 1, height: 20, background: '#2a2a2a' }} />
-            <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', color: '#555' }}>
+            <div className="topbar-divider" style={{ width: 1, height: 20, background: '#2a2a2a' }} />
+            <span className="topbar-title" style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
               {title || 'Nouveau récit'}
             </span>
           </div>
 
           {/* Steps (compact) */}
-          <div style={{ width: 440 }}>
+          <div className="topbar-steps" style={{ width: 440, flexShrink: 1 }}>
             <Steps current={step} />
           </div>
 
@@ -1311,14 +1341,14 @@ export default function CreateTrip() {
 
           {/* ════ STEPS 0 & 1 — centered forms ════ */}
           {(step === 0 || step === 1) && (
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
-              <div style={{ width: '100%', maxWidth: 640 }}>
+            <div className="form-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
+              <div className="form-inner" style={{ width: '100%', maxWidth: 640 }}>
 
                 {step === 0 && (
                   <>
                     <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>Quelques précisions</h2>
                     <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>Ces informations aident les lecteurs à trouver votre récit. * = obligatoire</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.1rem' }}>
+                    <div className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.1rem' }}>
                       <div><label style={lS}>Pays *</label>
                         <select style={selS} value={meta.country} onChange={e => setMeta(m => ({ ...m, country: e.target.value }))} onFocus={fg} onBlur={fb}>
                           <option value="">Sélectionner…</option>
@@ -1405,6 +1435,25 @@ export default function CreateTrip() {
           {/* ════ STEP 2 — Canvas editor ════ */}
           {step === 2 && (
             <>
+              {/* Avertissement mobile — caché sur desktop via CSS */}
+              <div className="canvas-mobile-warn" style={{
+                display: 'none', position: 'fixed', inset: 0, zIndex: 2000,
+                background: '#0d0d0d', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                padding: '2rem', textAlign: 'center',
+              }}>
+                <span style={{ fontSize: 48, marginBottom: '1.5rem' }}>🖥️</span>
+                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.75rem', fontWeight: 300, color: 'white', marginBottom: '0.75rem' }}>
+                  Éditeur disponible sur desktop
+                </h2>
+                <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.9rem', color: '#666', lineHeight: 1.7, maxWidth: 320, marginBottom: '2rem' }}>
+                  L'éditeur de récit nécessite un écran plus large pour placer et déplacer les blocs. Ouvrez Odyssey sur un ordinateur pour continuer.
+                </p>
+                <button type="button"
+                  onClick={() => setStep(1)}
+                  style={{ padding: '0.75rem 2rem', background: '#c9a84c', color: '#0d0d0d', border: 'none', borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  ← Retour
+                </button>
+              </div>
               {/* Left sidebar */}
               <Sidebar onAdd={addBlock} onTemplate={() => setShowTemplates(true)} onAddModule={addModule} activeTemplate={activeTemplate} setActiveTemplate={setActiveTemplate} canvasH={canvasH} setCanvasH={setCanvasH} />
 
@@ -1476,7 +1525,7 @@ export default function CreateTrip() {
 
           {/* ════ STEP 3 — Recap ════ */}
           {step === 3 && (
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
+            <div className="recap-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
               <div style={{ width: '100%', maxWidth: 640 }}>
                 <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>Prêt à publier ?</h2>
                 <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>Vérifiez avant de partager votre récit.</p>
@@ -1491,7 +1540,7 @@ export default function CreateTrip() {
                       </div>
                     </div>
                   )}
-                  <div style={{ padding: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem' }}>
+                  <div className="recap-grid" style={{ padding: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem' }}>
                     {[
                       { label: 'Destination', value: [meta.city, meta.country].filter(Boolean).join(', ') || '—' },
                       { label: 'Catégorie', value: CATEGORIES.find(c => c.value === meta.category)?.label || '—' },

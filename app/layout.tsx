@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" suppressHydrationWarning>
       <body className={inter.variable} suppressHydrationWarning>
         <NavBar />
-        <main>{children}</main>
+        <main style={{ minHeight: '100vh' }}>{children}</main>
         <footer style={{
           borderTop: '1px solid var(--sand)',
           padding: '2rem 2.5rem',

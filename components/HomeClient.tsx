@@ -277,6 +277,51 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
 
         .scroll-cards::-webkit-scrollbar { display: none; }
         .scroll-cards { scrollbar-width: none; }
+
+        /* ── RESPONSIVE MOBILE ── */
+        @media (max-width: 768px) {
+          .hero-bottom-bar {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.25rem !important;
+            padding: 1.5rem !important;
+          }
+          .hero-stats { display: none !important; }
+          .hero-cta { flex-direction: column !important; width: 100% !important; }
+          .hero-cta a { width: 100% !important; justify-content: center !important; box-sizing: border-box !important; }
+
+          .explore-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.5rem !important;
+          }
+          .search-cinema { width: 100% !important; }
+
+          .explore-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .explore-grid a { grid-column: span 1 !important; }
+          .explore-grid-item-feature { height: 360px !important; }
+
+          .philosophy-row {
+            grid-template-columns: 1fr !important;
+          }
+          .philosophy-row-img { min-height: 220px !important; }
+
+          .featured-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+          }
+
+          .trip-card-cinema { width: 260px !important; height: 360px !important; }
+
+          .cta-section-inner { padding: 3rem 1.5rem !important; }
+        }
+
+        @media (max-width: 480px) {
+          .trip-card-cinema { width: 220px !important; height: 300px !important; }
+        }
       `}</style>
 
       <div className="page-fullscreen" style={{ background: '#0d0d0d', minHeight: '100vh' }}>
@@ -332,7 +377,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           </div>
 
           {/* Bas du hero : sous-texte à gauche + boutons au centre-gauche + stats à droite */}
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20, padding: '2rem clamp(2rem,6vw,6rem)', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '2rem', animation: 'fadeIn 1s 1s both' }}>
+          <div className="hero-bottom-bar" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20, padding: '2rem clamp(2rem,6vw,6rem)', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '2rem', animation: 'fadeIn 1s 1s both' }}>
 
             {/* Sous-texte */}
             <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(0.9rem, 1.5vw, 1.2rem)', color: 'rgba(255,255,255,0.7)', maxWidth: 340, lineHeight: 1.6, margin: 0, flexShrink: 0 }}>
@@ -369,7 +414,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
             </div>
 
             {/* Stats — à droite */}
-            <div style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
+            <div className="hero-stats" style={{ display: 'flex', gap: '2rem', flexShrink: 0 }}>
               {[
                 { n: `${trips.length}+`, l: 'Récits' },
                 { n: '40+', l: 'Pays' },
@@ -411,7 +456,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         <section id="explore" style={{ background: '#111', padding: 'clamp(4rem,8vw,7rem) clamp(1.5rem,4vw,4rem)' }}>
 
           {/* Section header */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '2rem' }}>
+          <div className="explore-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.75rem' }}>
                 Explorer
@@ -456,8 +501,8 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               </button>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5px' }}>
-              {filtered.map((trip, idx) => {
+            <div className="explore-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5px' }}>
+              {filtered.slice(0, 8).map((trip, idx) => {
                 // Alternate tall/short for editorial feel
                 const isFeature = idx % 5 === 0;
                 const h = isFeature ? 520 : 360;
@@ -523,7 +568,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         <section style={{ background: 'var(--cream)' }}>
 
           {/* Row 1 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
+          <div className="philosophy-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
             <div style={{ background: 'var(--forest)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 'clamp(3rem,6vw,6rem)' }}>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.5rem' }}>Notre vision</p>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1.75rem,4vw,3rem)', color: 'white', lineHeight: 1.2, marginBottom: '1.5rem' }}>
@@ -534,7 +579,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
               </p>
               <div style={{ marginTop: '2.5rem', height: 1, width: 60, background: 'var(--gold)' }} />
             </div>
-            <div style={{ overflow: 'hidden', background: '#0a0f0a' }}>
+            <div className="philosophy-row-img" style={{ overflow: 'hidden', background: '#0a0f0a' }}>
               <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900&auto=format&fit=crop"
                 alt="Montagne" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 8s ease-out', display: 'block' }}
                 onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.06)')}
@@ -543,8 +588,8 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           </div>
 
           {/* Row 2 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
-            <div style={{ overflow: 'hidden', background: '#0a0f0a' }}>
+          <div className="philosophy-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 480 }}>
+            <div className="philosophy-row-img" style={{ overflow: 'hidden', background: '#0a0f0a' }}>
               <img src="https://images.unsplash.com/photo-1499678329028-101435549a4e?w=900&auto=format&fit=crop"
                 alt="Plage" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 8s ease-out', display: 'block' }}
                 onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.06)')}
@@ -579,7 +624,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         ══════════════════════════════════════════════════════ */}
         {featuredTrips.length > 0 && (
           <section style={{ background: '#0a0a0a', padding: 'clamp(4rem,7vw,6rem) 0' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 clamp(1.5rem,4vw,4rem)', marginBottom: '2.5rem' }}>
+            <div className="featured-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 clamp(1.5rem,4vw,4rem)', marginBottom: '2.5rem' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.6rem' }}>À la une</p>
                 <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem,5vw,4rem)', textTransform: 'uppercase', color: 'white', lineHeight: 1, letterSpacing: '0.02em' }}>Récents & populaires</h2>
@@ -626,7 +671,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         <section style={{ position: 'relative', overflow: 'hidden', minHeight: 400, display: 'flex', alignItems: 'center', background: 'var(--forest)' }}>
           <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1400&auto=format&fit=crop"
             alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25 }} />
-          <div style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: 'clamp(3rem,6vw,5rem) 2rem' }}>
+          <div className="cta-section-inner" style={{ position: 'relative', zIndex: 1, width: '100%', textAlign: 'center', padding: 'clamp(3rem,6vw,5rem) 2rem' }}>
             <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1.25rem' }}>
               Votre aventure mérite d'être racontée
             </p>

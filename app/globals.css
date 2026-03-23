@@ -76,6 +76,113 @@ body::after {
 @media (min-width: 1100px) { .masonry { column-count: 3; } }
 .masonry-item { break-inside: avoid; margin-bottom: 1.75rem; }
 
+/* ── Responsive base ── */
+main { padding-top: 56px; } /* Compense la NavBar fixe */
+
+/* ── Conteneur global responsive ── */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+}
+@media (max-width: 1024px) { .container { padding: 0 2rem; } }
+@media (max-width: 768px)  { .container { padding: 0 1.25rem; } }
+@media (max-width: 480px)  { .container { padding: 0 1rem; } }
+
+/* ── Hero responsive ── */
+.hero-section {
+  padding: 5rem 2.5rem 3rem;
+}
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3.5rem 1.25rem 2rem;
+  }
+}
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 2.5rem 1rem 1.5rem;
+  }
+}
+
+/* ── Grille de cards responsive ── */
+.trips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+@media (max-width: 1024px) {
+  .trips-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+}
+@media (max-width: 600px) {
+  .trips-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+/* ── Trip card responsive ── */
+@media (max-width: 768px) {
+  .trip-card { border-radius: 2px; }
+}
+
+/* ── Filtres / tags responsive ── */
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .filters-row {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .filters-row::-webkit-scrollbar { display: none; }
+  .tag { white-space: nowrap; flex-shrink: 0; }
+}
+
+/* ── Barre de recherche responsive ── */
+@media (max-width: 768px) {
+  .search-field { font-size: 0.95rem; padding: 0.9rem 1.25rem 0.9rem 3rem; }
+}
+
+/* ── Detail hero responsive ── */
+@media (max-width: 768px) {
+  .detail-hero { height: 55vh; }
+}
+@media (max-width: 480px) {
+  .detail-hero { height: 42vh; }
+}
+
+/* ── Footer responsive ── */
+@media (max-width: 600px) {
+  footer {
+    flex-direction: column !important;
+    gap: 0.75rem;
+    text-align: center;
+    padding: 1.5rem 1rem !important;
+  }
+}
+
+/* ── Boutons responsive ── */
+@media (max-width: 480px) {
+  .btn-ink, .btn-gold, .btn-outline {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Upload zone responsive ── */
+@media (max-width: 600px) {
+  .upload-zone { padding: 2rem 1rem; }
+}
+
+/* ── Typography responsive ── */
+@media (max-width: 768px) {
+  .content-text { font-size: 1rem; line-height: 1.8; }
+}
+
 /* ── Shimmer skeleton ── */
 .shimmer {
   background: linear-gradient(90deg, var(--mist) 25%, var(--sand) 50%, var(--mist) 75%);
