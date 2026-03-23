@@ -720,13 +720,14 @@ function BlockContent({ block, onChange, onUpload }: {
 const RESIZE_HANDLES = ['se','sw','ne','nw','n','s','e','w'] as const;
 type Handle = typeof RESIZE_HANDLES[number];
 
-function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload }: {
+function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload, canvasScale }: {
   block: CanvasBlock;
   selected: boolean;
   onSelect: () => void;
   onUpdate: (b: CanvasBlock) => void;
   onDelete: () => void;
   onUpload: (f: File) => Promise<string | null>;
+  canvasScale: number;
 }) {
   const dragStart = useRef<{ mx: number; my: number; bx: number; by: number } | null>(null);
   const resizeStart = useRef<{ mx: number; my: number; bx: number; by: number; bw: number; bh: number; handle: Handle } | null>(null);
@@ -738,8 +739,8 @@ function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload
 
     const onMove = (ev: MouseEvent) => {
       if (!dragStart.current) return;
-      const dx = ev.clientX - dragStart.current.mx;
-      const dy = ev.clientY - dragStart.current.my;
+      const dx = (ev.clientX - dragStart.current.mx) / canvasScale;
+      const dy = (ev.clientY - dragStart.current.my) / canvasScale;
       onUpdate({ ...block, x: Math.max(0, dragStart.current.bx + dx), y: Math.max(0, dragStart.current.by + dy) });
     };
     const onUp = () => { dragStart.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
@@ -755,8 +756,8 @@ function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload
     const onMove = (ev: MouseEvent) => {
       if (!resizeStart.current) return;
       const { mx, my, bx, by, bw, bh, handle } = resizeStart.current;
-      const dx = ev.clientX - mx;
-      const dy = ev.clientY - my;
+      const dx = (ev.clientX - mx) / canvasScale;
+      const dy = (ev.clientY - my) / canvasScale;
       let nx = bx, ny = by, nw = bw, nh = bh;
 
       if (handle.includes('e')) nw = Math.max(80, bw + dx);
@@ -926,18 +927,36 @@ function PropsPanel({ block, onUpdate }: { block: CanvasBlock; onUpdate: (b: Can
 }
 
 // ─── Left sidebar ─────────────────────────────────────────────────────────────
-function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemplate, canvasH, setCanvasH }: {
+function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemplate, canvasH, setCanvasH, collapsed, onToggle }: {
   onAdd: (type: BlockType, defaults: { w: number; h: number; data: any }) => void;
   onTemplate: () => void;
   onAddModule: (mod: Module) => void;
   activeTemplate: string | null;
   setActiveTemplate: (t: string | null) => void;
   canvasH: number; setCanvasH: (h: number) => void;
+  collapsed: boolean;
+  onToggle: () => void;
 }) {
   const [open, setOpen] = useState<string[]>(['texte','medias','voyage']);
   const [tab, setTab] = useState<'elements'|'modules'>('elements');
   const toggle = (id: string) => setOpen(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   const activeMod = activeTemplate ? MODULAR_TEMPLATES[activeTemplate] : null;
+
+  if (collapsed) {
+    return (
+      <div style={{ width: 48, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '0.75rem', gap: '0.5rem', height: '100%' }}>
+        <button type="button" onClick={onToggle} title="Ouvrir la sidebar"
+          style={{ width: 34, height: 34, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, cursor: 'pointer', color: '#c9a84c', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          ▶
+        </button>
+        {['¶','🖼️','🏨','⚖️','❝'].map((ic, i) => (
+          <div key={i} style={{ width: 34, height: 34, background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'default', opacity: 0.4 }}>
+            {ic}
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: 240, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -1057,6 +1076,13 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
             style={{ padding:'0.4rem 0.6rem', background:'#c9a84c', color:'#0d0d0d', border:'none', cursor:'pointer', fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, borderRadius:2 }}>+</button>
         </div>
       </div>
+      {/* ── Collapse toggle ── */}
+      <button type="button" onClick={onToggle} title="Réduire la sidebar"
+        style={{ padding:'0.5rem', borderTop:'1px solid #1e1e1e', background:'transparent', border:'none', borderTop:'1px solid #1e1e1e', cursor:'pointer', color:'#444', fontSize:'0.7rem', fontFamily:"'DM Sans',system-ui", letterSpacing:'0.08em', display:'flex', alignItems:'center', justifyContent:'center', gap:6, flexShrink:0, transition:'color 0.2s' }}
+        onMouseEnter={e => (e.currentTarget.style.color='#c9a84c')}
+        onMouseLeave={e => (e.currentTarget.style.color='#444')}>
+        ◀ Réduire
+      </button>
     </div>
   );
 }
@@ -1106,6 +1132,10 @@ export default function CreateTrip() {
   const [canvasH, setCanvasH] = useState(1600);
   const [showTemplates, setShowTemplates] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
+  const [canvasScale, setCanvasScale] = useState(1);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
   // Compteurs par module pour numérotation (Jour 1, Jour 2…)
   const moduleCounters = useRef<Record<string, number>>({});
 
@@ -1188,6 +1218,25 @@ export default function CreateTrip() {
 
   // Montage — anti-hydratation
   useEffect(() => { setIsMounted(true); }, []);
+
+  // ── Dynamic canvas scaling — adapte le canvas à la largeur disponible ──
+  useEffect(() => {
+    if (step !== 2) return;
+    const SIDEBAR_W = sidebarCollapsed ? 48 : 240;
+    const RIGHT_W = rightPanelCollapsed ? 32 : 220;
+    const PADDING = 64; // 2rem de chaque côté
+    const CANVAS_NOMINAL = CANVAS_W; // 1200px
+
+    const compute = () => {
+      const available = window.innerWidth - SIDEBAR_W - RIGHT_W - PADDING;
+      const scale = Math.min(1, Math.max(0.35, available / CANVAS_NOMINAL));
+      setCanvasScale(scale);
+    };
+
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [step, sidebarCollapsed, rightPanelCollapsed]);
 
   // Delete selected block with keyboard
   useEffect(() => {
@@ -1454,72 +1503,153 @@ export default function CreateTrip() {
                   ← Retour
                 </button>
               </div>
+
               {/* Left sidebar */}
-              <Sidebar onAdd={addBlock} onTemplate={() => setShowTemplates(true)} onAddModule={addModule} activeTemplate={activeTemplate} setActiveTemplate={setActiveTemplate} canvasH={canvasH} setCanvasH={setCanvasH} />
+              <Sidebar
+                onAdd={addBlock}
+                onTemplate={() => setShowTemplates(true)}
+                onAddModule={addModule}
+                activeTemplate={activeTemplate}
+                setActiveTemplate={setActiveTemplate}
+                canvasH={canvasH}
+                setCanvasH={setCanvasH}
+                collapsed={sidebarCollapsed}
+                onToggle={() => setSidebarCollapsed(v => !v)}
+              />
 
-              {/* Canvas area */}
-              <div style={{ flex: 1, overflowY: 'auto', overflowX: 'auto', background: '#1a1a1a', display: 'flex', justifyContent: 'center', padding: '2rem' }}
-                onMouseDown={e => { if (e.target === e.currentTarget) setSelectedId(null); }}>
-                <div
-                  ref={canvasRef}
-                  style={{ position: 'relative', width: CANVAS_W, height: canvasH, background: '#faf8f4', flexShrink: 0, boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.5)' }}
-                  onMouseDown={e => { if (e.target === canvasRef.current) setSelectedId(null); }}
-                >
-                  {/* Grid overlay */}
-                  <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-                    backgroundImage: 'linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px' }} />
-
-                  {/* Empty state */}
-                  {blocks.length === 0 && (
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                      <p style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'rgba(0,0,0,0.12)', marginBottom: 8 }}>Page blanche</p>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', color: 'rgba(0,0,0,0.2)' }}>← Cliquez sur un élément à gauche pour l'ajouter</p>
+              {/* Canvas area — avec dynamic scaling */}
+              <div
+                ref={canvasAreaRef}
+                style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', background: '#1a1a1a', position: 'relative' }}
+                onMouseDown={e => { if (e.target === e.currentTarget) setSelectedId(null); }}
+              >
+                {/* Scale indicator */}
+                {canvasScale < 0.99 && (
+                  <div style={{
+                    position: 'sticky', top: 0, zIndex: 50, left: 0, right: 0,
+                    background: 'rgba(201,168,76,0.12)', borderBottom: '1px solid rgba(201,168,76,0.2)',
+                    padding: '4px 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: '#c9a84c', letterSpacing: '0.1em' }}>
+                      🔍 Zoom automatique : {Math.round(canvasScale * 100)}%
+                    </span>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {!sidebarCollapsed && (
+                        <button type="button" onClick={() => setSidebarCollapsed(true)}
+                          style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}>
+                          ◀ Réduire sidebar
+                        </button>
+                      )}
+                      {!rightPanelCollapsed && (
+                        <button type="button" onClick={() => setRightPanelCollapsed(true)}
+                          style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}>
+                          Réduire panel ▶
+                        </button>
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Blocks */}
-                  {blocks.map(block => (
-                    <CanvasBlockEl
-                      key={block.id}
-                      block={block}
-                      selected={selectedId === block.id}
-                      onSelect={() => setSelectedId(block.id)}
-                      onUpdate={updateBlock}
-                      onDelete={() => deleteBlock(block.id)}
-                      onUpload={uploadFile}
-                    />
-                  ))}
+                {/* Scaled canvas wrapper */}
+                <div style={{
+                  padding: '2rem',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  // Reserve the correct height so scrollbar works
+                  minHeight: canvasH * canvasScale + 64,
+                }}>
+                  <div style={{
+                    transformOrigin: 'top left',
+                    transform: `scale(${canvasScale})`,
+                    // After scale, the element occupies less visual space but its layout box stays original size.
+                    // We use negative margin-right to collapse the extra width, keeping the container tight.
+                    marginRight: -(CANVAS_W * (1 - canvasScale)),
+                    position: 'relative',
+                  }}>
+                    <div
+                      ref={canvasRef}
+                      style={{ position: 'relative', width: CANVAS_W, height: canvasH, background: '#faf8f4', flexShrink: 0, boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.5)' }}
+                      onMouseDown={e => { if (e.target === canvasRef.current) setSelectedId(null); }}
+                    >
+                      {/* Grid overlay */}
+                      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+                        backgroundImage: 'linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px' }} />
+
+                      {/* Empty state */}
+                      {blocks.length === 0 && (
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                          <p style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'rgba(0,0,0,0.12)', marginBottom: 8 }}>Page blanche</p>
+                          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', color: 'rgba(0,0,0,0.2)' }}>← Cliquez sur un élément à gauche pour l'ajouter</p>
+                        </div>
+                      )}
+
+                      {/* Blocks */}
+                      {blocks.map(block => (
+                        <CanvasBlockEl
+                          key={block.id}
+                          block={block}
+                          selected={selectedId === block.id}
+                          onSelect={() => setSelectedId(block.id)}
+                          onUpdate={updateBlock}
+                          onDelete={() => deleteBlock(block.id)}
+                          onUpload={uploadFile}
+                          canvasScale={canvasScale}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right properties panel */}
-              <div style={{ width: 220, flexShrink: 0, background: '#111', borderLeft: '1px solid #1e1e1e', overflowY: 'auto', padding: '1rem' }}>
-                {selectedBlock ? (
-                  <>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555', marginBottom: '1rem' }}>
+              {/* Right properties panel — collapsible */}
+              {rightPanelCollapsed ? (
+                <div style={{ width: 32, flexShrink: 0, background: '#111', borderLeft: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '0.75rem' }}>
+                  <button type="button" onClick={() => setRightPanelCollapsed(false)} title="Ouvrir le panneau"
+                    style={{ width: 24, height: 24, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 3, cursor: 'pointer', color: '#c9a84c', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    ◀
+                  </button>
+                </div>
+              ) : (
+                <div style={{ width: 220, flexShrink: 0, background: '#111', borderLeft: '1px solid #1e1e1e', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+                  {/* Panel header with collapse button */}
+                  <div style={{ padding: '0.6rem 0.75rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>
                       Propriétés
                     </p>
-                    <PropsPanel block={selectedBlock} onUpdate={updateBlock} />
-                    {/* Delete */}
-                    <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #1e1e1e' }}>
-                      <button type="button"
-                        onClick={() => deleteBlock(selectedBlock.id)}
-                        style={{ width: '100%', padding: '0.6rem', background: 'rgba(192,57,43,0.12)', border: '1px solid rgba(192,57,43,0.3)', color: '#e74c3c', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.25)'; e.currentTarget.style.borderColor = '#e74c3c'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.12)'; e.currentTarget.style.borderColor = 'rgba(192,57,43,0.3)'; }}>
-                        ✕ Supprimer ce bloc
-                      </button>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#333', textAlign: 'center', marginTop: 6 }}>ou touche Delete</p>
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#333' }}>
-                    <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', marginBottom: 8, color: '#444' }}>Sélectionnez un bloc</p>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', lineHeight: 1.6 }}>Cliquez sur un élément du canvas pour modifier ses propriétés</p>
+                    <button type="button" onClick={() => setRightPanelCollapsed(true)}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#444', fontSize: '0.7rem', padding: '2px 4px', borderRadius: 2, transition: 'color 0.2s' }}
+                      onMouseEnter={e => (e.currentTarget.style.color='#c9a84c')}
+                      onMouseLeave={e => (e.currentTarget.style.color='#444')}>
+                      ▶
+                    </button>
                   </div>
-                )}
-              </div>
+                  <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+                    {selectedBlock ? (
+                      <>
+                        <PropsPanel block={selectedBlock} onUpdate={updateBlock} />
+                        {/* Delete */}
+                        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #1e1e1e' }}>
+                          <button type="button"
+                            onClick={() => deleteBlock(selectedBlock.id)}
+                            style={{ width: '100%', padding: '0.6rem', background: 'rgba(192,57,43,0.12)', border: '1px solid rgba(192,57,43,0.3)', color: '#e74c3c', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.25)'; e.currentTarget.style.borderColor = '#e74c3c'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.12)'; e.currentTarget.style.borderColor = 'rgba(192,57,43,0.3)'; }}>
+                            ✕ Supprimer ce bloc
+                          </button>
+                          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#333', textAlign: 'center', marginTop: 6 }}>ou touche Delete</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#333' }}>
+                        <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', marginBottom: 8, color: '#444' }}>Sélectionnez un bloc</p>
+                        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', lineHeight: 1.6 }}>Cliquez sur un élément du canvas pour modifier ses propriétés</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
