@@ -1087,7 +1087,7 @@ function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemp
   );
 }
 
-// ─── Steps indicator ──────────────────────────────────────────────────────────
+// ─── Steps indicator s ──────────────────────────────────────────────────────────
 function Steps({ current }: { current: number }) {
   const steps = ['Détails', 'Couverture', 'Mise en page', 'Publier'];
   return (
