@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
+import { Fragment, useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -475,10 +475,10 @@ function TemplateModal({ onApply, onClose }: {
         <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.4rem', fontWeight: 300, color: 'white', marginBottom: 3 }}>
-              {selected ? `② Hauteur du canvas — ${tpl?.label}` : '① Choisir un template'}
+              {selected ? `② Choisir le rythme — ${tpl?.label}` : '① Choisir un template'}
             </h2>
             <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
-              {selected ? 'Titre unique en haut · sections répétées selon la hauteur choisie' : '8 templates adaptatifs · tout est modifiable après application'}
+              {selected ? 'Une couverture forte · des chapitres qui se répètent naturellement' : '8 styles visuels · tout reste modifiable après utilisation'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -575,7 +575,7 @@ function TemplateModal({ onApply, onClose }: {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', alignItems: 'start' }}>
                 <div>
                   {/* Boutons rapides */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.75rem' }}>Taille rapide</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.75rem' }}>Rythme du récit</p>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
                     {HEIGHT_OPTIONS.map(h => (
                       <button key={h} type="button" onClick={() => { setCanvasH(h); setCustomH(''); }}
@@ -589,7 +589,7 @@ function TemplateModal({ onApply, onClose }: {
                   </div>
 
                   {/* Slider */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Ajustement précis</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Ajuster le rythme</p>
                   <input type="range" min={1000} max={6000} step={100} value={canvasH}
                     onChange={e => { setCanvasH(Number(e.target.value)); setCustomH(''); }}
                     style={{ width: '100%', accentColor: tpl.accentColor, marginBottom: 4 }} />
@@ -600,7 +600,7 @@ function TemplateModal({ onApply, onClose }: {
                   </div>
 
                   {/* Valeur personnalisée */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Valeur personnalisée (px)</p>
+                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Longueur avancée</p>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input type="number" min={800} max={10000} step={100}
                       placeholder="ex : 3800"
@@ -638,7 +638,7 @@ function TemplateModal({ onApply, onClose }: {
               <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 4, display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 10, height: 10, background: tpl.accentColor, borderRadius: 1 }} />
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>1 titre unique ({tpl.titleH}px)</span>
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>1 couverture ({tpl.titleH}px)</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
@@ -648,7 +648,7 @@ function TemplateModal({ onApply, onClose }: {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#666' }}>Hauteur finale : {finalH}px</span>
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#666' }}>Composition : {finalH}px</span>
                 </div>
               </div>
             </div>
@@ -658,7 +658,7 @@ function TemplateModal({ onApply, onClose }: {
         {/* Footer */}
         <div style={{ padding: '1rem 2rem', borderTop: '1px solid #1e1e1e', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.68rem', color: '#444' }}>
-            {selected ? '⚠️ Appliquer remplace les blocs actuels' : `${SCALABLE_TEMPLATES.length} templates · taille au choix de 1 000 à 6 000 px`}
+            {selected ? '⚠️ Utiliser ce style remplace la composition actuelle' : `${SCALABLE_TEMPLATES.length} templates · taille au choix de 1 000 à 6 000 px`}
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
             <button type="button" onClick={onClose}
@@ -739,6 +739,7 @@ function BlockContent({ block, onChange, onUpload }: {
   const d = block.data;
   const font = FONT_MAP[block.font];
   const color = block.textColor;
+  const [busy, setBusy] = useState(false);
 
   const iS: React.CSSProperties = {
     width: '100%', padding: '0.4rem 0.6rem',
@@ -774,21 +775,33 @@ function BlockContent({ block, onChange, onUpload }: {
             <p style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0.4rem 0.75rem', background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: '0.72rem', fontStyle: 'italic' }}>{d.caption}</p>
           )}
           <button type="button" onClick={() => onChange({ ...d, url: '' })}
-            style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 26, height: 26, cursor: 'pointer', fontSize: 14 }}>×</button>
+            style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 26, height: 26, cursor: 'pointer', fontSize: 14 }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.85)')} onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}>×</button>
         </div>
       ) : (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', border: '1.5px dashed rgba(255,255,255,0.15)' }}>
-          <span style={{ fontSize: 32, opacity: 0.4 }}>🖼️</span>
-          <label style={{ padding: '0.45rem 1rem', background: '#c9a84c', color: '#0d0d0d', cursor: 'pointer', fontSize: '0.75rem', fontFamily: "'DM Sans',system-ui", fontWeight: 600 }}>
-            📁 Choisir une photo
-            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
-              const f = e.target.files?.[0]; if (!f) return;
-              const url = await onUpload(f); if (url) onChange({ ...d, url });
-            }} />
-          </label>
-          <input type="text" placeholder="ou coller une URL…" style={{ ...iS, width: '80%', textAlign: 'center' }}
-            onBlur={e => { if (e.target.value) onChange({ ...d, url: optimizeImageUrl(e.target.value) }); }}
-            onChange={e => { if (e.target.value) onChange({ ...d, url: e.target.value }); }} />
+        <div className="fade-slide-in" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', border: `1.5px dashed ${busy ? '#c9a84c' : 'rgba(255,255,255,0.15)'}`, transition: 'border-color 0.2s' }}>
+            {busy ? (
+              <>
+                <div className="spin" style={{ width: 26, height: 26, border: '2.5px solid rgba(201,168,76,0.25)', borderTopColor: '#c9a84c', borderRadius: '50%' }} />
+                <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#c9a84c' }}>Envoi en cours…</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: 32, opacity: 0.4 }}>🖼️</span>
+                <label style={{ padding: '0.45rem 1rem', background: '#c9a84c', color: '#0d0d0d', cursor: 'pointer', fontSize: '0.75rem', fontFamily: "'DM Sans',system-ui", fontWeight: 600, borderRadius: 3 }}
+                  onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.1)')} onMouseLeave={e => (e.currentTarget.style.filter = 'none')}>
+                  📁 Choisir une photo
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async e => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    setBusy(true);
+                    try { const url = await onUpload(f); if (url) onChange({ ...d, url }); } finally { setBusy(false); }
+                  }} />
+                </label>
+                <input type="text" placeholder="ou coller une URL…" style={{ ...iS, width: '80%', textAlign: 'center' }}
+                  onBlur={e => { if (e.target.value) onChange({ ...d, url: optimizeImageUrl(e.target.value) }); }}
+                  onChange={e => { if (e.target.value) onChange({ ...d, url: e.target.value }); }} />
+              </>
+            )}
         </div>
       );
 
@@ -797,17 +810,30 @@ function BlockContent({ block, onChange, onUpload }: {
       return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
           {images.length === 0 ? (
-            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, border: '1.5px dashed rgba(255,255,255,0.15)' }}>
-              <span style={{ fontSize: 28, opacity: 0.4 }}>🗂️</span>
-              <label style={{ padding: '0.4rem 0.85rem', background: '#c9a84c', color: '#0d0d0d', cursor: 'pointer', fontSize: '0.72rem', fontFamily: "'DM Sans',system-ui", fontWeight: 600 }}>
-                📁 Ajouter des photos
-                <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={async e => {
-                  const files = Array.from(e.target.files || []);
-                  const urls: string[] = [];
-                  for (const f of files) { const u = await onUpload(f); if (u) urls.push(u); }
-                  onChange({ ...d, images: [...images, ...urls] });
-                }} />
-              </label>
+            <div className="fade-slide-in" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, border: `1.5px dashed ${busy ? '#c9a84c' : 'rgba(255,255,255,0.15)'}`, transition: 'border-color 0.2s' }}>
+              {busy ? (
+                <>
+                  <div className="spin" style={{ width: 24, height: 24, border: '2.5px solid rgba(201,168,76,0.25)', borderTopColor: '#c9a84c', borderRadius: '50%' }} />
+                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.7rem', color: '#c9a84c' }}>Envoi des photos…</span>
+                </>
+              ) : (
+                <>
+                  <span style={{ fontSize: 28, opacity: 0.4 }}>🗂️</span>
+                  <label style={{ padding: '0.4rem 0.85rem', background: '#c9a84c', color: '#0d0d0d', cursor: 'pointer', fontSize: '0.72rem', fontFamily: "'DM Sans',system-ui", fontWeight: 600, borderRadius: 3 }}
+                    onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(1.1)')} onMouseLeave={e => (e.currentTarget.style.filter = 'none')}>
+                    📁 Ajouter des photos
+                    <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={async e => {
+                      const files = Array.from(e.target.files || []);
+                      setBusy(true);
+                      try {
+                        const urls: string[] = [];
+                        for (const f of files) { const u = await onUpload(f); if (u) urls.push(u); }
+                        onChange({ ...d, images: [...images, ...urls] });
+                      } finally { setBusy(false); }
+                    }} />
+                  </label>
+                </>
+              )}
             </div>
           ) : (
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -826,7 +852,8 @@ function BlockContent({ block, onChange, onUpload }: {
                 </div>
               )}
               <button type="button" onClick={() => onChange({ ...d, images: [] })}
-                style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 26, height: 26, cursor: 'pointer', fontSize: 14 }}>×</button>
+                style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 26, height: 26, cursor: 'pointer', fontSize: 14 }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(192,57,43,0.85)')} onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.6)')}>×</button>
             </div>
           )}
         </div>
@@ -922,400 +949,364 @@ function BlockContent({ block, onChange, onUpload }: {
   }
 }
 
-// ─── Canvas block (draggable + resizable) ─────────────────────────────────────
-const RESIZE_HANDLES = ['se','sw','ne','nw','n','s','e','w'] as const;
-type Handle = typeof RESIZE_HANDLES[number];
-
-function CanvasBlockEl({ block, selected, onSelect, onUpdate, onDelete, onUpload, canvasScale }: {
-  block: CanvasBlock;
-  selected: boolean;
-  onSelect: () => void;
-  onUpdate: (b: CanvasBlock) => void;
-  onDelete: () => void;
-  onUpload: (f: File) => Promise<string | null>;
-  canvasScale: number;
+// ─── Dropdown personnalisé (remplace les <select> natifs du navigateur) ───────
+function CustomSelect({ value, onChange, options, placeholder = 'Sélectionner…', searchable = false }: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  searchable?: boolean;
 }) {
-  const dragStart = useRef<{ mx: number; my: number; bx: number; by: number } | null>(null);
-  const resizeStart = useRef<{ mx: number; my: number; bx: number; by: number; bw: number; bh: number; handle: Handle } | null>(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
-  const onMouseDownDrag = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).dataset.resize) return;
-    onSelect();
-    dragStart.current = { mx: e.clientX, my: e.clientY, bx: block.x, by: block.y };
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => { if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    if (searchable) setTimeout(() => searchRef.current?.focus(), 30);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [open, searchable]);
 
-    const onMove = (ev: MouseEvent) => {
-      if (!dragStart.current) return;
-      const dx = (ev.clientX - dragStart.current.mx) / canvasScale;
-      const dy = (ev.clientY - dragStart.current.my) / canvasScale;
-      onUpdate({ ...block, x: Math.max(0, dragStart.current.bx + dx), y: Math.max(0, dragStart.current.by + dy) });
-    };
-    const onUp = () => { dragStart.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  };
-
-  const onMouseDownResize = (e: React.MouseEvent, handle: Handle) => {
-    e.stopPropagation();
-    e.preventDefault();
-    resizeStart.current = { mx: e.clientX, my: e.clientY, bx: block.x, by: block.y, bw: block.w, bh: block.h, handle };
-
-    const onMove = (ev: MouseEvent) => {
-      if (!resizeStart.current) return;
-      const { mx, my, bx, by, bw, bh, handle } = resizeStart.current;
-      const dx = (ev.clientX - mx) / canvasScale;
-      const dy = (ev.clientY - my) / canvasScale;
-      let nx = bx, ny = by, nw = bw, nh = bh;
-
-      if (handle.includes('e')) nw = Math.max(80, bw + dx);
-      if (handle.includes('s')) nh = Math.max(40, bh + dy);
-      if (handle.includes('w')) { nw = Math.max(80, bw - dx); nx = bx + (bw - nw); }
-      if (handle.includes('n')) { nh = Math.max(40, bh - dy); ny = by + (bh - nh); }
-
-      onUpdate({ ...block, x: nx, y: ny, w: nw, h: nh });
-    };
-    const onUp = () => { resizeStart.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  };
-
-  const handleCursors: Record<Handle, string> = {
-    se:'se-resize', sw:'sw-resize', ne:'ne-resize', nw:'nw-resize',
-    n:'n-resize', s:'s-resize', e:'e-resize', w:'w-resize',
-  };
-  const handlePositions: Record<Handle, React.CSSProperties> = {
-    se:{ bottom:-5, right:-5 }, sw:{ bottom:-5, left:-5 },
-    ne:{ top:-5, right:-5 },   nw:{ top:-5, left:-5 },
-    n: { top:-5, left:'50%', transform:'translateX(-50%)' },
-    s: { bottom:-5, left:'50%', transform:'translateX(-50%)' },
-    e: { top:'50%', right:-5, transform:'translateY(-50%)' },
-    w: { top:'50%', left:-5, transform:'translateY(-50%)' },
-  };
+  const filtered = searchable && query
+    ? options.filter(o => o.label.toLowerCase().includes(query.toLowerCase()))
+    : options;
+  const current = options.find(o => o.value === value);
 
   return (
-    <div
-      onMouseDown={e => { e.stopPropagation(); onMouseDownDrag(e); }}
-      onClick={e => e.stopPropagation()}
-      style={{
-        position: 'absolute',
-        left: block.x, top: block.y,
-        width: block.w, height: block.h,
-        zIndex: block.zIndex,
-        background: block.bg || 'transparent',
-        color: block.textColor,
-        cursor: 'move',
-        outline: selected ? '2px solid #c9a84c' : '1px solid rgba(255,255,255,0.06)',
-        outlineOffset: selected ? 2 : 0,
-        userSelect: 'none',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Content — pointer-events only when selected to avoid drag conflict */}
-      <div style={{ width: '100%', height: '100%', pointerEvents: selected ? 'all' : 'none', cursor: selected ? 'auto' : 'move' }}
-        onMouseDown={e => selected && e.stopPropagation()}>
-        <BlockContent block={block} onChange={data => onUpdate({ ...block, data })} onUpload={onUpload} />
-      </div>
+    <div ref={rootRef} style={{ position: 'relative' }}>
+      <button type="button" onClick={() => { setOpen(o => !o); setQuery(''); }}
+        style={{
+          width: '100%', padding: '0.75rem 1rem', border: `1px solid ${open ? '#c9a84c' : '#2a2a2a'}`,
+          background: '#1a1a1a', color: current ? '#e0e0e0' : '#555',
+          fontFamily: "'DM Sans',system-ui", fontSize: '0.92rem', textAlign: 'left',
+          cursor: 'pointer', borderRadius: 3, boxShadow: open ? '0 0 0 3px rgba(201,168,76,0.12)' : 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+        }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{current ? current.label : placeholder}</span>
+        <span style={{ fontSize: 10, color: '#666', flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+      </button>
 
-      {/* Controls (only when selected) */}
-      {selected && (
-        <>
-          {/* Top bar */}
-          <div style={{ position: 'absolute', top: -32, left: 0, height: 28, display: 'flex', alignItems: 'center', gap: 4, padding: '0 6px', background: '#c9a84c', zIndex: 10 }}
-            onMouseDown={e => e.stopPropagation()}>
-            <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', fontWeight: 700, color: '#0d0d0d', letterSpacing: '0.1em', textTransform: 'uppercase', paddingRight: 8 }}>
-              {SIDEBAR_CATS.flatMap(c => c.items).find(i => i.type === block.type)?.label || block.type}
-            </span>
-            {/* Bring forward / send back */}
-            <button type="button" title="Avancer" onClick={() => onUpdate({ ...block, zIndex: block.zIndex + 1 })}
-              style={{ background: 'rgba(0,0,0,0.2)', border: 'none', cursor: 'pointer', color: '#0d0d0d', fontSize: 12, padding: '2px 6px', borderRadius: 2 }}>↑</button>
-            <button type="button" title="Reculer" onClick={() => onUpdate({ ...block, zIndex: Math.max(1, block.zIndex - 1) })}
-              style={{ background: 'rgba(0,0,0,0.2)', border: 'none', cursor: 'pointer', color: '#0d0d0d', fontSize: 12, padding: '2px 6px', borderRadius: 2 }}>↓</button>
-            <button type="button" title="Dupliquer" onClick={() => onUpdate({ ...block, id: uid(), x: block.x + 20, y: block.y + 20 })}
-              style={{ background: 'rgba(0,0,0,0.2)', border: 'none', cursor: 'pointer', color: '#0d0d0d', fontSize: 12, padding: '2px 6px', borderRadius: 2 }}>⧉</button>
-            <button type="button" title="Supprimer (Del)" onClick={onDelete}
-              style={{ background: '#c0392b', border: 'none', cursor: 'pointer', color: 'white', fontSize: 13, padding: '2px 10px', borderRadius: 2, marginLeft: 4, fontFamily: "'DM Sans',system-ui", fontWeight: 700, letterSpacing: '0.06em' }}>✕ Suppr.</button>
+      {open && (
+        <div className="pop-in" style={{
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 200,
+          background: '#161616', border: '1px solid #2a2a2a', borderRadius: 5,
+          boxShadow: '0 16px 40px rgba(0,0,0,0.5)', overflow: 'hidden',
+        }}>
+          {searchable && (
+            <div style={{ padding: 8, borderBottom: '1px solid #1e1e1e' }}>
+              <input ref={searchRef} value={query} onChange={e => setQuery(e.target.value)}
+                placeholder="Rechercher…"
+                style={{ width: '100%', padding: '0.5rem 0.7rem', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 3, color: '#e0e0e0', fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', outline: 'none', boxSizing: 'border-box' as const }} />
+            </div>
+          )}
+          <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+            {filtered.length === 0 && (
+              <p style={{ padding: '0.85rem 1rem', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', color: '#555' }}>Aucun résultat</p>
+            )}
+            {filtered.map(o => (
+              <button key={o.value} type="button" onClick={() => { onChange(o.value); setOpen(false); }}
+                style={{
+                  width: '100%', textAlign: 'left', padding: '0.6rem 1rem', background: o.value === value ? 'rgba(201,168,76,0.12)' : 'transparent',
+                  border: 'none', cursor: 'pointer', color: o.value === value ? '#c9a84c' : '#ccc',
+                  fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', fontWeight: o.value === value ? 600 : 400,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}
+                onMouseEnter={e => { if (o.value !== value) e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                onMouseLeave={e => { if (o.value !== value) e.currentTarget.style.background = 'transparent'; }}>
+                {o.label}
+                {o.value === value && <span style={{ fontSize: 12 }}>✓</span>}
+              </button>
+            ))}
           </div>
-
-          {/* Resize handles */}
-          {RESIZE_HANDLES.map(h => (
-            <div key={h} data-resize={h}
-              onMouseDown={e => onMouseDownResize(e, h)}
-              style={{
-                position: 'absolute', ...handlePositions[h],
-                width: 10, height: 10,
-                background: '#c9a84c', border: '1.5px solid white',
-                cursor: handleCursors[h],
-                zIndex: 20,
-                borderRadius: 2,
-                pointerEvents: 'all',
-              }}
-            />
-          ))}
-        </>
+        </div>
       )}
     </div>
   );
 }
 
-// ─── Right properties panel ───────────────────────────────────────────────────
-function PropsPanel({ block, onUpdate }: { block: CanvasBlock; onUpdate: (b: CanvasBlock) => void }) {
-  const lS: React.CSSProperties = { display: 'block', fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#666', marginBottom: '0.35rem', fontFamily: "'DM Sans',system-ui" };
-  const iS: React.CSSProperties = { width: '100%', padding: '0.45rem 0.65rem', border: '1px solid #2a2a2a', background: '#1a1a1a', color: '#e0e0e0', fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', outline: 'none', borderRadius: 2, boxSizing: 'border-box' as const };
+// ─── Pinterest-style editor helpers ──────────────────────────────────────────
+// The visual editor below intentionally keeps CanvasBlock's x/y/w/h contract.
+// The database and the reader therefore continue to receive the same payload;
+// only the authoring experience becomes vertical and guided.
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-      <div>
-        <p style={{ ...lS, color: '#c9a84c', fontSize: '0.65rem', marginBottom: '0.75rem' }}>POSITION & TAILLE</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-          {[{k:'x',l:'X'},{k:'y',l:'Y'},{k:'w',l:'L'},{k:'h',l:'H'}].map(({k,l}) => (
-            <div key={k}>
-              <label style={lS}>{l}</label>
-              <input type="number" style={iS} value={Math.round((block as any)[k])}
-                onChange={e => onUpdate({ ...block, [k]: Number(e.target.value) })} />
-            </div>
-          ))}
-        </div>
-      </div>
+const TYPE_META: Record<BlockType, { icon: string; label: string; hint: string }> = {
+  text: { icon: '✍️', label: 'Texte', hint: 'Racontez un souvenir' },
+  photo: { icon: '📷', label: 'Photo', hint: 'Un moment fort' },
+  gallery: { icon: '▦', label: 'Galerie', hint: 'Plusieurs souvenirs' },
+  quote: { icon: '💬', label: 'Citation', hint: 'Une phrase à retenir' },
+  hotel: { icon: '🏨', label: 'Hébergement', hint: 'Une adresse à partager' },
+  restaurant: { icon: '🍽️', label: 'Restaurant', hint: 'Une bonne table' },
+  pros_cons: { icon: '⚖️', label: 'Pour / Contre', hint: 'Votre avis' },
+  divider: { icon: '—', label: 'Séparateur', hint: 'Créer une respiration' },
+  spacer: { icon: '↕', label: 'Espace', hint: "Créer de l'air" },
+};
 
-      <div>
-        <p style={{ ...lS, color: '#c9a84c', fontSize: '0.65rem', marginBottom: '0.75rem' }}>FOND</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-          {BG_PRESETS.map(p => (
-            <button key={p.value} type="button" title={p.label}
-              onClick={() => onUpdate({ ...block, bg: p.value })}
-              style={{ width: 28, height: 28, background: p.value === 'transparent' ? 'repeating-conic-gradient(#333 0% 25%, #222 0% 50%) 0 0 / 10px 10px' : p.value, border: `2px solid ${block.bg === p.value ? '#c9a84c' : '#2a2a2a'}`, cursor: 'pointer', borderRadius: 3 }} />
-          ))}
-        </div>
-        <input type="text" style={iS} value={block.bg} placeholder="CSS custom…"
-          onChange={e => onUpdate({ ...block, bg: e.target.value })} />
-      </div>
-
-      <div>
-        <p style={{ ...lS, color: '#c9a84c', fontSize: '0.65rem', marginBottom: '0.75rem' }}>TEXTE</p>
-        <div style={{ marginBottom: 8 }}>
-          <label style={lS}>Couleur</label>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {['#ffffff','#0d0d0d','#c9a84c','#faf8f4','#aaaaaa'].map(c => (
-              <button key={c} type="button" onClick={() => onUpdate({ ...block, textColor: c })}
-                style={{ width: 24, height: 24, background: c, border: `2px solid ${block.textColor === c ? '#c9a84c' : '#333'}`, cursor: 'pointer', borderRadius: '50%' }} />
-            ))}
-            <input type="color" value={block.textColor} onChange={e => onUpdate({ ...block, textColor: e.target.value })}
-              style={{ width: 24, height: 24, border: 'none', cursor: 'pointer', padding: 0, background: 'none' }} />
-          </div>
-        </div>
-        <div style={{ marginBottom: 8 }}>
-          <label style={lS}>Police</label>
-          <div style={{ display: 'flex', gap: 5 }}>
-            {([{v:'sans',l:'Sans'},{v:'serif',l:'Serif'},{v:'display',l:'Display'}] as {v:FontStyle,l:string}[]).map(({v,l}) => (
-              <button key={v} type="button" onClick={() => onUpdate({ ...block, font: v })}
-                style={{ flex:1, padding:'3px 4px', border:'1px solid', borderRadius:2, cursor:'pointer', fontSize:'0.68rem', fontFamily: FONT_MAP[v],
-                  borderColor: block.font===v?'#c9a84c':'#2a2a2a', background: block.font===v?'rgba(201,168,76,0.15)':'transparent', color: block.font===v?'#c9a84c':'#888' }}>
-                {l}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label style={lS}>Taille ({block.fontSize.toFixed(1)}rem)</label>
-          <input type="range" min="0.7" max="4" step="0.1" value={block.fontSize}
-            onChange={e => onUpdate({ ...block, fontSize: Number(e.target.value) })}
-            style={{ width: '100%', accentColor: '#c9a84c' }} />
-        </div>
-      </div>
-
-      <div>
-        <p style={{ ...lS, color: '#c9a84c', fontSize: '0.65rem', marginBottom: '0.5rem' }}>ORDRE Z</p>
-        <input type="number" style={iS} value={block.zIndex}
-          onChange={e => onUpdate({ ...block, zIndex: Number(e.target.value) })} />
-      </div>
-    </div>
-  );
+function blockLabel(type: BlockType) {
+  return TYPE_META[type]?.label || type;
 }
 
-// ─── Left sidebar ─────────────────────────────────────────────────────────────
-function Sidebar({ onAdd, onTemplate, onAddModule, activeTemplate, setActiveTemplate, canvasH, setCanvasH, collapsed, onToggle }: {
-  onAdd: (type: BlockType, defaults: { w: number; h: number; data: any }) => void;
-  onTemplate: () => void;
-  onAddModule: (mod: Module) => void;
-  activeTemplate: string | null;
-  setActiveTemplate: (t: string | null) => void;
-  canvasH: number; setCanvasH: (h: number) => void;
-  collapsed: boolean;
-  onToggle: () => void;
-}) {
-  const [open, setOpen] = useState<string[]>(['texte','medias','voyage']);
-  const [tab, setTab] = useState<'elements'|'modules'>('elements');
-  const toggle = (id: string) => setOpen(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
-  const activeMod = activeTemplate ? MODULAR_TEMPLATES[activeTemplate] : null;
-
-  if (collapsed) {
-    return (
-      <div style={{ width: 48, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '0.75rem', gap: '0.5rem', height: '100%' }}>
-        <button type="button" onClick={onToggle} title="Ouvrir la sidebar"
-          style={{ width: 34, height: 34, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 4, cursor: 'pointer', color: '#c9a84c', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          ▶
-        </button>
-        {['¶','🖼️','🏨','⚖️','❝'].map((ic, i) => (
-          <div key={i} style={{ width: 34, height: 34, background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, cursor: 'default', opacity: 0.4 }}>
-            {ic}
-          </div>
-        ))}
-      </div>
-    );
+function defaultBlock(type: BlockType): { w: number; h: number; data: any } {
+  switch (type) {
+    case 'text': return { w: 1080, h: 230, data: { html: '<p>Écrivez votre histoire ici…</p>' } };
+    case 'photo': return { w: 1080, h: 520, data: { url: '', caption: '' } };
+    case 'gallery': return { w: 1080, h: 430, data: { images: [], layout: 'mosaic' } };
+    case 'quote': return { w: 900, h: 220, data: { text: '', author: '' } };
+    case 'hotel': return { w: 720, h: 300, data: { name:'',link:'',price:'',rating:'',review:'',photo:'' } };
+    case 'restaurant': return { w: 720, h: 280, data: { name:'',link:'',price:'',rating:'',review:'',cuisine:'' } };
+    case 'pros_cons': return { w: 900, h: 300, data: { pros:[''],cons:[''] } };
+    case 'divider': return { w: 900, h: 48, data: { style: 'line' } };
+    case 'spacer': return { w: 900, h: 80, data: {} };
   }
+}
 
+function layoutBlock(block: CanvasBlock, layout: 'wide'|'standard'|'compact'|'large', align: 'left'|'center'|'right' = 'center'): CanvasBlock {
+  const widths: Record<string, number> = { wide: 1080, large: 980, standard: 760, compact: 520 };
+  const w = Math.min(CANVAS_W - 40, widths[layout]);
+  const x = align === 'left' ? 60 : align === 'right' ? CANVAS_W - w - 60 : Math.round((CANVAS_W - w) / 2);
+  return { ...block, x, w: Math.max(320, w) };
+}
+
+function autoLayoutBlocks(input: CanvasBlock[]): CanvasBlock[] {
+  const ordered = [...input].sort((a,b) => (a.y - b.y) || (a.zIndex - b.zIndex));
+  let y = 60;
+  return ordered.map((b, index) => {
+    const isPhoto = b.type === 'photo' || b.type === 'gallery';
+    const isText = b.type === 'text' || b.type === 'quote';
+    const w = isPhoto ? 1080 : isText ? 900 : Math.min(900, Math.max(520, b.w || 760));
+    const x = b.type === 'divider' || b.type === 'spacer' ? 150 : Math.round((CANVAS_W - w) / 2);
+    const h = Math.max(48, b.h || defaultBlock(b.type).h);
+    const next = { ...b, x, y, w, h, zIndex: 5 };
+    y += h + (b.type === 'divider' ? 26 : b.type === 'spacer' ? 10 : 34);
+    return next;
+  });
+}
+
+function AddPalette({ onAdd, onClose, onOpenMedia }: {
+  onAdd: (type: BlockType) => void;
+  onClose: () => void;
+  onOpenMedia: (type: 'photo'|'gallery') => void;
+}) {
+  const items: { type: BlockType; icon: string; label: string; hint: string }[] = [
+    { type:'photo', icon:'📷', label:'Photo', hint:'Un souvenir visuel' },
+    { type:'gallery', icon:'▦', label:'Galerie', hint:'Plusieurs photos' },
+    { type:'text', icon:'✍️', label:'Texte', hint:'Raconter votre histoire' },
+    { type:'quote', icon:'💬', label:'Citation', hint:'Une phrase forte' },
+    { type:'restaurant', icon:'🍽️', label:'Restaurant', hint:'Une bonne adresse' },
+    { type:'hotel', icon:'🏨', label:'Hébergement', hint:'Où vous avez dormi' },
+    { type:'pros_cons', icon:'⚖️', label:'Pour / Contre', hint:'Votre avis' },
+    { type:'divider', icon:'—', label:'Séparateur', hint:'Une respiration' },
+  ];
   return (
-    <div style={{ width: 240, flexShrink: 0, background: '#111', borderRight: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', height: '100%' }}>
-
-      {/* ── Template / Modules CTA ── */}
-      <div style={{ padding: '0.75rem', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
-        <button type="button" onClick={onTemplate}
-          style={{ width: '100%', padding: '0.6rem', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', border: 'none', cursor: 'pointer', borderRadius: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-          onMouseEnter={e => (e.currentTarget.style.opacity='0.85')} onMouseLeave={e => (e.currentTarget.style.opacity='1')}>
-          <span style={{ fontSize: 15 }}>✨</span>
-          <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, color:'white', letterSpacing:'0.08em', textTransform:'uppercase' }}>Templates visuels</span>
-        </button>
+    <div className="od-popover od-add-popover" onClick={e => e.stopPropagation()}>
+      <div className="od-popover-head">
+        <div><strong>Ajouter</strong><span>Votre contenu, sans vous occuper du design.</span></div>
+        <button type="button" onClick={onClose}>×</button>
       </div>
-
-      {/* ── Tab switcher ── */}
-      <div style={{ display: 'flex', borderBottom: '1px solid #1e1e1e', flexShrink: 0 }}>
-        {(['elements','modules'] as const).map(t => (
-          <button key={t} type="button" onClick={() => setTab(t)}
-            style={{ flex: 1, padding: '0.6rem', background: 'none', border: 'none', cursor: 'pointer', fontFamily:"'DM Sans',system-ui", fontSize:'0.68rem', fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase', transition:'all 0.2s',
-              color: tab===t ? '#c9a84c' : '#444',
-              borderBottom: tab===t ? '2px solid #c9a84c' : '2px solid transparent' }}>
-            {t === 'elements' ? '⊞ Éléments' : '📐 Modules'}
+      <div className="od-pop-grid">
+        {items.map(item => (
+          <button key={item.type} type="button" className="od-pop-item"
+            onClick={() => item.type === 'photo' || item.type === 'gallery' ? onOpenMedia(item.type as 'photo'|'gallery') : onAdd(item.type)}>
+            <span className="od-pop-icon">{item.icon}</span>
+            <span><b>{item.label}</b><small>{item.hint}</small></span>
           </button>
         ))}
       </div>
+    </div>
+  );
+}
 
-      {/* ── ELEMENTS TAB ── */}
-      {tab === 'elements' && (
-        <div style={{ flex:1, overflowY:'auto', padding:'0.5rem 0' }}>
-          {SIDEBAR_CATS.map(cat => (
-            <div key={cat.id}>
-              <button type="button" onClick={() => toggle(cat.id)}
-                style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0.6rem 1rem', background:'none', border:'none', cursor:'pointer' }}>
-                <span style={{ display:'flex', alignItems:'center', gap:8, fontFamily:"'DM Sans',system-ui", fontSize:'0.78rem', fontWeight:600, color:'#ccc' }}>
-                  <span>{cat.icon}</span>{cat.label}
-                </span>
-                <span style={{ fontSize:9, color:'#555', transform: open.includes(cat.id)?'rotate(180deg)':'none', display:'inline-block', transition:'transform 0.2s' }}>▼</span>
-              </button>
-              {open.includes(cat.id) && (
-                <div style={{ padding:'0 0.5rem 0.5rem' }}>
-                  {cat.items.map(item => (
-                    <button key={item.type+item.label} type="button"
-                      onClick={() => onAdd(item.type, { w:item.w, h:item.h, data:item.data })}
-                      style={{ width:'100%', display:'flex', alignItems:'center', gap:9, padding:'0.5rem 0.7rem', marginBottom:3, background:'rgba(255,255,255,0.03)', border:'1px solid #1e1e1e', cursor:'pointer', borderRadius:3, textAlign:'left', transition:'all 0.2s' }}
-                      onMouseEnter={e=>{ e.currentTarget.style.borderColor='#c9a84c'; e.currentTarget.style.background='rgba(201,168,76,0.07)'; }}
-                      onMouseLeave={e=>{ e.currentTarget.style.borderColor='#1e1e1e'; e.currentTarget.style.background='rgba(255,255,255,0.03)'; }}>
-                      <span style={{ fontSize:16, flexShrink:0 }}>{item.icon}</span>
-                      <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:500, color:'#ccc' }}>{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+function MediaLibraryModal({ supabase, onSelect, onClose }: {
+  supabase: ReturnType<typeof createClientComponentClient>;
+  onSelect: (url: string) => void;
+  onClose: () => void;
+}) {
+  const [items, setItems] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-      {/* ── MODULES TAB ── */}
-      {tab === 'modules' && (
-        <div style={{ flex:1, overflowY:'auto', display:'flex', flexDirection:'column' }}>
-          {/* Template selector */}
-          <div style={{ padding:'0.6rem 0.75rem', borderBottom:'1px solid #1a1a1a' }}>
-            <p style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.6rem', fontWeight:700, letterSpacing:'0.16em', textTransform:'uppercase', color:'#444', marginBottom:'0.5rem' }}>Type de récit actif</p>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:5 }}>
-              {Object.entries(MODULAR_TEMPLATES).map(([key, tpl]) => (
-                <button key={key} type="button" onClick={() => setActiveTemplate(activeTemplate===key ? null : key)}
-                  style={{ padding:'0.45rem 0.4rem', border:`1px solid ${activeTemplate===key ? tpl.accentColor : '#2a2a2a'}`, background: activeTemplate===key ? `${tpl.accentColor}18` : 'transparent', cursor:'pointer', borderRadius:3, display:'flex', alignItems:'center', gap:5, transition:'all 0.2s' }}>
-                  <span style={{ fontSize:14 }}>{tpl.icon}</span>
-                  <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.65rem', fontWeight:600, color: activeTemplate===key ? tpl.accentColor : '#666', lineHeight:1.2 }}>{tpl.label}</span>
-                </button>
-              ))}
-            </div>
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadFolder = async (prefix = ''): Promise<string[]> => {
+      const { data, error } = await supabase.storage.from('trip-images').list(prefix, {
+        limit: 100,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+      if (error) throw error;
+
+      const files: string[] = [];
+      for (const entry of data || []) {
+        if (!entry?.name) continue;
+        const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+        // Supabase Storage returns folders as entries without an extension/id.
+        // We recurse so the picker exposes the complete site media library,
+        // including images stored in subfolders.
+        if ((entry as any).id === null || !(entry as any).metadata) {
+          try {
+            files.push(...await loadFolder(path));
+          } catch (folderError) {
+            console.warn('Impossible de lire le dossier média', path, folderError);
+          }
+        } else {
+          files.push(path);
+        }
+      }
+      return files;
+    };
+
+    (async () => {
+      setLoading(true);
+      try {
+        const paths = await loadFolder('');
+        const urls = paths
+          .map(path => supabase.storage.from('trip-images').getPublicUrl(path).data.publicUrl)
+          .filter(Boolean);
+        if (!cancelled) setItems(Array.from(new Set(urls)));
+      } catch (e) {
+        console.error(e);
+        if (!cancelled) setItems([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [supabase]);
+
+  return (
+    <div className="od-modal" onClick={onClose}>
+      <div className="od-media-modal" onClick={e => e.stopPropagation()}>
+        <div className="od-media-head">
+          <div>
+            <p className="od-eyebrow">Bibliothèque du site</p>
+            <h3>Choisir une photo</h3>
+            <span>Toutes les photos disponibles dans le stockage du site.</span>
           </div>
-
-          {/* Module buttons */}
-          {activeMod ? (
-            <div style={{ padding:'0.6rem 0.75rem', flex:1 }}>
-              <p style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.6rem', fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase', color: activeMod.accentColor, marginBottom:'0.6rem' }}>
-                {activeMod.icon} Modules {activeMod.label}
-              </p>
-              <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
-                {activeMod.modules.map(mod => (
-                  <button key={mod.id} type="button" onClick={() => onAddModule(mod)}
-                    style={{ width:'100%', padding:'0.6rem 0.75rem', border:`1px solid #2a2a2a`, background:'rgba(255,255,255,0.03)', cursor:'pointer', borderRadius:3, textAlign:'left', display:'flex', alignItems:'center', gap:8, transition:'all 0.2s' }}
-                    onMouseEnter={e=>{ e.currentTarget.style.borderColor=activeMod.accentColor; e.currentTarget.style.background=`${activeMod.accentColor}12`; }}
-                    onMouseLeave={e=>{ e.currentTarget.style.borderColor='#2a2a2a'; e.currentTarget.style.background='rgba(255,255,255,0.03)'; }}>
-                    <span style={{ fontSize:16 }}>{mod.icon}</span>
-                    <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.73rem', fontWeight:500, color:'#ccc', lineHeight:1.35 }}>{mod.label}</span>
-                  </button>
-                ))}
-              </div>
-              <div style={{ marginTop:'1rem', padding:'0.75rem', background:'rgba(255,255,255,0.03)', borderRadius:3, border:'1px dashed #2a2a2a' }}>
-                <p style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.65rem', color:'#555', lineHeight:1.6 }}>
-                  Chaque module s'empile sous le contenu existant. Tout reste déplaçable et personnalisable.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'2rem 1rem', gap:10 }}>
-              <span style={{ fontSize:32, opacity:0.3 }}>📐</span>
-              <p style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.78rem', color:'#444', textAlign:'center', lineHeight:1.6 }}>
-                Choisissez un type de récit pour afficher ses modules
-              </p>
-            </div>
-          )}
+          <button type="button" onClick={onClose}>×</button>
         </div>
-      )}
 
-      {/* ── Canvas height ── */}
-      <div style={{ padding:'0.65rem 0.75rem', borderTop:'1px solid #1e1e1e', flexShrink:0 }}>
-        <p style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.6rem', fontWeight:700, letterSpacing:'0.12em', textTransform:'uppercase', color:'#444', marginBottom:5 }}>Hauteur canvas</p>
-        <div style={{ display:'flex', gap:5 }}>
-          <input type="number" value={canvasH} min={800} step={200}
-            onChange={e => setCanvasH(Number(e.target.value))}
-            style={{ flex:1, padding:'0.4rem 0.5rem', background:'#1a1a1a', border:'1px solid #2a2a2a', color:'#ccc', fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', outline:'none', borderRadius:2 }} />
-          <button type="button" onClick={() => setCanvasH(canvasH + 800)}
-            style={{ padding:'0.4rem 0.6rem', background:'#c9a84c', color:'#0d0d0d', border:'none', cursor:'pointer', fontFamily:"'DM Sans',system-ui", fontSize:'0.75rem', fontWeight:700, borderRadius:2 }}>+</button>
+        {loading ? (
+          <div className="od-media-empty">Chargement de la bibliothèque…</div>
+        ) : items.length ? (
+          <div className="od-media-grid">
+            {items.map((u, i) => (
+              <button type="button" key={u + i} onClick={() => onSelect(u)}>
+                <img src={u} alt="" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="od-media-empty">
+            <div>📷</div>
+            <b>Aucune photo trouvée</b>
+            <span>La bibliothèque du site ne contient aucune image accessible.</span>
+          </div>
+        )}
+
+        <div className="od-media-foot">
+          <span style={{ fontSize: 11, color: '#858c87' }}>{items.length} photo{items.length !== 1 ? 's' : ''} disponible{items.length !== 1 ? 's' : ''}</span>
+          <button type="button" className="od-ghost" onClick={onClose}>Fermer</button>
         </div>
       </div>
-      {/* ── Collapse toggle ── */}
-      <button type="button" onClick={onToggle} title="Réduire la sidebar"
-        style={{ padding:'0.5rem', borderTop:'1px solid #1e1e1e', background:'transparent', border:'none', cursor:'pointer', color:'#444', fontSize:'0.7rem', fontFamily:"'DM Sans',system-ui", letterSpacing:'0.08em', display:'flex', alignItems:'center', justifyContent:'center', gap:6, flexShrink:0, transition:'color 0.2s' }}
-        onMouseEnter={e => (e.currentTarget.style.color='#c9a84c')}
-        onMouseLeave={e => (e.currentTarget.style.color='#444')}>
-        ◀ Réduire
-      </button>
     </div>
   );
 }
 
-// ─── Steps indicator ──────────────────────────────────────────────────────────
-function Steps({ current }: { current: number }) {
-  const steps = ['Détails', 'Couverture', 'Mise en page', 'Publier'];
+function AdvancedInspector({ block, onUpdate, onDelete }: {
+  block: CanvasBlock;
+  onUpdate: (b: CanvasBlock) => void;
+  onDelete: () => void;
+}) {
+  const [advanced, setAdvanced] = useState(false);
+  const [styleOpen, setStyleOpen] = useState(true);
+  const update = (patch: Partial<CanvasBlock>) => onUpdate({ ...block, ...patch });
+  const align = block.x <= 80 ? 'left' : block.x + block.w >= CANVAS_W - 80 ? 'right' : 'center';
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      {steps.map((s, i) => (
-        <div key={s} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, transition: 'all 0.3s',
-              background: i < current ? '#c9a84c' : i === current ? 'white' : '#2a2a2a',
-              color: i < current ? '#0d0d0d' : i === current ? '#0d0d0d' : '#555' }}>
-              {i < current ? '✓' : i + 1}
-            </div>
-            <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 5, whiteSpace: 'nowrap', color: i === current ? 'white' : '#555' }}>{s}</span>
+    <aside className="od-inspector-new">
+      <div className="od-inspector-new-head">
+        <div><p>Modifier</p><h3>{TYPE_META[block.type]?.icon} {blockLabel(block.type)}</h3></div>
+        <button type="button" className="od-close-soft" onClick={onDelete}>Suppr.</button>
+      </div>
+      <div className="od-inspector-new-body">
+        <section className="od-inspector-section">
+          <div className="od-inspector-section-title"><span>Mise en page</span><small>Le moteur s'occupe du reste.</small></div>
+          <div className="od-layout-pills">
+            {(['wide','standard','compact'] as const).map(v=>(
+              <button key={v} type="button" className={Math.abs(block.w - ({wide:1080,standard:760,compact:520}[v])) < 20 ? 'active' : ''}
+                onClick={()=>update(layoutBlock(block,v,align as 'left'|'center'|'right'))}>
+                {v==='wide'?'Large':v==='standard'?'Standard':'Compact'}
+              </button>
+            ))}
           </div>
-          {i < steps.length - 1 && <div style={{ height: 1, flex: 1, marginBottom: 16, background: i < current ? '#c9a84c' : '#2a2a2a', transition: 'background 0.3s' }} />}
-        </div>
-      ))}
-    </div>
+          <div className="od-align-row">
+            {(['left','center','right'] as const).map(v=><button key={v} type="button" className={align===v?'active':''} onClick={()=>update(layoutBlock(block, Math.abs(block.w-1080)<20?'wide':Math.abs(block.w-520)<20?'compact':'standard',v))}>{v==='left'?'Gauche':v==='center'?'Centre':'Droite'}</button>)}
+          </div>
+        </section>
+
+        <section className="od-inspector-section">
+          <button type="button" className="od-collapse-title" onClick={()=>setStyleOpen(v=>!v)}>
+            <span>🎨 Style</span><span>{styleOpen?'−':'+'}</span>
+          </button>
+          {styleOpen && <>
+            <div className="od-color-row">
+              {BG_PRESETS.slice(0,7).map(p=><button key={p.value} title={p.label} type="button" className={block.bg===p.value?'active':''} style={{background:p.value}} onClick={()=>update({bg:p.value})}/>)}
+            </div>
+            <div className="od-font-row">
+              {(['sans','serif','display'] as FontStyle[]).map(v=><button key={v} type="button" className={block.font===v?'active':''} onClick={()=>update({font:v})}>{v==='sans'?'Sans':v==='serif'?'Serif':'Display'}</button>)}
+            </div>
+          </>}
+        </section>
+
+        <section className="od-inspector-section">
+          <div className="od-inspector-section-title"><span>Superposition</span><small>Uniquement si nécessaire.</small></div>
+          <div className="od-z-row"><button type="button" onClick={()=>update({zIndex:Math.max(1,block.zIndex-1)})}>−</button><span>{block.zIndex}</span><button type="button" onClick={()=>update({zIndex:block.zIndex+1})}>+</button></div>
+        </section>
+
+        <button type="button" className="od-advanced-toggle" onClick={()=>setAdvanced(v=>!v)}>{advanced?'Masquer les options avancées':'Options avancées'}</button>
+        {advanced && <div className="od-advanced-grid">
+          {(['x','y','w','h'] as const).map(k=><label key={k}><span>{k.toUpperCase()}</span><input type="number" value={Math.round(block[k])} onChange={e=>update({[k]:Number(e.target.value)} as Partial<CanvasBlock>)} /></label>)}
+          <label className="od-advanced-full"><span>Couleur du texte</span><input type="color" value={/^#[0-9a-f]{6}$/i.test(block.textColor)?block.textColor:'#0d0d0d'} onChange={e=>update({textColor:e.target.value})}/></label>
+        </div>}
+      </div>
+    </aside>
   );
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+function StoryBlockCard({ block, selected, onSelect, onUpdate, onDelete, onUpload, onMoveUp, onMoveDown }: {
+  block: CanvasBlock; selected: boolean; onSelect: ()=>void; onUpdate:(b:CanvasBlock)=>void; onDelete:()=>void;
+  onUpload:(f:File)=>Promise<string|null>; onMoveUp:()=>void; onMoveDown:()=>void;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const meta = TYPE_META[block.type];
+  return (
+    <article
+      className={`od-story-card ${selected?'selected':''} ${dragOver?'drag-over':''}`}
+      style={{ background:block.bg || '#fff', color:block.textColor }}
+      onClick={onSelect}
+      onDragOver={e=>{e.preventDefault();setDragOver(true)}}
+      onDragLeave={()=>setDragOver(false)}
+      onDrop={e=>{e.preventDefault();setDragOver(false);}}
+    >
+      <div className="od-story-card-top" onClick={e=>e.stopPropagation()}>
+        <span>{meta?.icon} {meta?.label}</span>
+        <div>
+          <button type="button" title="Monter" onClick={onMoveUp}>↑</button>
+          <button type="button" title="Descendre" onClick={onMoveDown}>↓</button>
+          <button type="button" title="Supprimer" onClick={onDelete}>×</button>
+        </div>
+      </div>
+      <div className="od-story-card-content">
+        <BlockContent block={block} onChange={data=>onUpdate({...block,data})} onUpload={onUpload} />
+      </div>
+    </article>
+  );
+}
+
 export default function CreateTrip() {
   const supabase = createClientComponentClient();
   const [isMounted, setIsMounted] = useState(false);
@@ -1323,704 +1314,327 @@ export default function CreateTrip() {
   const [loading, setLoading] = useState(false);
   const [published, setPublished] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  // Mode édition — trip existant chargé depuis ?edit=<id>
   const [editTripId, setEditTripId] = useState<string | null>(null);
   const [editLoading, setEditLoading] = useState(false);
-
-  // Metadata
-  const [meta, setMeta] = useState<Metadata>({ country:'',city:'',travelers:'1',duration:'',budget:'',category:'',season:'' });
-
-  // Cover
+  const [meta, setMeta] = useState<Metadata>({country:'',city:'',travelers:'1',duration:'',budget:'',category:'',season:''});
+  const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
-
-  // Canvas
   const [blocks, setBlocks] = useState<CanvasBlock[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [canvasH, setCanvasH] = useState(1600);
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [mediaPurpose, setMediaPurpose] = useState<'cover'|'photo'|'gallery'|null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showConfirmTemplate, setShowConfirmTemplate] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
-  const [canvasScale, setCanvasScale] = useState(1);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
-  const canvasAreaRef = useRef<HTMLDivElement>(null);
-  // Compteurs par module pour numérotation (Jour 1, Jour 2…)
-  const moduleCounters = useRef<Record<string, number>>({});
+  const [toast, setToast] = useState<{id:number;msg:string;kind:'error'|'success'}|null>(null);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  const [publishedId, setPublishedId] = useState<string|null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>|null>(null);
 
-  const applyTemplate = (newBlocks: any[], newH: number) => {
-    setBlocks(newBlocks);
-    setCanvasH(newH);
-    setSelectedId(null);
-    moduleCounters.current = {};
-  };
+  const notify = useCallback((msg:string, kind:'error'|'success'='error')=>{
+    if(toastTimer.current) clearTimeout(toastTimer.current);
+    const id=Date.now(); setToast({id,msg,kind});
+    toastTimer.current=setTimeout(()=>setToast(t=>t?.id===id?null:t),4200);
+  },[]);
 
-  // Calcule le bas du dernier bloc + marge, puis empile le module
-  const addModule = useCallback((mod: Module) => {
-    const bottomY = blocks.length > 0
-      ? Math.max(...blocks.map(b => b.y + b.h)) + 40
-      : 80;
-    const count = moduleCounters.current[mod.id] || 0;
-    moduleCounters.current[mod.id] = count + 1;
-    const rawBlocks = mod.generate(bottomY, count);
-    const newBlocks: CanvasBlock[] = rawBlocks.map(b => ({ ...b, id: uid() }));
-    const totalH = Math.max(...newBlocks.map(b => b.y + b.h)) + 60;
-    if (totalH > canvasH) setCanvasH(totalH);
-    setBlocks(p => [...p, ...newBlocks]);
-    setSelectedId(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, canvasH]);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const maxZ = blocks.reduce((m, b) => Math.max(m, b.zIndex), 0);
+  const destination=[meta.city,meta.country].filter(Boolean).join(', ');
+  const currentCategory=CATEGORIES.find(c=>c.value===meta.category)?.label || '';
+  const storyBlocks=[...blocks].sort((a,b)=>(a.y-b.y)||(a.zIndex-b.zIndex));
+  const selectedBlock=blocks.find(b=>b.id===selectedId)||null;
 
-  const selectedBlock = blocks.find(b => b.id === selectedId) || null;
+  useEffect(()=>{setIsMounted(true)},[]);
 
-  const addBlock = (type: BlockType, defaults: { w: number; h: number; data: any }) => {
-    // Place near center of visible canvas area
-    const canvas = canvasRef.current;
-    const scrollY = canvas?.parentElement?.scrollTop || 0;
-    const cx = Math.round(CANVAS_W / 2 - defaults.w / 2);
-    const cy = Math.round(scrollY + 200);
-    const nb: CanvasBlock = {
-      id: uid(), type, data: defaults.data,
-      x: cx, y: cy, w: defaults.w, h: defaults.h,
-      font: 'sans', bg: 'transparent', textColor: '#ffffff',
-      fontSize: 1, zIndex: maxZ + 1,
-    };
-    setBlocks(p => [...p, nb]);
-    setSelectedId(nb.id);
-  };
-
-  const updateBlock = useCallback((updated: CanvasBlock) => {
-    setBlocks(p => p.map(b => b.id === updated.id ? updated : b));
-  }, []);
-
-  const deleteBlock = useCallback((id: string) => {
-    setBlocks(p => p.filter(b => b.id !== id));
-    setSelectedId(null);
-  }, []);
-
-  // Upload
-  const uploadFile = useCallback(async (file: File): Promise<string | null> => {
-    setUploading(true);
-    try {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const fileName = `${uid()}.${ext}`;
-      const { data, error } = await supabase.storage.from('trip-images').upload(fileName, file, { cacheControl: '3600', upsert: false });
-      if (error) { console.error(error); return null; }
-      const { data: { publicUrl } } = supabase.storage.from('trip-images').getPublicUrl(fileName);
-      return publicUrl;
-    } finally { setUploading(false); }
-  }, [supabase]);
-
-  const uploadCover = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    const url = await uploadFile(file); if (url) setCoverUrl(url);
-  };
-
-  const canProceed = Boolean([
-    meta.country && meta.category,
-    title.trim().length > 0,
-    true,
-    true,
-  ][step]);
-
-  // Montage — anti-hydratation
-  useEffect(() => { setIsMounted(true); }, []);
-
-  // ── Mode édition : charge le trip existant si ?edit=<id> dans l'URL ──
-  useEffect(() => {
-    if (!isMounted) return;
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('edit');
-    if (!id) return;
-
+  useEffect(()=>{
+    if(!isMounted) return;
+    const id=new URLSearchParams(window.location.search).get('edit');
+    if(!id) return;
     setEditLoading(true);
-    (async () => {
-      // Vérifier que l'utilisateur connecté est bien l'auteur
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { alert('Connectez-vous pour modifier un récit.'); setEditLoading(false); return; }
-
-      const { data: trip, error } = await supabase
-        .from('trips')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error || !trip) { alert('Récit introuvable.'); setEditLoading(false); return; }
-      if (trip.author_id !== user.id) { alert('Vous ne pouvez modifier que vos propres récits.'); window.location.href = '/'; return; }
-
-      // Pré-remplir tous les états
-      setEditTripId(id);
-      setTitle(trip.title || '');
-      setSubtitle(trip.subtitle || '');
-      setCoverUrl(trip.cover_image || '');
+    (async()=>{
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user){notify('Connectez-vous pour modifier un récit.');setEditLoading(false);return;}
+      const {data:trip,error}=await supabase.from('trips').select('*').eq('id',id).single();
+      if(error||!trip){notify('Récit introuvable.');setEditLoading(false);return;}
+      if(trip.author_id!==user.id){notify('Vous ne pouvez modifier que vos propres récits.');window.location.href='/';return;}
+      setEditTripId(id); setTitle(trip.title||''); setSubtitle(trip.subtitle||''); setCoverUrl(trip.cover_image||'');
       setMeta({
-        country:   trip.country   || '',
-        city:      trip.city      || '',
-        travelers: String(trip.travelers || 1),
-        duration:  String(trip.duration_days || ''),
-        budget:    trip.budget    || '',
-        category:  trip.category  || '',
-        season:    trip.season    || '',
+        country:trip.country||'',city:trip.city||'',travelers:String(trip.travelers||1),
+        duration:String(trip.duration_days||''),budget:trip.budget||'',category:trip.category||'',season:trip.season||''
       });
-      if (trip.content && Array.isArray(trip.content)) {
-        setBlocks(trip.content as CanvasBlock[]);
-      }
-      if (trip.canvas_height) setCanvasH(trip.canvas_height);
-
-      // Sauter directement à l'étape canvas (step 2)
-      setStep(2);
-      setEditLoading(false);
+      if(Array.isArray(trip.content)) setBlocks(trip.content as CanvasBlock[]);
+      setStep(2); setEditLoading(false);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMounted]);
+  },[isMounted]);
 
-  // ── Dynamic canvas scaling — adapte le canvas à la largeur disponible ──
-  useEffect(() => {
-    if (step !== 2) return;
-    const SIDEBAR_W = sidebarCollapsed ? 48 : 240;
-    const RIGHT_W = rightPanelCollapsed ? 32 : 220;
-    const PADDING = 64; // 2rem de chaque côté
-    const CANVAS_NOMINAL = CANVAS_W; // 1200px
+  const uploadFile=useCallback(async(file:File):Promise<string|null>=>{
+    setUploading(true);
+    try{
+      const ext=file.name.split('.').pop()||'jpg';
+      const fileName=`${uid()}.${ext}`;
+      const {error}=await supabase.storage.from('trip-images').upload(fileName,file,{cacheControl:'3600',upsert:false});
+      if(error){console.error(error);notify("Impossible d'importer cette image.");return null;}
+      return supabase.storage.from('trip-images').getPublicUrl(fileName).data.publicUrl;
+    }finally{setUploading(false);}
+  },[supabase,notify]);
 
-    const compute = () => {
-      const available = window.innerWidth - SIDEBAR_W - RIGHT_W - PADDING;
-      const scale = Math.min(1, Math.max(0.35, available / CANVAS_NOMINAL));
-      setCanvasScale(scale);
-    };
-
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, [step, sidebarCollapsed, rightPanelCollapsed]);
-
-  // Delete selected block with keyboard
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (!selectedId) return;
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) return;
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        deleteBlock(selectedId);
-      }
-      if (e.key === 'Escape') setSelectedId(null);
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [selectedId, deleteBlock]);
-
-  const publishTrip = async () => {
-    setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert('Connectez-vous pour publier.'); setLoading(false); return; }
-
-    const tripPayload = {
-      title, subtitle,
-      cover_image: coverUrl || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200',
-      country: meta.country, city: meta.city, duration_days: Number(meta.duration) || null,
-      travelers: Number(meta.travelers) || 1, budget: meta.budget, category: meta.category, season: meta.season,
-      is_published: true, published_at: new Date().toISOString(),
-      content: blocks.map(b => ({ ...b })),
-      canvas: true,
-      canvas_height: canvasH,
-      total_size_mb: 0,
-    };
-
-    let error: any = null;
-    let redirectSlug: string | null = null;
-
-    if (editTripId) {
-      // ── Mode édition : UPDATE en vérifiant que l'auteur est bien le user connecté ──
-      const { data: updated, error: updateErr } = await supabase
-        .from('trips')
-        .update(tripPayload)
-        .eq('id', editTripId)
-        .eq('author_id', user.id) // sécurité côté client (RLS Supabase doit aussi protéger)
-        .select('slug')
-        .single();
-      error = updateErr;
-      redirectSlug = updated?.slug ?? null;
-    } else {
-      // ── Mode création : INSERT ──
-      const slug = title.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      const { data: inserted, error: insertErr } = await supabase
-        .from('trips')
-        .insert({ ...tripPayload, slug: `${slug}-${uid()}`, author_id: user.id })
-        .select('slug')
-        .single();
-      error = insertErr;
-      redirectSlug = inserted?.slug ?? null;
-    }
-
-    if (error) { alert('Erreur : ' + error.message); }
-    else {
-      setPublished(true);
-      // Redirige vers le profil de l'utilisateur après publication/mise à jour
-      const { data: prof } = await supabase.from('profiles').select('username').eq('id', user.id).single();
-      const dest = prof?.username ? `/profile/${prof.username}` : (redirectSlug ? `/trip/${redirectSlug}` : '/');
-      setTimeout(() => { window.location.href = dest; }, 2000);
-    }
-    setLoading(false);
+  const addBlock=(type:BlockType, dataOverride?:any)=>{
+    const d=defaultBlock(type);
+    const data=dataOverride ?? d.data;
+    const lastBottom=blocks.length ? Math.max(...blocks.map(b=>b.y+b.h))+34 : 60;
+    const w=Math.min(d.w,1080);
+    const b:CanvasBlock={id:uid(),type,data,x:Math.round((CANVAS_W-w)/2),y:lastBottom,w,h:d.h,font:'sans',bg:type==='photo'||type==='gallery'?'#eee':'#fff',textColor:'#17231e',fontSize:type==='text'?1.05:1,zIndex:5};
+    setBlocks(prev=>[...prev,b]); setSelectedId(b.id); setShowAddMenu(false);
   };
 
-  // Shared input styles (for meta/cover steps)
-  const iS: React.CSSProperties = { width:'100%', padding:'0.75rem 1rem', border:'1px solid #2a2a2a', background:'#1a1a1a', color:'#e0e0e0', fontFamily:"'DM Sans',system-ui", fontSize:'0.92rem', outline:'none', borderRadius:3, boxSizing:'border-box' as const };
-  const selS: React.CSSProperties = { ...iS, appearance:'none', backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat:'no-repeat', backgroundPosition:'right 1rem center', cursor:'pointer' };
-  const lS: React.CSSProperties = { display:'block', fontFamily:"'DM Sans',system-ui", fontSize:'0.68rem', fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase' as const, color:'#555', marginBottom:'0.5rem' };
-  const fg = (e: React.FocusEvent<any>) => (e.target.style.borderColor = '#c9a84c');
-  const fb = (e: React.FocusEvent<any>) => (e.target.style.borderColor = '#2a2a2a');
+  const updateBlock=useCallback((updated:CanvasBlock)=>{
+    setBlocks(prev=>prev.map(b=>b.id===updated.id?updated:b));
+  },[]);
+  const deleteBlock=useCallback((id:string)=>{setBlocks(prev=>prev.filter(b=>b.id!==id));setSelectedId(null)},[]);
+  const moveBlock=(id:string,dir:-1|1)=>{
+    setBlocks(prev=>{
+      const ordered=[...prev].sort((a,b)=>(a.y-b.y)||(a.zIndex-b.zIndex));
+      const idx=ordered.findIndex(b=>b.id===id); if(idx<0)return prev;
+      const ni=idx+dir; if(ni<0||ni>=ordered.length)return prev;
+      [ordered[idx],ordered[ni]]=[ordered[ni],ordered[idx]];
+      let y=60;
+      const next=ordered.map(b=>{const n={...b,y};y+=b.h+(b.type==='divider'?26:34);return n;});
+      return prev.map(b=>next.find(n=>n.id===b.id)||b);
+    });
+  };
 
-  // ── Guard anti-hydratation ──
-  if (!isMounted) return null;
+  const openMedia=(purpose:'cover'|'photo'|'gallery')=>{setMediaPurpose(purpose);setShowAddMenu(false)};
+  const selectMedia=(url:string)=>{
+    if(mediaPurpose==='cover') setCoverUrl(url);
+    if(mediaPurpose==='photo' && selectedBlock?.type==='photo') updateBlock({...selectedBlock,data:{...selectedBlock.data,url}});
+    if(mediaPurpose==='gallery' && selectedBlock?.type==='gallery') updateBlock({...selectedBlock,data:{...selectedBlock.data,images:[...(selectedBlock.data.images||[]),url]}});
+    setMediaPurpose(null);
+  };
 
-  // ── Chargement du trip en mode édition ──
-  if (editLoading) return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}}` }} />
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-        <div style={{ width: 36, height: 36, border: '3px solid #222', borderTopColor: '#c9a84c', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', color: '#555' }}>Chargement du récit…</p>
-      </div>
-    </>
+  const applyMagicLayout=()=>{
+    if(!blocks.length){notify('Ajoutez au moins un élément avant de lancer l’organisation automatique.');return;}
+    setBlocks(autoLayoutBlocks(blocks)); setSelectedId(null); notify('Votre récit a été organisé automatiquement.','success');
+  };
+
+  const applyTemplate=(newBlocks:any[],newH:number)=>{
+    // Templates keep the legacy coordinates expected by the reader.
+    const withIds=newBlocks.map(b=>({...b,id:uid()}));
+    setBlocks(withIds); setSelectedId(null);
+    setActiveTemplate('style personnalisé');
+    notify(`Style appliqué · ${Math.round(newH)} px de composition.`,'success');
+  };
+
+  const canProceed=step===0 ? Boolean(meta.country) : step===1 ? Boolean(title.trim()) : true;
+
+  const publishTrip=async()=>{
+    setLoading(true);
+    try{
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user){notify('Connectez-vous pour publier votre récit.');return;}
+      const payload:any={
+        title:title.trim(), subtitle:subtitle.trim(), cover_image:coverUrl||null,
+        country:meta.country, city:meta.city||null, travelers:Number(meta.travelers)||1,
+        duration_days:meta.duration?Number(meta.duration):null, budget:meta.budget||null,
+        category:meta.category||null, season:meta.season||null, content:blocks,
+      };
+      if(editTripId){
+        const {error}=await supabase.from('trips').update(payload).eq('id',editTripId).eq('author_id',user.id);
+        if(error)throw error;
+        setPublishedId(editTripId);
+      }else{
+        const {data,error}=await supabase.from('trips').insert({...payload,author_id:user.id}).select('id').single();
+        if(error)throw error;
+        setPublishedId(data?.id||null);
+      }
+      setPublished(true); notify(editTripId?'Votre récit a été mis à jour.':'Votre récit est publié.','success');
+    }catch(e:any){
+      console.error(e); notify(e?.message||'La publication a échoué.');
+    }finally{setLoading(false);}
+  };
+
+  const field=(label:string,value:string,onChange:(v:string)=>void,placeholder:string,type='text')=>(
+    <label className="od-field"><span>{label}</span><input value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} type={type}/></label>
   );
 
-  const globalCss = [
-    "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=DM+Sans:wght@300;400;500;600;700&display=swap');",
-    "@keyframes spin{to{transform:rotate(360deg)}}",
-    ".spin{animation:spin 0.8s linear infinite}",
-    "* { box-sizing: border-box; }",
-    "::-webkit-scrollbar{width:6px;height:6px}",
-    "::-webkit-scrollbar-track{background:#111}",
-    "::-webkit-scrollbar-thumb{background:#333;border-radius:3px}",
-    "::-webkit-scrollbar-thumb:hover{background:#555}",
+  if(!isMounted)return null;
+  if(editLoading)return <div className="od-loading"><div className="od-spinner"/><p>Préparation de votre récit…</p></div>;
 
-    /* ── Top bar responsive ── */
-    `@media (max-width: 768px) {
-      .topbar-title { display: none !important; }
-      .topbar-divider { display: none !important; }
-      .topbar-steps { width: auto !important; flex: 1 !important; min-width: 0 !important; }
-      .topbar-steps > div { zoom: 0.8; }
-    }`,
-    `@media (max-width: 480px) {
-      .topbar-logo-label { display: none !important; }
-      .topbar-steps > div { zoom: 0.65; }
-    }`,
+  const progress=[['Destination','Où êtes-vous allé ?'],['Histoire','Donnez-lui une voix.'],['Construire','Ajoutez vos souvenirs.'],['Publier','Voyez le résultat.']];
 
-    /* ── Steps 0 & 1 : formulaires ── */
-    `@media (max-width: 640px) {
-      .form-grid-2col { grid-template-columns: 1fr !important; }
-      .form-container { padding: 1.5rem 1rem !important; }
-      .form-inner { padding: 0 !important; }
-    }`,
-
-    /* ── Step 3 : recap ── */
-    `@media (max-width: 640px) {
-      .recap-grid { grid-template-columns: repeat(2, 1fr) !important; }
-      .recap-container { padding: 1.5rem 1rem !important; }
-    }`,
-
-    /* ── Canvas (step 2) : message mobile ── */
-    `@media (max-width: 900px) {
-      .canvas-mobile-warn { display: flex !important; }
-    }`,
-  ].join('\n');
-
-  return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: globalCss }} />
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0d0d0d', color: '#e0e0e0', overflow: 'hidden' }}>
-
-        {/* ── Top bar ── */}
-        <div style={{ height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1rem', background: '#111', borderBottom: '1px solid #1e1e1e', zIndex: 1100, gap: '0.5rem' }}>
-          {/* Logo + title + home button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-            {/* Home button */}
-            <button type="button"
-              onClick={() => { if (blocks.length === 0 || confirm('Quitter ? Votre récit non publié sera perdu.')) window.location.href = '/'; }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.35rem 0.75rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3, transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#555'; e.currentTarget.style.color = '#ccc'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}>
-              ← Accueil
+  return <>
+    <style dangerouslySetInnerHTML={{__html:`
+      @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap');
+      *{box-sizing:border-box}html,body{margin:0}body{background:#f4f1eb}button,input,textarea{font:inherit}button{cursor:pointer}
+      ::selection{background:#d9e8df;color:#17372d}@keyframes odSpin{to{transform:rotate(360deg)}}@keyframes odUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+      .od-app{height:100vh;display:flex;flex-direction:column;background:#f4f1eb;color:#17231e;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden}
+      .od-top{height:70px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid #e7e2d9;z-index:100}
+      .od-brand{display:flex;align-items:center;gap:11px;min-width:210px}.od-mark{width:36px;height:36px;border:0;border-radius:12px;background:#17372d;color:#f6f1e8;display:grid;place-items:center;font-family:Georgia,serif;font-size:18px}.od-brand strong{font-family:Georgia,serif;font-size:17px;letter-spacing:-.02em}.od-brand small{display:block;color:#8b938d;font-size:11px;margin-top:1px}
+      .od-progress{display:flex;align-items:center;gap:8px;position:absolute;left:50%;transform:translateX(-50%)}.od-progress-item{border:0;background:none;display:flex;align-items:center;color:#9aa09c;font-size:11px;font-weight:600}.od-progress-item.active{color:#17372d}.od-progress-dot{width:28px;height:28px;border:1px solid #ddd8cf;border-radius:50%;display:grid;place-items:center;background:white;font-size:11px}.od-progress-item.active .od-progress-dot{background:#17372d;border-color:#17372d;color:white}.od-progress-item.done .od-progress-dot{background:#dce9e1;border-color:#c9dbd0;color:#17372d}.od-progress-line{width:28px;height:1px;background:#ddd8cf}
+      .od-top-actions{display:flex;align-items:center;gap:7px;min-width:210px;justify-content:flex-end}.od-ghost,.od-secondary-action{border:1px solid #e1ddd5;background:white;color:#69716c;border-radius:11px;padding:9px 13px;font-size:12px;font-weight:600}.od-primary{border:0;background:#17372d;color:white;border-radius:11px;padding:10px 16px;font-size:12px;font-weight:700;box-shadow:0 7px 18px rgba(23,55,45,.16)}.od-primary:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+      .od-body{min-height:0;flex:1;display:flex;overflow:hidden}.od-content{flex:1;min-width:0;overflow:auto}.od-form-shell{max-width:1080px;margin:0 auto;padding:50px 28px 80px}.od-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:#8c938e;font-weight:700;margin:0 0 10px}.od-h1{font-family:Georgia,serif;font-size:44px;line-height:1.04;font-weight:400;letter-spacing:-.035em;margin:0;color:#17231e}.od-lead{font-size:15px;line-height:1.7;color:#737a75;max-width:640px;margin:12px 0 32px}.od-card{background:rgba(255,255,255,.84);border:1px solid #e5e0d7;border-radius:24px;padding:28px;box-shadow:0 15px 45px rgba(46,49,43,.05);animation:odUp .35s ease both}.od-section-title{font-family:Georgia,serif;font-size:23px;font-weight:400;margin:0 0 5px}.od-section-sub{color:#858c87;font-size:13px;margin:0 0 22px}.od-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.od-field{display:block}.od-field>span{display:block;font-size:11px;font-weight:700;color:#707873;text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}.od-field input,.od-field select,.od-field textarea{width:100%;border:1px solid #e1ddd5;background:#faf9f6;color:#25302b;border-radius:13px;padding:13px 14px;outline:none;transition:.18s}.od-field input:focus,.od-field textarea:focus{border-color:#9ab5a5;box-shadow:0 0 0 4px rgba(154,181,165,.16);background:white}.od-full{grid-column:1/-1}.od-pills{display:flex;flex-wrap:wrap;gap:8px}.od-pill{border:1px solid #e1ddd5;background:#faf9f6;border-radius:999px;padding:9px 13px;color:#65706a;font-size:12px}.od-pill.active{background:#e2eee7;border-color:#b9d0c1;color:#17372d;font-weight:700}.od-next-row{display:flex;justify-content:flex-end;margin-top:24px}.od-more{margin-top:18px;border:0;background:none;color:#315a48;font-size:12px;font-weight:700;padding:0}.od-detail-grid{margin-top:18px;padding-top:18px;border-top:1px solid #eee9e1}
+      .od-cover-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:22px;align-items:start}.od-cover-drop{min-height:430px;border:1px dashed #cfc9be;border-radius:20px;background:#ebe7df;position:relative;overflow:hidden;display:grid;place-items:center}.od-cover-drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.od-cover-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.03),rgba(0,0,0,.62))}.od-cover-copy{position:absolute;left:28px;right:28px;bottom:26px;color:white}.od-cover-copy h2{font-family:Georgia,serif;font-size:34px;font-weight:400;margin:0 0 6px}.od-cover-copy p{margin:0;color:rgba(255,255,255,.76);font-size:13px}.od-upload{position:relative;z-index:2;text-align:center}.od-upload-icon{width:58px;height:58px;border-radius:18px;background:white;display:grid;place-items:center;margin:0 auto 14px;font-size:23px;box-shadow:0 10px 25px rgba(0,0,0,.06)}.od-upload label{display:inline-flex;background:#17372d;color:white;border-radius:12px;padding:11px 15px;font-size:12px;font-weight:700}.od-upload input{display:none}.od-cover-side{display:flex;flex-direction:column;gap:14px}.od-tip{padding:16px;background:#edf3ee;border:1px solid #d8e5db;border-radius:16px;color:#516158;font-size:12px;line-height:1.6}.od-tip strong{display:block;color:#17372d;margin-bottom:4px}
+      .od-builder{display:flex;min-height:0;flex:1;overflow:hidden}.od-builder-main{flex:1;min-width:0;overflow:auto;background:#e9e6df}.od-builder-toolbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(244,242,237,.9);backdrop-filter:blur(12px);border-bottom:1px solid #dcd7ce}.od-toolbar-left{display:flex;align-items:center;gap:8px}.od-toolbar-title{font-family:Georgia,serif;font-size:17px}.od-toolbar-count{font-size:11px;color:#89908b}.od-toolbar-actions{display:flex;gap:6px}.od-toolbar-actions button{border:1px solid #ddd8cf;background:white;color:#66706a;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}.od-toolbar-actions .main{background:#17372d;color:white;border-color:#17372d}
+      .od-story{width:min(900px,calc(100% - 40px));margin:30px auto 100px;background:#fff;border-radius:4px;box-shadow:0 22px 55px rgba(43,43,38,.15);padding:48px 54px}.od-story-cover{text-align:center;padding:10px 0 48px;border-bottom:1px solid #e7e2d9;margin-bottom:30px}.od-story-cover .eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#a18c57;font-weight:700}.od-story-cover h2{font-family:Georgia,serif;font-weight:400;font-size:40px;line-height:1.08;margin:10px auto 8px;max-width:700px}.od-story-cover p{margin:0;color:#7d847f;font-size:14px}.od-story-cover img{width:100%;max-height:400px;object-fit:cover;border-radius:16px;margin-top:26px;display:block}.od-story-empty{text-align:center;padding:80px 30px;color:#919892}.od-story-empty b{display:block;font-family:Georgia,serif;font-size:24px;color:#5e6861;margin-bottom:8px}.od-story-empty span{font-size:12px}
+      .od-story-card{position:relative;border:1px solid #e4dfd6;border-radius:18px;overflow:visible;margin:18px 0;min-height:80px;box-shadow:0 7px 22px rgba(43,43,38,.04);transition:.18s}.od-story-card.selected{border-color:#9bb5a5;box-shadow:0 0 0 4px rgba(154,181,165,.13),0 12px 30px rgba(43,43,38,.08)}.od-story-card.drag-over{border-color:#17372d}.od-story-card-top{position:absolute;left:10px;right:10px;top:-13px;height:26px;display:flex;justify-content:space-between;align-items:center;z-index:8;opacity:0;pointer-events:none;transition:.18s}.od-story-card:hover .od-story-card-top,.od-story-card.selected .od-story-card-top{opacity:1;pointer-events:auto}.od-story-card-top>span{background:#17372d;color:white;border-radius:8px;padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.od-story-card-top>div{display:flex;gap:3px}.od-story-card-top button{width:26px;height:26px;border:1px solid #ddd8cf;background:white;border-radius:7px;color:#68716c}.od-story-card-content{min-height:100px;height:100%;padding:6px}
+      .od-add-zone{border:1px dashed #c7c1b7;border-radius:18px;padding:18px;text-align:center;margin-top:22px;background:#faf8f4}.od-add-zone button{border:0;background:#17372d;color:white;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:800}.od-add-zone p{margin:8px 0 0;font-size:11px;color:#8b918d}
+      .od-inspector-new{width:300px;flex:none;background:white;border-left:1px solid #e4dfd6;overflow:auto}.od-inspector-new-head{padding:17px 16px;border-bottom:1px solid #eee9e1;display:flex;align-items:center;justify-content:space-between}.od-inspector-new-head p{font-size:10px;color:#999f9a;margin:0 0 3px}.od-inspector-new-head h3{font-family:Georgia,serif;font-size:18px;font-weight:400;margin:0}.od-close-soft{border:1px solid #edd0cb;background:#fff7f5;color:#b44b3f;border-radius:9px;padding:7px 9px;font-size:10px;font-weight:700}.od-inspector-new-body{padding:14px}.od-inspector-section{padding:0 0 17px;margin-bottom:16px;border-bottom:1px solid #eee9e1}.od-inspector-section-title{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}.od-inspector-section-title span{font-size:11px;font-weight:800;color:#435048}.od-inspector-section-title small{font-size:10px;color:#969c97}.od-layout-pills,.od-align-row,.od-font-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.od-layout-pills button,.od-align-row button,.od-font-row button{border:1px solid #e2ddd5;background:#faf9f6;color:#68716c;border-radius:8px;padding:8px 5px;font-size:10px}.od-layout-pills button.active,.od-align-row button.active,.od-font-row button.active{background:#e2eee7;border-color:#b9d0c1;color:#17372d;font-weight:800}.od-align-row{margin-top:7px}.od-collapse-title{width:100%;border:0;background:none;display:flex;justify-content:space-between;padding:0;color:#435048;font-size:11px;font-weight:800}.od-color-row{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}.od-color-row button{width:27px;height:27px;border:2px solid #e0dbd2;border-radius:7px}.od-color-row button.active{border-color:#17372d;box-shadow:0 0 0 2px #dce9e1}.od-font-row{margin-top:9px}.od-z-row{display:flex;align-items:center;gap:8px}.od-z-row button{width:30px;height:30px;border:1px solid #e1ddd5;background:#faf9f6;border-radius:8px}.od-z-row span{font-size:11px;color:#68716c;min-width:25px;text-align:center}.od-advanced-toggle{width:100%;border:0;background:none;text-align:left;color:#315a48;font-size:11px;font-weight:800;padding:2px 0}.od-advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.od-advanced-grid label{display:block}.od-advanced-grid label span{display:block;font-size:9px;color:#929892;text-transform:uppercase;margin-bottom:4px}.od-advanced-grid input{width:100%;border:1px solid #e1ddd5;border-radius:8px;padding:7px;background:#faf9f6;color:#34403a}.od-advanced-full{grid-column:1/-1}
+      .od-popover{position:absolute;z-index:1000;background:white;border:1px solid #e1ddd5;border-radius:18px;box-shadow:0 25px 70px rgba(28,37,32,.2)}.od-add-popover{left:18px;top:62px;width:360px}.od-popover-head{display:flex;justify-content:space-between;padding:16px 17px;border-bottom:1px solid #eee9e1}.od-popover-head strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400}.od-popover-head span{display:block;font-size:10px;color:#8a918c;margin-top:3px}.od-popover-head button{border:0;background:none;color:#777;font-size:18px}.od-pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}.od-pop-item{border:1px solid #e7e2da;background:#fbfaf7;border-radius:12px;padding:11px;display:flex;gap:9px;text-align:left}.od-pop-item:hover{background:#f0f6f2;border-color:#aec6b7}.od-pop-icon{width:30px;height:30px;border-radius:9px;background:#e7eee9;display:grid;place-items:center}.od-pop-item b{display:block;font-size:11px;color:#34403a}.od-pop-item small{display:block;font-size:9px;color:#929892;margin-top:2px;line-height:1.3}
+      .od-media-modal{position:relative;width:min(760px,94vw);max-height:88vh;overflow:hidden;background:white;border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.od-media-head{padding:20px 22px 15px;display:flex;justify-content:space-between;border-bottom:1px solid #eee9e1}.od-media-head h3{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:0 0 4px}.od-media-head span{font-size:11px;color:#888f8a}.od-media-head button{border:0;background:none;font-size:22px;color:#777}.od-media-tabs{display:flex;border-bottom:1px solid #eee9e1;padding:0 18px}.od-media-tabs button{border:0;background:none;padding:11px 12px;color:#8a918c;font-size:11px;font-weight:800}.od-media-tabs button.active{color:#17372d;border-bottom:2px solid #17372d}.od-media-grid{padding:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:50vh;overflow:auto}.od-media-grid button{padding:0;border:0;border-radius:9px;overflow:hidden;aspect-ratio:1;background:#eee}.od-media-grid img{width:100%;height:100%;object-fit:cover}.od-media-empty{padding:60px;text-align:center;color:#858c87;font-size:12px}.od-media-empty div{font-size:34px;margin-bottom:9px}.od-media-empty b{display:block;color:#4f5b54;margin-bottom:5px}.od-media-empty span{display:block}.od-url-panel{padding:24px;display:flex;flex-direction:column;gap:12px}.od-url-note b{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400;margin-bottom:4px}.od-url-note span{font-size:11px;color:#858c87}.od-url-panel input{border:1px solid #e1ddd5;background:#faf9f6;border-radius:11px;padding:12px}.od-media-foot{padding:13px 18px;border-top:1px solid #eee9e1;display:flex;justify-content:space-between}
+      .od-publish-shell{max-width:980px;margin:0 auto;padding:46px 28px 80px}.od-publish-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}.od-preview{background:white;border:1px solid #e2ddd5;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px rgba(46,49,43,.06)}.od-preview-cover{height:270px;position:relative;background:#ddd}.od-preview-cover img{width:100%;height:100%;object-fit:cover}.od-preview-cover>div{position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(0,0,0,.7))}.od-preview-title{position:absolute;left:24px;right:24px;bottom:22px;color:white}.od-preview-title h2{font-family:Georgia,serif;font-weight:400;font-size:29px;margin:0 0 5px}.od-preview-title p{font-size:12px;color:#ddd;margin:0}.od-preview-meta{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.od-meta-item small{display:block;text-transform:uppercase;letter-spacing:.1em;font-size:9px;color:#999f9a;font-weight:700;margin-bottom:4px}.od-meta-item strong{font-size:12px;color:#34403a}.od-ready{background:#17372d;color:white;border-radius:22px;padding:25px}.od-ready h3{font-family:Georgia,serif;font-size:24px;font-weight:400;margin:0 0 7px}.od-ready p{font-size:12px;line-height:1.6;color:#c9d8d0;margin:0 0 20px}.od-ready-list{display:grid;gap:8px;margin-bottom:22px}.od-ready-list div{display:flex;gap:8px;align-items:center;font-size:11px;color:#e3eee8}.od-ready-list i{font-style:normal;width:19px;height:19px;border-radius:50%;background:#315a48;display:grid;place-items:center}.od-full-button{width:100%;border:0;border-radius:12px;padding:12px;background:#f4f1eb;color:#17372d;font-weight:800;font-size:12px}
+      .od-preview-mode{position:fixed;inset:0;z-index:2500;background:rgba(20,27,23,.72);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:30px}.od-phone{width:min(430px,92vw);height:min(88vh,820px);background:#fff;border-radius:32px;overflow:auto;box-shadow:0 30px 100px rgba(0,0,0,.35);position:relative}.od-phone-bar{position:sticky;top:0;z-index:10;padding:13px 16px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid #eee9e1;display:flex;justify-content:space-between}.od-phone-bar span{font-size:10px;font-weight:800;color:#69716c}.od-phone-bar button{border:0;background:none;color:#17372d;font-size:11px;font-weight:800}.od-phone-body{padding:0 0 35px}.od-phone-cover img{width:100%;height:300px;object-fit:cover}.od-phone-cover-copy{padding:24px}.od-phone-cover-copy small{color:#a18c57;text-transform:uppercase;letter-spacing:.16em;font-size:9px;font-weight:800}.od-phone-cover-copy h2{font-family:Georgia,serif;font-weight:400;font-size:30px;line-height:1.08;margin:8px 0}.od-phone-cover-copy p{font-size:12px;color:#7c847f;line-height:1.6}.od-phone-block{margin:14px 16px;border:1px solid #e7e2da;border-radius:15px;overflow:hidden;min-height:80px}.od-phone-block>div{height:100%}
+      .od-loading{height:100vh;display:grid;place-items:center;align-content:center;gap:12px;background:#f4f1eb;color:#727a75}.od-spinner{width:28px;height:28px;border:3px solid #dce4de;border-top-color:#17372d;border-radius:50%;animation:odSpin .8s linear infinite}.od-toast{position:fixed;top:82px;left:50%;transform:translateX(-50%);z-index:3000;background:#17372d;color:white;border-radius:13px;padding:12px 15px;box-shadow:0 16px 35px rgba(0,0,0,.18);font-size:12px;display:flex;align-items:center;gap:9px;max-width:min(90vw,500px)}
+      .od-modal{position:fixed;inset:0;background:rgba(24,30,27,.48);backdrop-filter:blur(7px);z-index:2000;display:grid;place-items:center;padding:20px}.od-modal-card{width:min(440px,100%);background:#fff;border-radius:22px;padding:24px;box-shadow:0 30px 80px rgba(0,0,0,.2)}.od-modal-card h3{font-family:Georgia,serif;font-weight:400;font-size:23px;margin:0 0 8px}.od-modal-card p{font-size:12px;color:#737a75;line-height:1.6;margin:0 0 20px}.od-modal-actions{display:flex;justify-content:flex-end;gap:8px}
+      @media(max-width:1050px){.od-inspector-new{width:260px}.od-story{width:min(820px,calc(100% - 28px));padding:38px 35px}.od-progress{display:none}}
+      @media(max-width:820px){.od-cover-layout,.od-publish-grid,.od-grid{grid-template-columns:1fr}.od-inspector-new{display:none}.od-story{padding:30px 18px;width:calc(100% - 24px)}.od-story-cover h2{font-size:32px}.od-top{padding:0 14px}.od-brand{min-width:auto}.od-brand small{display:none}.od-top-actions{min-width:auto}.od-top-actions .od-ghost{display:none}.od-form-shell,.od-publish-shell{padding:30px 16px 60px}.od-h1{font-size:34px}.od-card{padding:20px;border-radius:18px}.od-add-popover{left:10px;right:10px;width:auto}.od-media-grid{grid-template-columns:repeat(3,1fr)}}
+    .od-media-import-modal{max-width:820px}
+.od-media-import-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.od-upload-zone,.od-url-zone{min-height:220px;border:1px solid #e3e8e4;border-radius:18px;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:10px;background:#fafcfb}
+.od-upload-zone{border-style:dashed;cursor:pointer;text-align:center}
+.od-upload-zone input{display:none}
+.od-upload-icon{font-size:32px;line-height:1}
+.od-upload-zone small,.od-url-zone small{color:#748079}
+.od-url-title{font-weight:700;font-size:16px}
+.od-url-zone input{width:100%;box-sizing:border-box;border:1px solid #d8dfda;border-radius:10px;padding:12px 13px;background:#fff;outline:none}
+.od-url-zone input:focus{border-color:#263b31;box-shadow:0 0 0 3px rgba(38,59,49,.08)}
+.od-primary-btn{border:0;border-radius:10px;padding:11px 14px;background:#263b31;color:#fff;font-weight:700;cursor:pointer}
+.od-primary-btn:disabled{opacity:.45;cursor:not-allowed}
+.od-secondary-btn{border:1px solid #d8dfda;border-radius:10px;padding:9px 13px;background:#fff;cursor:pointer}
+.od-media-error{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:13px 15px;border:1px solid #f0c9c9;background:#fff6f6;border-radius:12px;color:#7d2626}
+.od-media-error p{margin:3px 0 0;color:#8d4141}
+.od-media-footer{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:20px;padding-top:16px;border-top:1px solid #edf0ee;color:#748079;font-size:12px}
+@media(max-width:700px){.od-media-import-grid{grid-template-columns:1fr}.od-media-footer{align-items:flex-start;flex-direction:column}.od-upload-zone,.od-url-zone{min-height:180px}}
+`}} />
+    <div className="od-app">
+      <header className="od-top">
+        <div className="od-brand">
+          <button className="od-mark" type="button" onClick={()=>blocks.length?setConfirmLeave(true):window.location.href='/'}>O</button>
+          <div><strong>Odyssey</strong><small>{editTripId?'Modifier un récit':'Nouveau récit'}</small></div>
+        </div>
+        <div className="od-progress">
+          {progress.map(([label],i)=><Fragment key={label}>
+            <button type="button" className={`od-progress-item ${i===step?'active':''} ${i<step?'done':''}`} onClick={()=>i<=step&&setStep(i)}>
+              <span className="od-progress-dot">{i<step?'✓':i+1}</span><span style={{marginLeft:7}}>{label}</span>
             </button>
-            <div className="topbar-divider" style={{ width: 1, height: 20, background: '#2a2a2a' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 26, height: 26, background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ color: 'white', fontSize: 13 }}>O</span>
-              </div>
-              <span className="topbar-logo-label" style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', color: '#c9a84c', letterSpacing: '0.1em' }}>Odyssey</span>
+            {i<3&&<span className="od-progress-line" style={{background:i<step?'#b8cdbf':undefined}}/>}
+          </Fragment>)}
+        </div>
+        <div className="od-top-actions">
+          {uploading&&<div className="od-spinner" style={{width:18,height:18,borderWidth:2}}/>}
+          {step>0&&<button className="od-ghost" type="button" onClick={()=>setStep(s=>s-1)}>← Retour</button>}
+          {step===2&&<button className="od-ghost" type="button" onClick={()=>setShowPreview(true)}>Aperçu</button>}
+          {step<3&&<button className="od-primary" type="button" disabled={!canProceed} onClick={()=>setStep(s=>s+1)}>{step===2?'Vérifier':'Continuer'} →</button>}
+          {step===3&&<button className="od-primary" type="button" disabled={loading} onClick={publishTrip}>{loading?'Publication…':editTripId?'Mettre à jour':'Publier le récit'}</button>}
+        </div>
+      </header>
+
+      <main className="od-body">
+        {step===0&&<div className="od-content"><div className="od-form-shell">
+          <p className="od-eyebrow">Étape 1 · Destination</p>
+          <h1 className="od-h1">Racontez votre voyage.</h1>
+          <p className="od-lead">Commencez par l'essentiel. Odyssey s'occupe de la structure ; vous vous occupez de l'histoire.</p>
+          <section className="od-card">
+            <h2 className="od-section-title">Où êtes-vous allé ?</h2>
+            <p className="od-section-sub">Une destination suffit pour commencer.</p>
+            <div className="od-grid">
+              <label className="od-field"><span>Pays *</span><CustomSelect value={meta.country} onChange={v=>setMeta(m=>({...m,country:v}))} options={COUNTRIES.map(v=>({value:v,label:v}))} placeholder="Choisir un pays…" searchable/></label>
+              <label className="od-field"><span>Ville / région</span><input value={meta.city} onChange={e=>setMeta(m=>({...m,city:e.target.value}))} placeholder="Paris, Kyoto, Toscane…"/></label>
             </div>
-            <div className="topbar-divider" style={{ width: 1, height: 20, background: '#2a2a2a' }} />
-            <span className="topbar-title" style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
-              {editTripId && <span style={{ color: 'rgba(201,168,76,0.7)', marginRight: 6 }}>✏️</span>}
-              {title || (editTripId ? 'Modifier le récit' : 'Nouveau récit')}
-            </span>
-          </div>
+            <div style={{marginTop:22}}>
+              <label className="od-field"><span>Quel type de voyage ?</span></label>
+              <div className="od-pills">{CATEGORIES.map(c=><button key={c.value} type="button" className={`od-pill ${meta.category===c.value?'active':''}`} onClick={()=>setMeta(m=>({...m,category:c.value}))}>{c.label}</button>)}</div>
+            </div>
+            <button className="od-more" type="button" onClick={()=>setShowMoreDetails(v=>!v)}>{showMoreDetails?'− Masquer les détails':'＋ Ajouter la durée, le budget et la saison'}</button>
+            {showMoreDetails&&<div className="od-detail-grid od-grid">
+              <label className="od-field"><span>Durée</span><input type="number" value={meta.duration} onChange={e=>setMeta(m=>({...m,duration:e.target.value}))} placeholder="7"/></label>
+              <label className="od-field"><span>Voyageurs</span><input type="number" min="1" value={meta.travelers} onChange={e=>setMeta(m=>({...m,travelers:e.target.value}))} placeholder="2"/></label>
+              <label className="od-field"><span>Budget</span><CustomSelect value={meta.budget} onChange={v=>setMeta(m=>({...m,budget:v}))} options={BUDGETS.map(v=>({value:v,label:v}))} placeholder="Fourchette…"/></label>
+              <label className="od-field"><span>Saison</span><CustomSelect value={meta.season} onChange={v=>setMeta(m=>({...m,season:v}))} options={SEASONS.map(v=>({value:v,label:v}))} placeholder="Quand ?"/></label>
+            </div>}
+          </section>
+          <div className="od-next-row"><button className="od-primary" type="button" disabled={!canProceed} onClick={()=>setStep(1)}>Continuer →</button></div>
+        </div></div>}
 
-          {/* Steps (compact) */}
-          <div className="topbar-steps" style={{ width: 440, flexShrink: 1 }}>
-            <Steps current={step} />
-          </div>
+        {step===1&&<div className="od-content"><div className="od-form-shell">
+          <p className="od-eyebrow">Étape 2 · Histoire</p>
+          <h1 className="od-h1">Donnez-lui une voix.</h1>
+          <p className="od-lead">Un titre, une phrase et une image forte. Vous pourrez raconter le reste dans l'étape suivante.</p>
+          <section className="od-card"><div className="od-cover-layout">
+            <div>
+              <div className="od-cover-drop" onDragOver={e=>e.preventDefault()} onDrop={async e=>{e.preventDefault();const f=e.dataTransfer.files?.[0];if(f){const u=await uploadFile(f);if(u)setCoverUrl(u)}}}>
+                {coverUrl?<><img src={coverUrl} alt="Couverture"/><div className="od-cover-overlay"/><div className="od-cover-copy"><h2>{title||'Votre titre'}</h2><p>{subtitle||destination||'Un voyage à raconter'}</p></div><button className="od-ghost" type="button" style={{position:'absolute',right:14,top:14,zIndex:3}} onClick={()=>setCoverUrl('')}>Changer</button></>:
+                uploading?<div className="od-upload"><div className="od-upload-icon">↗</div><p>Envoi de votre photo…</p></div>:
+                <div className="od-upload"><div className="od-upload-icon">＋</div><label>Ajouter une photo<input type="file" accept="image/*" onChange={async e=>{const f=e.target.files?.[0];if(!f)return;const u=await uploadFile(f);if(u)setCoverUrl(u)}}/></label><p style={{fontSize:11,color:'#949b96',marginTop:10}}>Glissez-déposez ici · JPG, PNG ou WebP</p><button type="button" className="od-secondary-action" style={{marginTop:9}} onClick={()=>openMedia('cover')}>Mes médias</button></div>}
+              </div>
+              {!coverUrl&&<div style={{marginTop:10}}>{field('Ou utiliser une URL',coverUrl,v=>setCoverUrl(optimizeImageUrl(v)),'https://images.unsplash.com/…')}</div>}
+            </div>
+            <div className="od-cover-side">
+              {field('Titre *',title,setTitle,'Une semaine au Japon…')}
+              {field("Phrase d'accroche",subtitle,setSubtitle,'Entre temples, ramen et néons…')}
+              <div className="od-tip"><strong>✨ Faites simple</strong>Le titre raconte l'émotion ; les détails viendront ensuite.</div>
+            </div>
+          </div></section>
+          <div className="od-next-row"><button className="od-primary" type="button" disabled={!canProceed} onClick={()=>setStep(2)}>Construire mon récit →</button></div>
+        </div></div>}
 
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            {uploading && <div style={{ width: 16, height: 16, border: '2px solid #333', borderTopColor: '#c9a84c', borderRadius: '50%' }} className="spin" />}
-            {step > 0 && (
-              <button type="button" onClick={() => setStep(s => s - 1)}
-                style={{ padding: '0.45rem 1rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#888', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', borderRadius: 3 }}>
-                ← Retour
-              </button>
-            )}
-            {step < 3 ? (
-              <button type="button" disabled={!canProceed} onClick={() => setStep(s => s + 1)}
-                style={{ padding: '0.45rem 1.25rem', border: 'none', cursor: canProceed ? 'pointer' : 'not-allowed', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3,
-                  background: canProceed ? '#c9a84c' : '#2a2a2a', color: canProceed ? '#0d0d0d' : '#555' }}>
-                Suivant →
-              </button>
-            ) : (
-              <button type="button" onClick={publishTrip} disabled={loading || published}
-                style={{ padding: '0.45rem 1.5rem', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3, display: 'flex', alignItems: 'center', gap: 6,
-                  background: published ? '#2d7a72' : '#c9a84c', color: '#0d0d0d' }}>
-                {loading ? <><div style={{width:14,height:14,border:'2px solid rgba(0,0,0,0.3)',borderTopColor:'#0d0d0d',borderRadius:'50%'}} className="spin"/>En cours…</> : published ? '✓ Publié !' : editTripId ? '💾 Mettre à jour' : '🚀 Publier'}
-              </button>
-            )}
+        {step===2&&<div className="od-builder">
+          <section className="od-builder-main" style={{position:'relative'}}>
+            <div className="od-builder-toolbar">
+              <div className="od-toolbar-left"><button className="od-primary" type="button" onClick={()=>setShowAddMenu(v=>!v)}>＋ Ajouter</button><div><div className="od-toolbar-title">{title||destination||'Votre récit'}</div><span className="od-toolbar-count">{blocks.length} élément{blocks.length!==1?'s':''}</span></div></div>
+              <div className="od-toolbar-actions">
+                <button type="button" onClick={applyMagicLayout}>✨ Organiser automatiquement</button>
+                <button type="button" onClick={()=>setShowConfirmTemplate(true)}>🎨 Styles</button>
+                <button type="button" onClick={()=>setShowPreview(true)}>📱 Aperçu</button>
+              </div>
+            </div>
+            {showAddMenu&&<AddPalette onClose={()=>setShowAddMenu(false)} onAdd={addBlock} onOpenMedia={type=>{addBlock(type);setTimeout(()=>setMediaPurpose(type),0)}}/>}
+            <div className="od-story">
+              <div className="od-story-cover">
+                <div className="eyebrow">{destination||'Odyssey'} · {currentCategory||'Récit de voyage'}</div>
+                <h2>{title||'Votre voyage'}</h2><p>{subtitle||'Ajoutez vos souvenirs et racontez ce qui vous a marqué.'}</p>
+                {coverUrl&&<img src={coverUrl} alt="Couverture"/>}
+              </div>
+              {storyBlocks.length===0?<div className="od-story-empty"><b>Votre carnet commence ici.</b><span>Ajoutez une photo, un texte ou un lieu avec le bouton «＋ Ajouter».</span></div>:
+                storyBlocks.map((b,i)=><StoryBlockCard key={b.id} block={b} selected={selectedId===b.id} onSelect={()=>setSelectedId(b.id)} onUpdate={updateBlock} onDelete={()=>deleteBlock(b.id)} onUpload={uploadFile} onMoveUp={()=>moveBlock(b.id,-1)} onMoveDown={()=>moveBlock(b.id,1)}/>)
+              }
+              <div className="od-add-zone"><button type="button" onClick={()=>setShowAddMenu(true)}>＋ Ajouter à votre histoire</button><p>Photo · Galerie · Texte · Citation · Restaurant · Hébergement · Conseil</p></div>
+            </div>
+          </section>
+          {selectedBlock&&<AdvancedInspector block={selectedBlock} onUpdate={updateBlock} onDelete={()=>deleteBlock(selectedBlock.id)}/>}
+        </div>}
+
+        {step===3&&<div className="od-content"><div className="od-publish-shell">
+          <p className="od-eyebrow">Étape 4 · Publier</p>
+          <h1 className="od-h1">Voyez ce que vos lecteurs vont voir.</h1>
+          <p className="od-lead">Votre récit est prêt. Vous pouvez encore revenir modifier chaque élément avant de le partager.</p>
+          <div className="od-publish-grid">
+            <div className="od-preview"><div className="od-preview-cover">{coverUrl&&<img src={coverUrl} alt=""/>}<div/><div className="od-preview-title"><h2>{title||'Sans titre'}</h2><p>{subtitle||destination||'Un voyage à raconter'}</p></div></div>
+              <div className="od-preview-meta">{[{l:'Destination',v:destination||'—'},{l:'Catégorie',v:currentCategory||'—'},{l:'Durée',v:meta.duration?`${meta.duration} jours`:'—'},{l:'Voyageurs',v:meta.travelers||'1'},{l:'Budget',v:meta.budget||'—'},{l:'Éléments',v:String(blocks.length)}].map(x=><div className="od-meta-item" key={x.l}><small>{x.l}</small><strong>{x.v}</strong></div>)}</div>
+            </div>
+            <div className="od-ready"><h3>Prêt à voyager ?</h3><p>{editTripId?'Vos modifications seront enregistrées dans le récit existant.':'Votre récit sera public et pourra être découvert par les visiteurs d’Odyssey.'}</p>
+              <div className="od-ready-list"><div><i>✓</i> Titre et destination</div><div><i>✓</i> Couverture choisie</div><div><i>✓</i> {blocks.length} élément{blocks.length!==1?'s':''} dans le récit</div><div><i>✓</i> Mise en page automatique</div></div>
+              <button className="od-full-button" type="button" disabled={loading} onClick={publishTrip}>{loading?'Publication en cours…':editTripId?'Mettre à jour mon récit':'Publier mon récit'}</button>
+            </div>
+          </div>
+        </div></div>}
+      </main>
+
+      {showPreview&&<div className="od-preview-mode" onClick={()=>setShowPreview(false)}>
+        <div className="od-phone" onClick={e=>e.stopPropagation()}>
+          <div className="od-phone-bar"><span>APERÇU LECTEUR</span><button type="button" onClick={()=>setShowPreview(false)}>Fermer ×</button></div>
+          <div className="od-phone-body">
+            <div className="od-phone-cover">{coverUrl&&<img src={coverUrl} alt=""/>}<div className="od-phone-cover-copy"><small>{destination||'Odyssey'}</small><h2>{title||'Votre voyage'}</h2><p>{subtitle||'Un voyage à raconter.'}</p></div></div>
+            {storyBlocks.map(b=><div className="od-phone-block" key={b.id} style={{background:b.bg||'#fff',color:b.textColor}}><BlockContent block={b} onChange={()=>{}} onUpload={uploadFile}/></div>)}
+            {!storyBlocks.length&&<div style={{padding:30,textAlign:'center',color:'#8a918c',fontSize:12}}>Ajoutez du contenu pour voir l'aperçu.</div>}
           </div>
         </div>
+      </div>}
 
-        {/* ── Body ── */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-
-          {/* ════ STEPS 0 & 1 — centered forms ════ */}
-          {(step === 0 || step === 1) && (
-            <div className="form-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
-              <div className="form-inner" style={{ width: '100%', maxWidth: 640 }}>
-
-                {step === 0 && (
-                  <>
-                    <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>Quelques précisions</h2>
-                    <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>Ces informations aident les lecteurs à trouver votre récit. * = obligatoire</p>
-                    <div className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.1rem' }}>
-                      <div><label style={lS}>Pays *</label>
-                        <select style={selS} value={meta.country} onChange={e => setMeta(m => ({ ...m, country: e.target.value }))} onFocus={fg} onBlur={fb}>
-                          <option value="">Sélectionner…</option>
-                          {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </div>
-                      <div><label style={lS}>Ville</label><input style={iS} placeholder="Tokyo, Lisbonne…" value={meta.city} onChange={e => setMeta(m => ({ ...m, city: e.target.value }))} onFocus={fg} onBlur={fb} /></div>
-                      <div><label style={lS}>Catégorie *</label>
-                        <select style={selS} value={meta.category} onChange={e => setMeta(m => ({ ...m, category: e.target.value }))} onFocus={fg} onBlur={fb}>
-                          <option value="">Choisir…</option>
-                          {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                        </select>
-                      </div>
-                      <div><label style={lS}>Saison</label>
-                        <select style={selS} value={meta.season} onChange={e => setMeta(m => ({ ...m, season: e.target.value }))} onFocus={fg} onBlur={fb}>
-                          <option value="">Saison…</option>
-                          {SEASONS.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                      </div>
-                      <div><label style={lS}>Durée (jours)</label><input style={iS} type="number" min="1" max="365" placeholder="14" value={meta.duration} onChange={e => setMeta(m => ({ ...m, duration: e.target.value }))} onFocus={fg} onBlur={fb} /></div>
-                      <div><label style={lS}>Voyageurs</label><input style={iS} type="number" min="1" max="50" placeholder="1" value={meta.travelers} onChange={e => setMeta(m => ({ ...m, travelers: e.target.value }))} onFocus={fg} onBlur={fb} /></div>
-                      <div style={{ gridColumn: '1/-1' }}>
-                        <label style={lS}>Budget</label>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {BUDGETS.map(b => (
-                            <button key={b} type="button" onClick={() => setMeta(m => ({ ...m, budget: b }))}
-                              style={{ padding: '0.45rem 1rem', border: '1px solid', borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', transition: 'all 0.2s',
-                                borderColor: meta.budget === b ? '#c9a84c' : '#2a2a2a',
-                                background: meta.budget === b ? 'rgba(201,168,76,0.15)' : '#1a1a1a',
-                                color: meta.budget === b ? '#c9a84c' : '#666' }}>{b}</button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {step === 1 && (
-                  <>
-                    <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>Couverture du récit</h2>
-                    <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>Ce sera affiché en haut de votre récit publié.</p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                      <div>
-                        <label style={lS}>Image de couverture</label>
-                        <div style={{ position: 'relative', height: 280, background: '#1a1a1a', border: '1px solid #2a2a2a', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 3 }}>
-                          {coverUrl ? (
-                            <>
-                              <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)' }} />
-                              <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', color: 'white' }}>
-                                <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1.75rem', fontWeight: 300, textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>{title || 'Votre titre'}</p>
-                                {subtitle && <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.9rem', opacity: 0.7, marginTop: 6, fontStyle: 'italic' }}>{subtitle}</p>}
-                              </div>
-                              <button type="button" onClick={() => setCoverUrl('')}
-                                style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', fontSize: 16 }}>×</button>
-                            </>
-                          ) : (
-                            <div style={{ textAlign: 'center', color: '#444' }}>
-                              <div style={{ fontSize: 40, marginBottom: 12 }}>🏔️</div>
-                              <label style={{ padding: '0.6rem 1.4rem', background: '#c9a84c', color: '#0d0d0d', cursor: 'pointer', fontSize: '0.78rem', fontFamily: "'DM Sans',system-ui", fontWeight: 700, borderRadius: 3, display: 'inline-block' }}>
-                                📁 Depuis l'ordinateur
-                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadCover} />
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                        {!coverUrl && <input style={{ ...iS, marginTop: 8 }} placeholder="Ou coller une URL d'image" onChange={e => setCoverUrl(e.target.value)} onBlur={e => { if(e.target.value) setCoverUrl(optimizeImageUrl(e.target.value)); }} onFocus={fg} />}
-                      </div>
-                      <div><label style={lS}>Titre *</label>
-                        <input style={{ ...iS, fontSize: '1.3rem', fontFamily: "'Fraunces',serif", fontWeight: 300, padding: '0.9rem 1rem' }}
-                          placeholder="Un titre qui donne envie de voyager…" value={title} onChange={e => setTitle(e.target.value)} onFocus={fg} onBlur={fb} />
-                      </div>
-                      <div><label style={lS}>Sous-titre</label>
-                        <input style={{ ...iS, fontStyle: 'italic', color: '#666' }}
-                          placeholder="Un résumé poétique…" value={subtitle} onChange={e => setSubtitle(e.target.value)} onFocus={fg} onBlur={fb} />
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ════ STEP 2 — Canvas editor ════ */}
-          {step === 2 && (
-            <>
-              {/* Avertissement mobile — caché sur desktop via CSS */}
-              <div className="canvas-mobile-warn" style={{
-                display: 'none', position: 'fixed', inset: 0, zIndex: 2000,
-                background: '#0d0d0d', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                padding: '2rem', textAlign: 'center',
-              }}>
-                <span style={{ fontSize: 48, marginBottom: '1.5rem' }}>🖥️</span>
-                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.75rem', fontWeight: 300, color: 'white', marginBottom: '0.75rem' }}>
-                  Éditeur disponible sur desktop
-                </h2>
-                <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.9rem', color: '#666', lineHeight: 1.7, maxWidth: 320, marginBottom: '2rem' }}>
-                  L'éditeur de récit nécessite un écran plus large pour placer et déplacer les blocs. Ouvrez Odyssey sur un ordinateur pour continuer.
-                </p>
-                <button type="button"
-                  onClick={() => setStep(1)}
-                  style={{ padding: '0.75rem 2rem', background: '#c9a84c', color: '#0d0d0d', border: 'none', borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.82rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                  ← Retour
-                </button>
-              </div>
-
-              {/* Left sidebar */}
-              <Sidebar
-                onAdd={addBlock}
-                onTemplate={() => setShowTemplates(true)}
-                onAddModule={addModule}
-                activeTemplate={activeTemplate}
-                setActiveTemplate={setActiveTemplate}
-                canvasH={canvasH}
-                setCanvasH={setCanvasH}
-                collapsed={sidebarCollapsed}
-                onToggle={() => setSidebarCollapsed(v => !v)}
-              />
-
-              {/* Canvas area — avec dynamic scaling */}
-              <div
-                ref={canvasAreaRef}
-                style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', background: '#1a1a1a', position: 'relative' }}
-                onMouseDown={e => { if (e.target === e.currentTarget) setSelectedId(null); }}
-              >
-                {/* Scale indicator */}
-                {canvasScale < 0.99 && (
-                  <div style={{
-                    position: 'sticky', top: 0, zIndex: 50, left: 0, right: 0,
-                    background: 'rgba(201,168,76,0.12)', borderBottom: '1px solid rgba(201,168,76,0.2)',
-                    padding: '4px 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  }}>
-                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: '#c9a84c', letterSpacing: '0.1em' }}>
-                      🔍 Zoom automatique : {Math.round(canvasScale * 100)}%
-                    </span>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      {!sidebarCollapsed && (
-                        <button type="button" onClick={() => setSidebarCollapsed(true)}
-                          style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}>
-                          ◀ Réduire sidebar
-                        </button>
-                      )}
-                      {!rightPanelCollapsed && (
-                        <button type="button" onClick={() => setRightPanelCollapsed(true)}
-                          style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#c9a84c', background: 'transparent', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, padding: '2px 8px', cursor: 'pointer' }}>
-                          Réduire panel ▶
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Scaled canvas wrapper */}
-                <div style={{
-                  padding: '2rem',
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  // Reserve the correct height so scrollbar works
-                  minHeight: canvasH * canvasScale + 64,
-                }}>
-                  <div style={{
-                    transformOrigin: 'top left',
-                    transform: `scale(${canvasScale})`,
-                    // After scale, the element occupies less visual space but its layout box stays original size.
-                    // We use negative margin-right to collapse the extra width, keeping the container tight.
-                    marginRight: -(CANVAS_W * (1 - canvasScale)),
-                    position: 'relative',
-                  }}>
-                    <div
-                      ref={canvasRef}
-                      style={{ position: 'relative', width: CANVAS_W, height: canvasH, background: '#faf8f4', flexShrink: 0, boxShadow: '0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.5)' }}
-                      onMouseDown={e => { if (e.target === canvasRef.current) setSelectedId(null); }}
-                    >
-                      {/* Grid overlay */}
-                      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-                        backgroundImage: 'linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)',
-                        backgroundSize: '40px 40px' }} />
-
-                      {/* Empty state */}
-                      {blocks.length === 0 && (
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-                          <p style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'rgba(0,0,0,0.12)', marginBottom: 8 }}>Page blanche</p>
-                          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', color: 'rgba(0,0,0,0.2)' }}>← Cliquez sur un élément à gauche pour l'ajouter</p>
-                        </div>
-                      )}
-
-                      {/* Blocks */}
-                      {blocks.map(block => (
-                        <CanvasBlockEl
-                          key={block.id}
-                          block={block}
-                          selected={selectedId === block.id}
-                          onSelect={() => setSelectedId(block.id)}
-                          onUpdate={updateBlock}
-                          onDelete={() => deleteBlock(block.id)}
-                          onUpload={uploadFile}
-                          canvasScale={canvasScale}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right properties panel — collapsible */}
-              {rightPanelCollapsed ? (
-                <div style={{ width: 32, flexShrink: 0, background: '#111', borderLeft: '1px solid #1e1e1e', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '0.75rem' }}>
-                  <button type="button" onClick={() => setRightPanelCollapsed(false)} title="Ouvrir le panneau"
-                    style={{ width: 24, height: 24, background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)', borderRadius: 3, cursor: 'pointer', color: '#c9a84c', fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    ◀
-                  </button>
-                </div>
-              ) : (
-                <div style={{ width: 220, flexShrink: 0, background: '#111', borderLeft: '1px solid #1e1e1e', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-                  {/* Panel header with collapse button */}
-                  <div style={{ padding: '0.6rem 0.75rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>
-                      Propriétés
-                    </p>
-                    <button type="button" onClick={() => setRightPanelCollapsed(true)}
-                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#444', fontSize: '0.7rem', padding: '2px 4px', borderRadius: 2, transition: 'color 0.2s' }}
-                      onMouseEnter={e => (e.currentTarget.style.color='#c9a84c')}
-                      onMouseLeave={e => (e.currentTarget.style.color='#444')}>
-                      ▶
-                    </button>
-                  </div>
-                  <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                    {selectedBlock ? (
-                      <>
-                        <PropsPanel block={selectedBlock} onUpdate={updateBlock} />
-                        {/* Delete */}
-                        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #1e1e1e' }}>
-                          <button type="button"
-                            onClick={() => deleteBlock(selectedBlock.id)}
-                            style={{ width: '100%', padding: '0.6rem', background: 'rgba(192,57,43,0.12)', border: '1px solid rgba(192,57,43,0.3)', color: '#e74c3c', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.25)'; e.currentTarget.style.borderColor = '#e74c3c'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(192,57,43,0.12)'; e.currentTarget.style.borderColor = 'rgba(192,57,43,0.3)'; }}>
-                            ✕ Supprimer ce bloc
-                          </button>
-                          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#333', textAlign: 'center', marginTop: 6 }}>ou touche Delete</p>
-                        </div>
-                      </>
-                    ) : (
-                      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#333' }}>
-                        <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1rem', marginBottom: 8, color: '#444' }}>Sélectionnez un bloc</p>
-                        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', lineHeight: 1.6 }}>Cliquez sur un élément du canvas pour modifier ses propriétés</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ════ STEP 3 — Recap ════ */}
-          {step === 3 && (
-            <div className="recap-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '3rem 1.5rem' }}>
-              <div style={{ width: '100%', maxWidth: 640 }}>
-                <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', marginBottom: '0.5rem' }}>
-                  {editTripId ? 'Mettre à jour le récit ?' : 'Prêt à publier ?'}
-                </h2>
-                <p style={{ color: '#555', fontSize: '0.88rem', marginBottom: '2.5rem', fontFamily: "'DM Sans',system-ui" }}>
-                  {editTripId ? 'Vérifiez vos modifications avant de sauvegarder.' : 'Vérifiez avant de partager votre récit.'}
-                </p>
-                <div style={{ border: '1px solid #1e1e1e', background: '#111', overflow: 'hidden', borderRadius: 4, marginBottom: '1.5rem' }}>
-                  {coverUrl && (
-                    <div style={{ height: 200, overflow: 'hidden', position: 'relative' }}>
-                      <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top,rgba(0,0,0,0.7),transparent)' }} />
-                      <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.5rem', color: 'white' }}>
-                        <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', fontWeight: 300 }}>{title}</p>
-                        {subtitle && <p style={{ fontSize: '0.85rem', opacity: 0.7, fontStyle: 'italic', marginTop: 4 }}>{subtitle}</p>}
-                      </div>
-                    </div>
-                  )}
-                  <div className="recap-grid" style={{ padding: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem' }}>
-                    {[
-                      { label: 'Destination', value: [meta.city, meta.country].filter(Boolean).join(', ') || '—' },
-                      { label: 'Catégorie', value: CATEGORIES.find(c => c.value === meta.category)?.label || '—' },
-                      { label: 'Durée', value: meta.duration ? `${meta.duration} jours` : '—' },
-                      { label: 'Voyageurs', value: meta.travelers || '1' },
-                      { label: 'Budget', value: meta.budget || '—' },
-                      { label: 'Blocs', value: `${blocks.length} élément${blocks.length !== 1 ? 's' : ''}` },
-                    ].map(({ label, value }) => (
-                      <div key={label}>
-                        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.62rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#555', marginBottom: 4 }}>{label}</p>
-                        <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.9rem', color: '#ccc', fontWeight: 500 }}>{value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div style={{ padding: '1rem 1.25rem', background: 'rgba(45,122,114,0.1)', borderLeft: '3px solid #2d7a72', display: 'flex', gap: '0.75rem', alignItems: 'flex-start', borderRadius: '0 3px 3px 0' }}>
-                  <span style={{ fontSize: 18 }}>🌍</span>
-                  <div>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', fontWeight: 600, color: '#2d7a72', marginBottom: 3 }}>Récit public</p>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', color: '#555', lineHeight: 1.6 }}>Visible par tous les visiteurs d'Odyssey sans inscription.</p>
-                  </div>
-                </div>
-                {published && (
-                  <div style={{ marginTop: '1.25rem', padding: '1rem 1.25rem', background: 'rgba(45,122,114,0.15)', border: '1px solid #2d7a72', display: 'flex', gap: '0.75rem', alignItems: 'center', borderRadius: 3 }}>
-                    <span style={{ fontSize: 22 }}>✅</span>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.92rem', color: '#2d7a72', fontWeight: 600 }}>
-                      {editTripId ? 'Mis à jour avec succès ! Redirection…' : 'Publié avec succès ! Redirection…'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Template modal */}
-      {showTemplates && (
-        <TemplateModal
-          onApply={applyTemplate}
-          onClose={() => setShowTemplates(false)}
-        />
-      )}
-    </>
-  );
+      {mediaPurpose&&<MediaLibraryModal supabase={supabase} onSelect={selectMedia} onClose={()=>setMediaPurpose(null)}/>}
+      {showConfirmTemplate&&<TemplateModal onApply={applyTemplate} onClose={()=>setShowConfirmTemplate(false)}/>}
+      {toast&&<div className="od-toast"><span>{toast.kind==='success'?'✓':'!'}</span><span>{toast.msg}</span><button type="button" onClick={()=>setToast(null)} style={{background:'transparent',border:0,color:'white',opacity:.65}}>×</button></div>}
+      {confirmLeave&&<div className="od-modal" onClick={()=>setConfirmLeave(false)}><div className="od-modal-card" onClick={e=>e.stopPropagation()}><h3>Quitter ce récit ?</h3><p>Les modifications non publiées seront perdues. Vous pourrez revenir plus tard uniquement si vous avez déjà publié le récit.</p><div className="od-modal-actions"><button className="od-ghost" type="button" onClick={()=>setConfirmLeave(false)}>Continuer à créer</button><button className="od-primary" style={{background:'#b44b3f'}} type="button" onClick={()=>window.location.href='/'}>Quitter</button></div></div></div>}
+      {published&&<div className="od-modal"><div className="od-modal-card"><p className="od-eyebrow">Odyssey</p><h3>{editTripId?'Récit mis à jour':'Récit publié'} ✦</h3><p>Votre histoire est enregistrée. {publishedId?'Vous pouvez revenir à l’accueil ou continuer à créer un autre récit.':''}</p><div className="od-modal-actions"><button className="od-ghost" type="button" onClick={()=>window.location.href='/'}>Accueil</button><button className="od-primary" type="button" onClick={()=>setPublished(false)}>Continuer</button></div></div></div>}
+    </div>
+  </>;
 }
