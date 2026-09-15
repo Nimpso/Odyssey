@@ -1089,36 +1089,72 @@ function autoLayoutBlocks(input: CanvasBlock[]): CanvasBlock[] {
   });
 }
 
-function AddPalette({ onAdd, onClose, onOpenMedia }: {
-  onAdd: (type: BlockType) => void;
+type AddBlockOptions = { w?: number; h?: number; bg?: string; font?: FontStyle; fontSize?: number };
+
+function AddPalette({ onAdd, onClose, onOpenMedia, category }: {
+  onAdd: (type: BlockType, dataOverride?: any, options?: AddBlockOptions) => void;
   onClose: () => void;
   onOpenMedia: (type: 'photo'|'gallery') => void;
+  category?: string;
 }) {
-  const items: { type: BlockType; icon: string; label: string; hint: string }[] = [
-    { type:'photo', icon:'📷', label:'Photo', hint:'Un souvenir visuel' },
-    { type:'gallery', icon:'▦', label:'Galerie', hint:'Plusieurs photos' },
-    { type:'text', icon:'✍️', label:'Texte', hint:'Raconter votre histoire' },
-    { type:'quote', icon:'💬', label:'Citation', hint:'Une phrase forte' },
-    { type:'restaurant', icon:'🍽️', label:'Restaurant', hint:'Une bonne adresse' },
-    { type:'hotel', icon:'🏨', label:'Hébergement', hint:'Où vous avez dormi' },
-    { type:'pros_cons', icon:'⚖️', label:'Pour / Contre', hint:'Votre avis' },
-    { type:'divider', icon:'—', label:'Séparateur', hint:'Une respiration' },
+  const [tab, setTab] = useState<'all'|'story'|'visual'|'practical'>('all');
+
+  type AddItem = {
+    id: string; type: BlockType; icon: string; label: string; hint: string; tab: 'story'|'visual'|'practical';
+    data?: any; options?: AddBlockOptions;
+  };
+
+  const items: AddItem[] = [
+    { id:'hero-photo', type:'photo', icon:'✦', label:'Photo immersive', hint:'Une image qui ouvre un chapitre', tab:'visual', options:{h:620,bg:'#e8e4dc'} },
+    { id:'photo-caption', type:'photo', icon:'📷', label:'Photo + légende', hint:'Image avec contexte et souvenir', tab:'visual', options:{h:460,bg:'#e8e4dc'} },
+    { id:'gallery-mosaic', type:'gallery', icon:'▦', label:'Mosaïque', hint:'2 à 4 photos, esprit Pinterest', tab:'visual', data:{images:[],layout:'mosaic'}, options:{h:430,bg:'#eee'} },
+    { id:'gallery-grid', type:'gallery', icon:'▤', label:'Grille de souvenirs', hint:'Une série régulière et élégante', tab:'visual', data:{images:[],layout:'grid'}, options:{h:360,bg:'#eee'} },
+    { id:'story', type:'text', icon:'Aa', label:'Récit libre', hint:'Le format principal pour raconter', tab:'story', data:{html:'<p><strong>Un moment à raconter</strong></p><p>Décrivez ce que vous avez vu, ressenti ou découvert…</p>'}, options:{h:250,w:900,font:'serif',fontSize:1.08,bg:'#fff'} },
+    { id:'chapter', type:'text', icon:'01', label:'Ouverture de chapitre', hint:'Un titre fort + une courte introduction', tab:'story', data:{html:'<p style="font-size:.62rem;text-transform:uppercase;letter-spacing:.2em;color:#a18c57;font-weight:700">Chapitre 01</p><h2 style="font-family:Fraunces,serif;font-size:2.6rem;font-weight:300;margin:.35rem 0">Un nouveau chapitre</h2><p style="color:#777;line-height:1.7">Présentez ici le moment qui va suivre.</p>'}, options:{h:240,w:900,font:'serif',bg:'#faf8f4'} },
+    { id:'quote', type:'quote', icon:'“', label:'Grande citation', hint:'Une phrase qui mérite de respirer', tab:'story', data:{text:'Une phrase qui résume ce moment…',author:''}, options:{h:210,w:820,bg:'#f5f0e8',font:'serif',fontSize:1.45} },
+    { id:'mini-quote', type:'quote', icon:'❝', label:'Citation courte', hint:'Une pensée glissée entre deux scènes', tab:'story', data:{text:'Ce que je retiens de ce lieu…',author:''}, options:{h:170,w:700,bg:'#fff',font:'serif',fontSize:1.15} },
+    { id:'restaurant', type:'restaurant', icon:'🍽️', label:'Bonne adresse', hint:'Restaurant + avis + budget', tab:'practical', options:{h:300,w:720,bg:'#fff'} },
+    { id:'hotel', type:'hotel', icon:'⌂', label:'Où dormir', hint:'Hôtel + prix + note + avis', tab:'practical', options:{h:320,w:720,bg:'#fff'} },
+    { id:'pros-cons', type:'pros_cons', icon:'±', label:'Pour / Contre', hint:'Votre verdict en un coup d’œil', tab:'practical', options:{h:300,w:900,bg:'#fff'} },
+    { id:'tip', type:'text', icon:'💡', label:'Conseil pratique', hint:'Une astuce que vous auriez aimé connaître', tab:'practical', data:{html:'<p style="font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:#315a48;font-weight:700">💡 Conseil pratique</p><p style="font-size:1rem;line-height:1.7">Votre conseil ici…</p>'}, options:{h:150,w:820,bg:'#edf3ee',font:'sans'} },
+    { id:'memory', type:'text', icon:'♥', label:'Souvenir personnel', hint:'Le petit détail qui rend le récit humain', tab:'story', data:{html:'<p style="font-family:Fraunces,serif;font-size:1.45rem;font-style:italic;font-weight:300;line-height:1.55">« Le détail que je n’oublierai pas… »</p><p style="color:#858c87;font-size:.85rem">Ajoutez votre souvenir.</p>'}, options:{h:190,w:760,bg:'#fff'} },
+    { id:'facts', type:'text', icon:'✦', label:'Infos express', hint:'Prix, durée, accès, difficulté…', tab:'practical', data:{html:'<p style="font-size:.62rem;text-transform:uppercase;letter-spacing:.18em;color:#8b938d;font-weight:700">Infos express</p><p style="line-height:1.9">📍 Accès : — &nbsp;&nbsp; ⏱ Durée : — &nbsp;&nbsp; € Budget : —</p>'}, options:{h:125,w:900,bg:'#f7f5f0',font:'sans',fontSize:.95} },
+    { id:'divider', type:'divider', icon:'—', label:'Respiration', hint:'Créer un espace entre deux moments', tab:'story', data:{style:'line'}, options:{h:44,w:760,bg:'transparent'} },
+    { id:'divider-dots', type:'divider', icon:'· · ·', label:'Séparateur éditorial', hint:'Un détail graphique discret', tab:'story', data:{style:'dots'}, options:{h:48,w:700,bg:'transparent'} },
   ];
+
+  const recommended = category ? items.filter(item =>
+    category === 'gastronomie' ? ['restaurant','facts','photo-caption'].includes(item.id) :
+    category === 'road-trip' ? ['hero-photo','chapter','facts','memory'].includes(item.id) :
+    category === 'nature' || category === 'aventure' ? ['hero-photo','gallery-mosaic','facts','memory'].includes(item.id) :
+    category === 'citytrip' || category === 'culture' ? ['photo-caption','gallery-grid','restaurant','chapter'].includes(item.id) :
+    ['hero-photo','story','gallery-mosaic','memory'].includes(item.id)
+  ) : [];
+  const visible = tab === 'all' ? items.filter(item => !recommended.some(r => r.id === item.id)) : items.filter(item => item.tab === tab);
+
+  const renderItem = (item: AddItem) => (
+    <button key={item.id} type="button" className="od-builder-add-card"
+      onClick={() => {
+        if (item.type === 'photo' || item.type === 'gallery') { onAdd(item.type, item.data, item.options); onOpenMedia(item.type); }
+        else onAdd(item.type, item.data, item.options);
+      }}>
+      <span className="od-builder-add-card-icon">{item.icon}</span>
+      <span className="od-builder-add-card-copy"><b>{item.label}</b><small>{item.hint}</small></span>
+      <span className="od-builder-add-card-plus">＋</span>
+    </button>
+  );
+
   return (
-    <div className="od-popover od-add-popover" onClick={e => e.stopPropagation()}>
-      <div className="od-popover-head">
-        <div><strong>Ajouter</strong><span>Votre contenu, sans vous occuper du design.</span></div>
-        <button type="button" onClick={onClose}>×</button>
+    <div className="od-popover od-add-popover od-builder-add-popover" onClick={e => e.stopPropagation()}>
+      <div className="od-builder-add-head">
+        <div><span className="od-builder-add-kicker">Créer votre récit</span><strong>Que voulez-vous ajouter ?</strong><small>Choisissez une composition, pas seulement un type de bloc.</small></div>
+        <button type="button" className="od-builder-add-close" onClick={onClose}>×</button>
       </div>
-      <div className="od-pop-grid">
-        {items.map(item => (
-          <button key={item.type} type="button" className="od-pop-item"
-            onClick={() => item.type === 'photo' || item.type === 'gallery' ? onOpenMedia(item.type as 'photo'|'gallery') : onAdd(item.type)}>
-            <span className="od-pop-icon">{item.icon}</span>
-            <span><b>{item.label}</b><small>{item.hint}</small></span>
-          </button>
-        ))}
+      <div className="od-builder-add-tabs">
+        {[['all','Tout'],['story','Raconter'],['visual','Visuel'],['practical','Pratique']].map(([id,label]) => <button key={id} type="button" className={tab===id?'active':''} onClick={()=>setTab(id as typeof tab)}>{label}</button>)}
       </div>
+      {recommended.length>0 && tab==='all' && <div className="od-builder-recommended"><div><span>✦</span><b>Pour votre voyage</b><small>Quelques formats qui devraient bien fonctionner</small></div><div className="od-builder-recommended-grid">{recommended.map(renderItem)}</div></div>}
+      <div className="od-builder-add-grid">{visible.map(renderItem)}</div>
     </div>
   );
 }
@@ -1444,15 +1480,16 @@ export default function CreateTrip() {
     }finally{setUploading(false);}
   },[supabase,notify]);
 
-  const addBlock=(type:BlockType, dataOverride?:any)=>{
+  const addBlock=(type:BlockType, dataOverride?:any, options: AddBlockOptions = {})=>{
     const d=defaultBlock(type);
     const data=dataOverride ?? d.data;
     const lastBottom=blocks.length ? Math.max(...blocks.map(b=>b.y+b.h))+34 : 60;
-    const w=Math.min(d.w,1080);
+    const w=Math.min(options.w ?? d.w,1080);
+    const h=options.h ?? d.h;
     const b:CanvasBlock={
-      id:uid(),type,data,x:Math.round((CANVAS_W-w)/2),y:lastBottom,w,h:d.h,
-      font:'sans',bg:type==='photo'||type==='gallery'?'#eee':'#fff',
-      textColor:'#17231e',fontSize:type==='text'?1.05:1,zIndex:5
+      id:uid(),type,data,x:Math.round((CANVAS_W-w)/2),y:lastBottom,w,h,
+      font:options.font || 'sans',bg:options.bg || (type==='photo'||type==='gallery'?'#eee':'#fff'),
+      textColor:'#17231e',fontSize:options.fontSize ?? (type==='text'?1.05:1),zIndex:5
     };
     setBlocks(prev=>[...prev,b]);
     setCanvasH(prev=>Math.max(prev,b.y+b.h+60));
@@ -1647,6 +1684,18 @@ export default function CreateTrip() {
       .od-story-card{position:relative;border:1px solid #e4dfd6;border-radius:18px;overflow:visible;margin:18px 0;min-height:80px;box-shadow:0 7px 22px rgba(43,43,38,.04);transition:.18s}.od-story-card.selected{border-color:#9bb5a5;box-shadow:0 0 0 4px rgba(154,181,165,.13),0 12px 30px rgba(43,43,38,.08)}.od-story-card.drag-over{border-color:#17372d}.od-story-card-top{position:absolute;left:10px;right:10px;top:-13px;height:26px;display:flex;justify-content:space-between;align-items:center;z-index:8;opacity:0;pointer-events:none;transition:.18s}.od-story-card:hover .od-story-card-top,.od-story-card.selected .od-story-card-top{opacity:1;pointer-events:auto}.od-story-card-top>span{background:#17372d;color:white;border-radius:8px;padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.od-story-card-top>div{display:flex;gap:3px}.od-story-card-top button{width:26px;height:26px;border:1px solid #ddd8cf;background:white;border-radius:7px;color:#68716c}.od-story-card-content{min-height:100px;height:100%;padding:6px}
 
       .od-template-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,35,30,.34);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px}.od-template-modal{width:min(1080px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;background:#faf9f6;border:1px solid rgba(23,35,30,.10);border-radius:24px;box-shadow:0 30px 90px rgba(23,35,30,.22)}.od-template-head{padding:24px 28px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #e8e4dc}.od-template-kicker{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8b938d;font-weight:800}.od-template-head h2{font-family:Georgia,serif;font-weight:400;font-size:29px;letter-spacing:-.025em;color:#17231e;margin:5px 0 5px}.od-template-head p{font-size:12px;color:#7c847f;margin:0}.od-template-head-actions{display:flex;gap:8px;align-items:center}.od-template-back,.od-template-close,.od-template-cancel{border:1px solid #ded9d0;background:#fff;color:#68716c;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:700}.od-template-close{width:36px;height:36px;padding:0;font-size:20px;font-weight:400}.od-template-grid{padding:22px 26px 26px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;overflow:auto}.od-template-card{border:1px solid #e3ded5;border-radius:17px;overflow:hidden;background:#fff;padding:0;text-align:left;cursor:pointer;transition:.18s;box-shadow:0 4px 18px rgba(23,35,30,.035)}.od-template-card:hover{transform:translateY(-3px);border-color:#b8c8bd;box-shadow:0 14px 30px rgba(23,35,30,.10)}.od-template-preview{height:154px;position:relative;overflow:hidden}.od-template-preview-title{position:absolute;top:0;left:0;right:0;height:52%;padding:18px 15px;display:flex;flex-direction:column;justify-content:center;gap:7px}.od-template-preview-title span{width:25px;height:3px;border-radius:3px}.od-template-preview-title b{width:78%;height:12px;border-radius:4px}.od-template-preview-title i{width:50%;height:7px;border-radius:4px}.od-template-preview-content{position:absolute;left:0;right:0;bottom:6px}.od-template-use{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.94);color:#17372d;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:800;opacity:0;transform:translateY(-4px);transition:.18s}.od-template-card:hover .od-template-use{opacity:1;transform:none}.od-template-info{padding:13px 14px 14px}.od-template-info>div{display:flex;align-items:center;gap:7px}.od-template-info strong{font-size:12px;color:#26322c}.od-template-icon{font-size:15px}.od-template-info p{font-size:10px;line-height:1.45;color:#89908b;margin:6px 0 0}.od-template-config{padding:24px 28px;overflow:auto}.od-template-selected{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #e4dfd6;background:#fff;border-radius:16px}.od-template-selected-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:19px}.od-template-selected>div:nth-child(2){flex:1}.od-template-selected strong{display:block;font-size:13px;color:#26322c}.od-template-selected span{display:block;font-size:10px;color:#89908b;margin-top:4px}.od-template-mini-page{width:54px;border:1px solid #ddd8cf;border-radius:7px;overflow:hidden}.od-template-settings{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:20px}.od-template-setting-block{background:#fff;border:1px solid #e4dfd6;border-radius:16px;padding:17px}.od-setting-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.11em;font-weight:800;color:#6d7771;margin-bottom:12px}.od-template-chips{display:flex;gap:6px;flex-wrap:wrap}.od-template-chips button{border:1px solid #e1ddd5;background:#faf9f6;color:#6d7771;border-radius:999px;padding:8px 12px;font-size:10px;font-weight:700}.od-template-chips button.active{background:#e3eee7;border-color:#b9d0c2;color:#17372d}.od-template-range{width:100%;margin:18px 0 5px;accent-color:#315a48}.od-range-meta{display:flex;justify-content:space-between;font-size:9px;color:#9a9f9b}.od-range-meta strong{color:#315a48}.od-custom-row{display:flex;align-items:center;gap:8px}.od-custom-row input{width:100%;border:1px solid #dfdad2;background:#faf9f6;border-radius:11px;padding:11px 12px;outline:none;font-size:12px;color:#26322c}.od-custom-row span{font-size:11px;color:#8b918c}.od-template-summary{display:flex;align-items:center;gap:24px;margin-top:14px;padding:14px 17px;background:#edf3ee;border-radius:15px}.od-template-summary div{display:flex;align-items:baseline;gap:5px}.od-template-summary b{font-family:Georgia,serif;font-size:21px;font-weight:400;color:#17372d}.od-template-summary span{font-size:10px;color:#6d7771}.od-template-summary p{font-size:10px;color:#748078;line-height:1.5;margin:0 0 0 auto;max-width:440px}.od-template-footer{display:flex;justify-content:space-between;align-items:center;padding:15px 24px;border-top:1px solid #e8e4dc;background:#fff}.od-template-footer>span{font-size:10px;color:#939994}.od-template-footer>div{display:flex;gap:8px}.od-template-apply{border:0;border-radius:11px;padding:11px 16px;font-size:11px;font-weight:800}.od-template-apply span{margin-left:7px}.od-floating-add-trigger{position:fixed;left:24px;bottom:24px;z-index:940;border:1px solid #d9d4cb;background:rgba(23,55,45,.97);color:#fff;border-radius:999px;padding:12px 17px 12px 12px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;box-shadow:0 12px 32px rgba(23,55,45,.22);backdrop-filter:blur(14px)}.od-floating-add-trigger:hover{transform:translateY(-2px)}.od-floating-add-trigger span{width:25px;height:25px;border-radius:50%;background:#e4eee8;color:#17372d;display:grid;place-items:center;font-size:16px;line-height:1}.od-floating-add{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:950;width:min(520px,calc(100vw - 32px));background:rgba(255,255,255,.97);border:1px solid #ded9d0;border-radius:20px;box-shadow:0 20px 60px rgba(23,35,30,.18);backdrop-filter:blur(18px);padding:10px}.od-floating-add-head{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 10px}.od-floating-add-head strong{display:block;font-size:12px;color:#26322c}.od-floating-add-head span{display:block;font-size:9px;color:#929893;margin-top:3px}.od-floating-add-head button{width:28px;height:28px;border:0;background:#f3f1ed;color:#68716c;border-radius:9px;font-size:16px}.od-floating-add-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.od-floating-add-grid button{min-width:0;border:1px solid #e7e2da;background:#faf9f6;border-radius:12px;padding:9px 7px;text-align:left;display:flex;align-items:center;gap:7px;cursor:pointer}.od-floating-add-grid button:hover{background:#edf3ee;border-color:#c5d5ca}.od-floating-add-grid button>span{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:#e6eee9;display:grid;place-items:center;font-size:13px;color:#315a48}.od-floating-add-grid b{display:block;font-size:9px;color:#34403a}.od-floating-add-grid small{display:block;font-size:8px;color:#959b96;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+      /* ── Builder 2.0 : palette inspirée Canva / Pinterest ─────────────── */
+      .od-builder-add-popover{width:min(650px,calc(100vw - 32px));left:18px;top:58px;max-height:min(76vh,680px);overflow:hidden;border:1px solid #dfe5df;border-radius:22px;box-shadow:0 28px 80px rgba(25,45,36,.18);background:rgba(255,255,255,.98);backdrop-filter:blur(20px);animation:odUp .22s ease both}
+      .od-builder-add-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 14px;background:linear-gradient(180deg,#fff,#fbfcfa);border-bottom:1px solid #edf0ec}
+      .od-builder-add-head>div{display:flex;flex-direction:column;gap:3px}.od-builder-add-kicker{font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#7c8b83}.od-builder-add-head strong{font-family:Georgia,serif;font-size:21px;font-weight:400;color:#203129;letter-spacing:-.02em}.od-builder-add-head small{font-size:10px;color:#8b938d;margin-top:2px}.od-builder-add-close{width:30px;height:30px;border:1px solid #e3e7e3;background:#f7f8f6;color:#68736d;border-radius:10px;font-size:17px;line-height:1}
+      .od-builder-add-tabs{display:flex;gap:5px;padding:10px 16px 8px;border-bottom:1px solid #edf0ec;overflow:auto}.od-builder-add-tabs button{border:0;background:transparent;color:#89918c;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:800;white-space:nowrap}.od-builder-add-tabs button:hover{background:#f2f5f2;color:#456154}.od-builder-add-tabs button.active{background:#17372d;color:white;box-shadow:0 5px 14px rgba(23,55,45,.14)}
+      .od-builder-recommended{margin:12px 14px 4px;padding:12px;border:1px solid #dce9e1;background:linear-gradient(135deg,#f4f8f5,#fbfaf7);border-radius:17px}.od-builder-recommended>div:first-child{display:flex;align-items:center;gap:7px;margin-bottom:9px}.od-builder-recommended>div:first-child>span{width:23px;height:23px;border-radius:8px;background:#e0eee6;color:#315a48;display:grid;place-items:center;font-size:12px}.od-builder-recommended b{font-size:10px;color:#315a48}.od-builder-recommended small{font-size:9px;color:#89918c;margin-left:4px}.od-builder-recommended-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.od-builder-recommended .od-builder-add-card{background:#fff}
+      .od-builder-add-grid{padding:10px 14px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:7px;overflow:auto;max-height:calc(min(76vh,680px) - 155px)}
+      .od-builder-add-card{position:relative;min-width:0;border:1px solid #e6e9e5;background:#fbfcfa;border-radius:15px;padding:11px 30px 11px 10px;text-align:left;display:flex;align-items:center;gap:9px;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s,background .16s}.od-builder-add-card:hover{transform:translateY(-2px);border-color:#b9cfc1;background:#fff;box-shadow:0 9px 22px rgba(23,55,45,.08)}.od-builder-add-card:active{transform:translateY(0)}.od-builder-add-card-icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#eaf0eb;color:#315a48;display:grid;place-items:center;font-size:14px;font-weight:800}.od-builder-add-card-copy{min-width:0}.od-builder-add-card-copy b{display:block;font-size:10px;color:#2e3a34;line-height:1.25}.od-builder-add-card-copy small{display:block;margin-top:3px;font-size:8.5px;color:#929994;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.od-builder-add-card-plus{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:15px;color:#b1bab4;transition:.16s}.od-builder-add-card:hover .od-builder-add-card-plus{color:#315a48}
+      @media(max-width:700px){.od-builder-add-popover{left:10px;top:55px;width:calc(100vw - 20px);max-height:78vh}.od-builder-add-grid{grid-template-columns:1fr 1fr}.od-builder-add-head{padding:15px}.od-builder-recommended{margin:9px}.od-builder-recommended-grid{grid-template-columns:1fr}.od-builder-add-card-copy small{display:none}}
+      @media(max-width:460px){.od-builder-add-grid{grid-template-columns:1fr}.od-builder-add-card{padding:10px}.od-builder-add-head strong{font-size:18px}}
+
       @media(max-width:900px){.od-template-grid{grid-template-columns:repeat(2,1fr)}.od-template-settings{grid-template-columns:1fr}.od-template-summary{flex-wrap:wrap}.od-template-summary p{width:100%;max-width:none;margin:0}.od-floating-add-grid{grid-template-columns:repeat(2,1fr)}}
       @media(max-width:560px){.od-template-overlay{padding:10px}.od-template-modal{max-height:96vh;border-radius:20px}.od-template-head{padding:18px}.od-template-head h2{font-size:24px}.od-template-head p{font-size:11px;max-width:260px}.od-template-back{display:none}.od-template-grid{padding:14px;grid-template-columns:1fr 1fr;gap:9px}.od-template-preview{height:125px}.od-template-info{padding:10px}.od-template-info p{display:none}.od-template-config{padding:14px}.od-template-selected{align-items:flex-start}.od-template-mini-page{display:none}.od-template-footer{padding:12px 14px}.od-template-footer>span{display:none}.od-template-footer>div{width:100%}.od-template-cancel,.od-template-apply{flex:1}.od-floating-add-trigger{left:50%;bottom:12px;transform:translateX(-50%);padding:10px 15px 10px 10px}.od-floating-add{bottom:12px;width:calc(100vw - 20px);padding:8px}.od-floating-add-grid button{padding:8px}.od-floating-add-grid small{display:none}}
       .od-add-zone{border:1px dashed #c7c1b7;border-radius:18px;padding:18px;text-align:center;margin-top:22px;background:#faf8f4}.od-add-zone button{border:0;background:#17372d;color:white;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:800}.od-add-zone p{margin:8px 0 0;font-size:11px;color:#8b918d}
@@ -1759,7 +1808,7 @@ export default function CreateTrip() {
                 <button type="button" onClick={()=>setShowPreview(true)}>📱 Aperçu</button>
               </div>
             </div>
-            {showAddMenu&&<AddPalette onClose={()=>setShowAddMenu(false)} onAdd={addBlock} onOpenMedia={type=>{addBlock(type);setTimeout(()=>setMediaPurpose(type),0)}}/>}
+            {showAddMenu&&<AddPalette category={meta.category} onClose={()=>setShowAddMenu(false)} onAdd={addBlock} onOpenMedia={type=>setTimeout(()=>setMediaPurpose(type),0)}/>}
             {!showAddMenu&&<button type="button" className="od-floating-add-trigger" onClick={()=>setShowAddMenu(true)}><span>＋</span> Ajouter</button>}
             <div className="od-story">
               <div className="od-story-cover">
