@@ -366,21 +366,23 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         .results-count strong { color: var(--gold); font-weight: 500; }
         .editorial-grid {
           display: grid;
-          grid-template-columns: repeat(12, minmax(0, 1fr));
-          gap: 1px;
-          background: rgba(255,255,255,0.08);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1.25rem;
         }
-        .editorial-grid > a:nth-child(1) { grid-column: span 7; grid-row: span 2; }
-        .editorial-grid > a:nth-child(2),
-        .editorial-grid > a:nth-child(3) { grid-column: span 5; }
-        .editorial-grid > a:nth-child(n+4) { grid-column: span 4; }
         .editorial-card {
           position: relative;
-          min-height: 280px;
+          height: 390px;
           overflow: hidden;
           background: #151515;
+          border-radius: 4px;
+          box-shadow: 0 14px 35px rgba(0,0,0,0.22);
+          transition: transform 0.35s ease, box-shadow 0.35s ease;
         }
-        .editorial-card.featured { min-height: 570px; }
+        .editorial-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 22px 45px rgba(0,0,0,0.36);
+        }
+        .editorial-card.featured { height: 390px; }
         .editorial-card img {
           width: 100%; height: 100%; object-fit: cover; display: block;
           transition: transform 0.9s cubic-bezier(0.22,1,0.36,1);
@@ -399,7 +401,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.15;
           margin: 0 0 1rem;
         }
-        .editorial-card.featured .editorial-card-title { font-size: clamp(1.7rem, 3vw, 2.5rem); max-width: 720px; }
+        .editorial-card.featured .editorial-card-title { font-size: clamp(1.2rem, 2vw, 1.65rem); max-width: 100%; }
         .editorial-card-meta {
           display: flex; align-items: center; justify-content: space-between; gap: 1rem;
         }
@@ -453,9 +455,8 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
           .search-shell { width: 100% !important; }
           .search-cinema { width: 100% !important; }
           .explore-toolbar { align-items: flex-start !important; flex-direction: column !important; }
-          .editorial-grid { grid-template-columns: 1fr !important; }
-          .editorial-grid > a, .editorial-grid > a:nth-child(1), .editorial-grid > a:nth-child(2), .editorial-grid > a:nth-child(3), .editorial-grid > a:nth-child(n+4) { grid-column: span 1 !important; grid-row: span 1 !important; }
-          .editorial-card, .editorial-card.featured { min-height: 390px !important; }
+          .editorial-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 1rem !important; }
+          .editorial-card, .editorial-card.featured { height: 340px !important; }
           .destination-strip { grid-template-columns: repeat(2,1fr) !important; }
 
           .explore-grid {
@@ -481,6 +482,8 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         }
 
         @media (max-width: 480px) {
+          .editorial-grid { grid-template-columns: 1fr !important; }
+          .editorial-card, .editorial-card.featured { height: 360px !important; }
           .trip-card-cinema { width: 220px !important; height: 300px !important; }
         }
       `}</style>
@@ -669,7 +672,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
 
           {loading ? (
             <div className="editorial-grid">
-              {[1,2,3,4,5].map(i => <SkeletonCard key={i} h={i === 1 ? 570 : 300} />)}
+              {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} h={390} />)}
             </div>
           ) : filtered.length === 0 ? (
             <div className="search-empty">
@@ -684,12 +687,12 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
             </div>
           ) : (
             <div className="editorial-grid">
-              {filtered.map((trip, idx) => {
-                const featured = idx === 0;
+              {filtered.slice(0, 6).map((trip) => {
+                const featured = false;
                 return (
                   <a key={trip.id} href={`/trip/${trip.slug}`} style={{ textDecoration: 'none' }}>
                     <article className={`editorial-card${featured ? ' featured' : ''}`}>
-                      <img src={trip.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&auto=format&fit=crop'} alt={trip.title || 'Récit de voyage'} loading={idx < 3 ? 'eager' : 'lazy'} />
+                      <img src={trip.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&auto=format&fit=crop'} alt={trip.title || 'Récit de voyage'} loading={'lazy'} />
                       <div className="editorial-card-content">
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: '0.7rem', flexWrap: 'wrap' }}>
                           <span style={{ background: 'var(--gold)', color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0.28rem 0.65rem' }}>
