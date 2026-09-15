@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }}>
           <span style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--ink)', opacity: 0.35 }}>Odyssey</span>
           <span style={{ fontSize: '0.72rem', color: '#bbb', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            © 2025 — Récits authentiques
+            © 2026 — Récits authentiques
           </span>
         </footer>
       </body>

@@ -44,6 +44,15 @@ const CATS = [
   { value: 'luxe', label: 'Luxe' },
 ];
 
+const normalizeSearch = (value: string) => value
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .trim();
+
+const categoryLabel = (value?: string) =>
+  CATS.find(c => c.value === value)?.label || value || 'Voyage';
+
 export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[] }) {
   const supabase = createClientComponentClient();
   const [trips, setTrips] = useState<any[]>(initialTrips);
@@ -57,6 +66,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,6 +75,17 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
     const interval = setInterval(() => {
       setHeroSlide(s => (s + 1) % HERO_SLIDES.length);
     }, 6000);
+
+    const onSearchShortcut = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape' && document.activeElement === searchInputRef.current) {
+        searchInputRef.current?.blur();
+      }
+    };
+    window.addEventListener('keydown', onSearchShortcut);
 
     const fetchData = async () => {
       // Charger l'utilisateur connecté + son profil
@@ -85,22 +106,32 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
       setLoading(false);
     };
     fetchData();
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); window.removeEventListener('keydown', onSearchShortcut); };
   }, []);
 
   useEffect(() => {
+    const q = normalizeSearch(search);
     let result = trips;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(t =>
-        t.title?.toLowerCase().includes(q) ||
-        t.country?.toLowerCase().includes(q) ||
-        t.countries?.name?.toLowerCase().includes(q)
-      );
+
+    if (q) {
+      result = result.filter(t => {
+        const searchable = [
+          t.title,
+          t.subtitle,
+          t.city,
+          t.country,
+          t.countries?.name,
+          t.author?.username,
+          t.category,
+          categoryLabel(t.category),
+          t.season,
+          t.budget,
+        ].filter(Boolean).map((value: any) => normalizeSearch(String(value)));
+        return searchable.some(value => value.includes(q));
+      });
     }
-    if (activeCat) {
-      result = result.filter(t => t.category === activeCat);
-    }
+
+    if (activeCat) result = result.filter(t => t.category === activeCat);
     setFiltered(result);
   }, [search, activeCat, trips]);
 
@@ -278,6 +309,130 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         .scroll-cards::-webkit-scrollbar { display: none; }
         .scroll-cards { scrollbar-width: none; }
 
+        .search-shell {
+          width: min(520px, 100%);
+          position: relative;
+        }
+        .search-cinema {
+          width: 100%;
+          box-sizing: border-box;
+          padding-right: 7rem;
+          border-radius: 2px;
+        }
+        .search-meta {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: var(--font-sans);
+          font-size: 0.62rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.35);
+          pointer-events: none;
+        }
+        .search-clear {
+          position: absolute;
+          right: 0.65rem;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 25px;
+          height: 25px;
+          border: 1px solid rgba(255,255,255,0.14);
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.65);
+          cursor: pointer;
+          display: grid;
+          place-items: center;
+          font-size: 0.8rem;
+        }
+        .search-clear:hover { border-color: var(--gold); color: var(--gold); }
+        .explore-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 2.25rem;
+          padding-top: 1.1rem;
+          border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .results-count {
+          font-family: var(--font-sans);
+          font-size: 0.68rem;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.42);
+        }
+        .results-count strong { color: var(--gold); font-weight: 500; }
+        .editorial-grid {
+          display: grid;
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+          gap: 1px;
+          background: rgba(255,255,255,0.08);
+        }
+        .editorial-grid > a:nth-child(1) { grid-column: span 7; grid-row: span 2; }
+        .editorial-grid > a:nth-child(2),
+        .editorial-grid > a:nth-child(3) { grid-column: span 5; }
+        .editorial-grid > a:nth-child(n+4) { grid-column: span 4; }
+        .editorial-card {
+          position: relative;
+          min-height: 280px;
+          overflow: hidden;
+          background: #151515;
+        }
+        .editorial-card.featured { min-height: 570px; }
+        .editorial-card img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
+          transition: transform 0.9s cubic-bezier(0.22,1,0.36,1);
+        }
+        .editorial-card:hover img { transform: scale(1.055); }
+        .editorial-card::after {
+          content: ''; position: absolute; inset: 0;
+          background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.08) 68%, transparent);
+        }
+        .editorial-card-content {
+          position: absolute; z-index: 2; left: 0; right: 0; bottom: 0;
+          padding: 1.4rem 1.5rem 1.5rem;
+        }
+        .editorial-card-title {
+          font-family: var(--font-serif); font-weight: 300; color: white;
+          font-size: clamp(1.2rem, 2vw, 1.65rem); line-height: 1.15;
+          margin: 0 0 1rem;
+        }
+        .editorial-card.featured .editorial-card-title { font-size: clamp(1.7rem, 3vw, 2.5rem); max-width: 720px; }
+        .editorial-card-meta {
+          display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+        }
+        .editorial-author {
+          display: flex; align-items: center; gap: 8px; min-width: 0;
+          font-family: var(--font-sans); font-size: 0.7rem; color: rgba(255,255,255,0.65);
+        }
+        .editorial-author-avatar {
+          width: 25px; height: 25px; border-radius: 50%; flex: 0 0 25px;
+          display: grid; place-items: center; background: linear-gradient(135deg,#1e3a2f,#c9a84c);
+          color: white; font-size: 0.58rem; font-weight: 700;
+        }
+        .editorial-read { color: var(--gold); font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .search-empty {
+          display: grid; place-items: center; min-height: 360px; padding: 3rem;
+          border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.015); text-align: center;
+        }
+        .search-empty-icon { font-size: 2rem; color: var(--gold); margin-bottom: 1rem; }
+        .search-empty h3 { font-family: var(--font-serif); font-size: 2rem; font-weight: 300; color: white; margin: 0 0 0.6rem; }
+        .search-empty p { font-family: var(--font-sans); color: rgba(255,255,255,0.42); font-size: 0.82rem; margin: 0; }
+        .destination-strip {
+          display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 1px;
+          background: rgba(255,255,255,0.08); margin-top: 3rem;
+        }
+        .destination-chip {
+          min-height: 92px; padding: 1rem; display: flex; align-items: flex-end;
+          position: relative; overflow: hidden; text-decoration: none; background: #111;
+        }
+        .destination-chip::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.8),transparent); z-index:1; }
+        .destination-chip img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.72; transition:transform .6s ease; }
+        .destination-chip:hover img { transform:scale(1.06); }
+        .destination-chip span { position:relative; z-index:2; font-family:var(--font-display); color:white; letter-spacing:.12em; font-size:1.1rem; text-transform:uppercase; }
+
         /* ── RESPONSIVE MOBILE ── */
         @media (max-width: 768px) {
           .hero-bottom-bar {
@@ -295,7 +450,13 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
             align-items: flex-start !important;
             gap: 1.5rem !important;
           }
+          .search-shell { width: 100% !important; }
           .search-cinema { width: 100% !important; }
+          .explore-toolbar { align-items: flex-start !important; flex-direction: column !important; }
+          .editorial-grid { grid-template-columns: 1fr !important; }
+          .editorial-grid > a, .editorial-grid > a:nth-child(1), .editorial-grid > a:nth-child(2), .editorial-grid > a:nth-child(3), .editorial-grid > a:nth-child(n+4) { grid-column: span 1 !important; grid-row: span 1 !important; }
+          .editorial-card, .editorial-card.featured { min-height: 390px !important; }
+          .destination-strip { grid-template-columns: repeat(2,1fr) !important; }
 
           .explore-grid {
             grid-template-columns: 1fr !important;
@@ -451,113 +612,115 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
         </div>
 
         {/* ══════════════════════════════════════════════════════
-            EXPLORE — Search + Filters + Grid
+            EXPLORE — Search + Filters + Editorial grid
         ══════════════════════════════════════════════════════ */}
         <section id="explore" style={{ background: '#111', padding: 'clamp(4rem,8vw,7rem) clamp(1.5rem,4vw,4rem)' }}>
-
-          {/* Section header */}
-          <div className="explore-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3rem', flexWrap: 'wrap', gap: '2rem' }}>
+          <div className="explore-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.75rem' }}>
-                Explorer
+                Explorer les récits
               </p>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem,6vw,5rem)', textTransform: 'uppercase', color: 'white', lineHeight: 0.95, letterSpacing: '0.02em' }}>
-                Choisissez<br/>votre destination
+              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.5rem,6vw,5rem)', textTransform: 'uppercase', color: 'white', lineHeight: 0.95, letterSpacing: '0.02em', margin: 0 }}>
+                Trouvez votre<br/>prochaine aventure
               </h2>
             </div>
 
-            {/* Search */}
-            <div style={{ position: 'relative' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"
-                style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+            <div className="search-shell">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2" strokeLinecap="round"
+                style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 2 }}>
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
-              <input className="search-cinema" placeholder="Pays, ville, type de voyage…"
-                value={search} onChange={e => setSearch(e.target.value)} />
+              <input
+                ref={searchInputRef}
+                className="search-cinema"
+                aria-label="Rechercher un récit"
+                placeholder="Titre, ville, pays, auteur…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') document.getElementById('explore-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              />
+              {search ? (
+                <button className="search-clear" onClick={() => setSearch('')} aria-label="Effacer la recherche">×</button>
+              ) : (
+                <span className="search-meta">⌘ K</span>
+              )}
             </div>
           </div>
 
-          {/* Category pills */}
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
             {CATS.map(c => (
-              <button key={c.value} className={`cat-pill${activeCat === c.value ? ' active' : ''}`}
-                onClick={() => setActiveCat(c.value)}>
+              <button key={c.value} className={`cat-pill${activeCat === c.value ? ' active' : ''}`} onClick={() => setActiveCat(c.value)}>
                 {c.label}
               </button>
             ))}
           </div>
 
-          {/* Grid */}
+          <div className="explore-toolbar">
+            <span className="results-count" id="explore-results">
+              <strong>{filtered.length}</strong> {filtered.length > 1 ? 'récits' : 'récit'} trouvé{filtered.length > 1 ? 's' : ''}
+              {search && <> pour « <strong>{search}</strong> »</>}
+            </span>
+            {(search || activeCat) && (
+              <button onClick={() => { setSearch(''); setActiveCat(''); }} style={{ border: 'none', background: 'transparent', color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                Réinitialiser ×
+              </button>
+            )}
+          </div>
+
           {loading ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
-              {[380, 440, 400, 360, 420, 380].map((h, i) => <SkeletonCard key={i} h={h} />)}
+            <div className="editorial-grid">
+              {[1,2,3,4,5].map(i => <SkeletonCard key={i} h={i === 1 ? 570 : 300} />)}
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '6rem 2rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <p style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Aucun résultat</p>
-              <button onClick={() => { setSearch(''); setActiveCat(''); }}
-                style={{ marginTop: '1.5rem', padding: '0.75rem 2rem', background: 'var(--gold)', color: 'var(--ink)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                Tout voir
-              </button>
+            <div className="search-empty">
+              <div>
+                <div className="search-empty-icon">⌕</div>
+                <h3>Aucun récit trouvé</h3>
+                <p>Essayez un autre titre, une destination ou un nom d’auteur.</p>
+                <button onClick={() => { setSearch(''); setActiveCat(''); }} style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem', background: 'var(--gold)', color: 'var(--ink)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-sans)', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  Voir tous les récits
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="explore-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5px' }}>
-              {filtered.slice(0, 8).map((trip, idx) => {
-                // Alternate tall/short for editorial feel
-                const isFeature = idx % 5 === 0;
-                const h = isFeature ? 520 : 360;
-                const gridSpan = isFeature ? 'span 2' : 'span 1';
+            <div className="editorial-grid">
+              {filtered.map((trip, idx) => {
+                const featured = idx === 0;
                 return (
-                  <a key={trip.id} href={`/trip/${trip.slug}`} style={{ textDecoration: 'none', gridColumn: gridSpan }}>
-                    <div className="grid-card" style={{ height: h }}>
-                      <img
-                        src={trip.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop'}
-                        alt={trip.title}
-                        loading="lazy"
-                      />
-                      <div className="ov" />
-
-                      {/* Top badges */}
-                      <div style={{ position: 'absolute', top: '1.25rem', left: '1.25rem', display: 'flex', gap: 8 }}>
-                        {trip.category && (
-                          <span style={{ background: 'var(--forest)', color: 'var(--gold)', fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0.3rem 0.75rem' }}>
-                            {trip.category}
+                  <a key={trip.id} href={`/trip/${trip.slug}`} style={{ textDecoration: 'none' }}>
+                    <article className={`editorial-card${featured ? ' featured' : ''}`}>
+                      <img src={trip.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&auto=format&fit=crop'} alt={trip.title || 'Récit de voyage'} loading={idx < 3 ? 'eager' : 'lazy'} />
+                      <div className="editorial-card-content">
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: '0.7rem', flexWrap: 'wrap' }}>
+                          <span style={{ background: 'var(--gold)', color: 'var(--ink)', fontFamily: 'var(--font-sans)', fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0.28rem 0.65rem' }}>
+                            {categoryLabel(trip.category)}
                           </span>
-                        )}
-                        {trip.duration_days && (
-                          <span style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', color: 'white', fontFamily: 'var(--font-sans)', fontSize: '0.62rem', fontWeight: 500, letterSpacing: '0.1em', padding: '0.3rem 0.75rem' }}>
-                            {trip.duration_days}j
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Bottom content */}
-                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '1.75rem 1.5rem 1.5rem' }}>
-                        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.5rem' }}>
-                          {trip.country || trip.countries?.name || 'Voyage'}
-                          {trip.city ? ` · ${trip.city}` : ''}
+                          {trip.duration_days && <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>{trip.duration_days} jours</span>}
+                        </div>
+                        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--gold)', margin: '0 0 0.45rem' }}>
+                          {trip.city ? `${trip.city} · ` : ''}{trip.country || trip.countries?.name || 'Voyage'}
                         </p>
-                        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: isFeature ? '1.75rem' : '1.2rem', fontWeight: 300, color: 'white', lineHeight: 1.2, marginBottom: '1rem' }}>
-                          {trip.title}
-                        </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #1e3a2f, #c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 700, color: 'white', textTransform: 'uppercase' }}>
-                              {trip.author?.username?.charAt(0) || 'V'}
-                            </div>
-                            <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
-                              {trip.author?.username || 'Voyageur'}
-                            </span>
+                        <h3 className="editorial-card-title">{trip.title || 'Récit sans titre'}</h3>
+                        <div className="editorial-card-meta">
+                          <div className="editorial-author">
+                            <span className="editorial-author-avatar">{trip.author?.username?.charAt(0) || 'V'}</span>
+                            <span>@{trip.author?.username || 'voyageur'}</span>
                           </div>
-                          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.7rem', color: 'var(--gold)', letterSpacing: '0.06em' }}>
-                            Lire →
-                          </span>
+                          <span className="editorial-read">Lire le récit →</span>
                         </div>
                       </div>
-                    </div>
+                    </article>
                   </a>
                 );
               })}
+            </div>
+          )}
+
+          {!search && !activeCat && trips.length > 0 && (
+            <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'center' }}>
+              <button onClick={() => document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '0.8rem 1.5rem', border: '1px solid rgba(201,168,76,0.35)', background: 'transparent', color: 'var(--gold)', fontFamily: 'var(--font-sans)', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                Découvrir les récits à la une ↓
+              </button>
             </div>
           )}
         </section>
@@ -623,7 +786,7 @@ export default function HomeClient({ initialTrips = [] }: { initialTrips?: any[]
             HORIZONTAL SCROLL — Featured trips
         ══════════════════════════════════════════════════════ */}
         {featuredTrips.length > 0 && (
-          <section style={{ background: '#0a0a0a', padding: 'clamp(4rem,7vw,6rem) 0' }}>
+          <section id="featured" style={{ background: '#0a0a0a', padding: 'clamp(4rem,7vw,6rem) 0' }}>
             <div className="featured-header" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', padding: '0 clamp(1.5rem,4vw,4rem)', marginBottom: '2.5rem' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.68rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '0.6rem' }}>À la une</p>

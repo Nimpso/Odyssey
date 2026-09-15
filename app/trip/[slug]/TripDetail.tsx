@@ -72,309 +72,130 @@ const CATS: Record<string, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CANVAS RENDERER — blocs positionnés librement
+// READER RENDERER — le lecteur voit exactement la composition éditoriale
+// utilisée dans l'aperçu de la phase « Construire ».
 // ─────────────────────────────────────────────────────────────────────────────
-function CanvasRenderer({ blocks, height }: { blocks: CanvasBlock[]; height: number }) {
-  const sorted = [...blocks].sort((a, b) => a.zIndex - b.zIndex);
+function ReaderStoryRenderer({ blocks }: { blocks: CanvasBlock[] }) {
+  const sorted = [...blocks].sort((a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0));
 
-  const renderContent = (block: CanvasBlock) => {
-    const d = block.data;
+  const blockStyle = (block: CanvasBlock): React.CSSProperties => ({
+    background: block.bg || '#fff',
+    color: block.textColor || '#25302b',
+    fontFamily: FONT_MAP[block.font] || FONT_MAP.sans,
+  });
+
+  const renderBlock = (block: CanvasBlock, index: number) => {
+    const d = block.data || {};
     const font = FONT_MAP[block.font] || FONT_MAP.sans;
-    const color = block.textColor || '#0d0d0d';
+    const color = block.textColor || '#25302b';
+    const base = blockStyle(block);
 
     switch (block.type) {
       case 'text':
         return (
-          <div style={{ width: '100%', height: '100%', padding: '0.5rem', overflow: 'hidden' }}>
-            <div style={{ fontFamily: font, fontSize: `${block.fontSize || 1}rem`, color, lineHeight: 1.7, wordBreak: 'break-word' }}
-              dangerouslySetInnerHTML={{ __html: d.html || '' }} />
-          </div>
+          <section className="od-reader-block od-reader-text" style={base} key={block.id || index}>
+            <div className="od-reader-text-inner" style={{ fontFamily: font, fontSize: `${block.fontSize || 1}rem`, color }} dangerouslySetInnerHTML={{ __html: d.html || '' }} />
+          </section>
         );
-
-      case 'quote':
-        return (
-          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '1.5rem', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: 0, left: '1rem', fontFamily: "'Fraunces',serif", fontSize: '5rem', color: 'rgba(201,168,76,0.2)', lineHeight: 1, pointerEvents: 'none' }}>"</div>
-            <p style={{ fontFamily: font, fontSize: `${block.fontSize || 1.2}rem`, fontStyle: 'italic', color, lineHeight: 1.6, zIndex: 1, position: 'relative', marginBottom: d.author ? '0.75rem' : 0 }}>
-              {d.text}
-            </p>
-            {d.author && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.8rem', color: '#c9a84c', letterSpacing: '0.1em' }}>— {d.author}</p>}
-          </div>
-        );
-
       case 'photo':
         return d.url ? (
-          <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-            <Img src={d.url} alt={d.caption || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            {d.caption && (
-              <p style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0.4rem 0.75rem', background: 'rgba(0,0,0,0.55)', color: 'white', fontSize: '0.72rem', fontStyle: 'italic', fontFamily: FONT_MAP.sans }}>
-                {d.caption}
-              </p>
-            )}
-          </div>
+          <section className="od-reader-block od-reader-photo" style={base} key={block.id || index}>
+            <figure>
+              <Img src={d.url} alt={d.caption || ''} />
+              {d.caption && <figcaption>{d.caption}</figcaption>}
+            </figure>
+          </section>
         ) : null;
-
       case 'gallery': {
         const images: string[] = d.images || [];
-        if (images.length === 0) return null;
-        if (d.layout === 'mosaic' && images.length >= 2) {
-          return (
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 3, width: '100%', height: '100%' }}>
-              <Img src={images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              <div style={{ display: 'grid', gap: 3 }}>
-                {images.slice(1, 4).map((img, i) => (
-                  <Img key={i} src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                ))}
-              </div>
-            </div>
-          );
-        }
-        const cols = Math.min(images.length, 3);
+        if (!images.length) return null;
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols},1fr)`, gap: 3, width: '100%', height: '100%' }}>
-            {images.map((img, i) => <Img key={i} src={img} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />)}
-          </div>
+          <section className="od-reader-block od-reader-gallery" style={base} key={block.id || index}>
+            {d.layout === 'mosaic' && images.length >= 2 ? (
+              <div className="od-reader-mosaic">
+                <Img src={images[0]} alt="" />
+                <div>{images.slice(1, 4).map((img, i) => <Img key={i} src={img} alt="" />)}</div>
+              </div>
+            ) : (
+              <div className="od-reader-gallery-grid">{images.map((img, i) => <Img key={i} src={img} alt="" />)}</div>
+            )}
+          </section>
         );
       }
-
+      case 'quote':
+        return (
+          <section className="od-reader-block od-reader-quote" style={base} key={block.id || index}>
+            <span className="od-reader-quote-mark">“</span>
+            <p style={{ fontFamily: font, fontSize: `${block.fontSize || 1.2}rem`, color }}>{d.text}</p>
+            {d.author && <cite style={{ color: '#c9a84c' }}>— {d.author}</cite>}
+          </section>
+        );
       case 'hotel':
         return (
-          <div style={{ padding: '1.25rem', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a84c' }}>🏨 Hébergement</p>
-            <p style={{ fontFamily: FONT_MAP.serif, fontSize: `${block.fontSize || 1.4}rem`, color, lineHeight: 1.2 }}>{d.name}</p>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              {d.price && <span style={{ fontFamily: FONT_MAP.sans, fontSize: '0.82rem', color: '#888' }}>{d.price} / nuit</span>}
-              {d.rating && <span style={{ color: '#c9a84c', fontSize: 13 }}>{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</span>}
+          <section className="od-reader-block od-reader-place" style={base} key={block.id || index}>
+            <div className="od-reader-place-icon">🏨</div>
+            <div className="od-reader-place-main">
+              <span className="od-reader-label" style={{ color: '#c9a84c' }}>Hébergement</span>
+              <h3 style={{ fontFamily: font }}>{d.name || 'Hébergement'}</h3>
+              <div className="od-reader-place-meta">{d.price && <span>{d.price} / nuit</span>}{d.rating && <span className="od-stars">{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</span>}</div>
+              {d.review && <p>{d.review}</p>}
+              {d.link && <a href={d.link} target="_blank" rel="noopener noreferrer">Réserver <span>↗</span></a>}
             </div>
-            {d.review && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.86rem', color, lineHeight: 1.65, opacity: 0.8 }}>{d.review}</p>}
-            {d.link && (
-              <a href={d.link} target="_blank" rel="noopener noreferrer"
-                style={{ marginTop: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '0.4rem 1rem', background: '#c9a84c', color: '#0d0d0d', fontFamily: FONT_MAP.sans, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none', alignSelf: 'flex-start' }}>
-                Réserver →
-              </a>
-            )}
-          </div>
+          </section>
         );
-
       case 'restaurant':
         return (
-          <div style={{ padding: '1.25rem', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8, borderLeft: '4px solid #e88c4a' }}>
-            <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#e88c4a' }}>🍽️ Restaurant</p>
-            <p style={{ fontFamily: FONT_MAP.serif, fontSize: `${block.fontSize || 1.4}rem`, color, lineHeight: 1.2 }}>{d.name}</p>
-            {(d.cuisine || d.price) && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.82rem', color: '#888' }}>{[d.cuisine, d.price].filter(Boolean).join(' · ')}</p>}
-            {d.rating && <span style={{ color: '#e88c4a', fontSize: 13 }}>{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</span>}
-            {d.review && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.86rem', color, lineHeight: 1.65, opacity: 0.8 }}>{d.review}</p>}
-            {d.link && <a href={d.link} target="_blank" rel="noopener noreferrer" style={{ fontFamily: FONT_MAP.sans, fontSize: '0.75rem', color: '#e88c4a', marginTop: 'auto' }}>Voir sur Maps →</a>}
-          </div>
+          <section className="od-reader-block od-reader-place od-reader-restaurant" style={base} key={block.id || index}>
+            <div className="od-reader-place-icon">🍽️</div>
+            <div className="od-reader-place-main">
+              <span className="od-reader-label">Restaurant</span>
+              <h3 style={{ fontFamily: font }}>{d.name || 'Restaurant'}</h3>
+              {(d.cuisine || d.price) && <div className="od-reader-place-meta">{[d.cuisine, d.price].filter(Boolean).join(' · ')}</div>}
+              {d.rating && <div className="od-stars restaurant-stars">{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</div>}
+              {d.review && <p>{d.review}</p>}
+              {d.link && <a href={d.link} target="_blank" rel="noopener noreferrer">Voir sur Maps <span>↗</span></a>}
+            </div>
+          </section>
         );
-
       case 'pros_cons':
         return (
-          <div style={{ padding: '1.25rem', height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', overflow: 'hidden' }}>
-            <div>
-              <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#4caf7d', marginBottom: 10 }}>✅ Pour</p>
-              {(d.pros || []).filter(Boolean).map((p: string, i: number) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                  <span style={{ color: '#4caf7d', flexShrink: 0, marginTop: 2 }}>✓</span>
-                  <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.88rem', color, lineHeight: 1.55 }}>{p}</p>
-                </div>
-              ))}
-            </div>
-            <div>
-              <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#e05555', marginBottom: 10 }}>❌ Contre</p>
-              {(d.cons || []).filter(Boolean).map((c: string, i: number) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                  <span style={{ color: '#e05555', flexShrink: 0, marginTop: 2 }}>✗</span>
-                  <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.88rem', color, lineHeight: 1.55 }}>{c}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <section className="od-reader-block od-reader-proscons" style={base} key={block.id || index}>
+            <div><span className="od-reader-label od-good">Pour</span>{(d.pros || []).filter(Boolean).map((v: string, i: number) => <p key={i}><b>✓</b>{v}</p>)}</div>
+            <div><span className="od-reader-label od-bad">Contre</span>{(d.cons || []).filter(Boolean).map((v: string, i: number) => <p key={i}><b>×</b>{v}</p>)}</div>
+          </section>
         );
-
       case 'divider':
         return (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', padding: '0 1rem' }}>
-            {d.style === 'dots' ? (
-              <div style={{ width: '100%', textAlign: 'center', letterSpacing: '0.5em', color: '#c9a84c', fontSize: '1rem' }}>· · · · ·</div>
-            ) : d.style === 'wave' ? (
-              <svg viewBox="0 0 100 10" style={{ width: '100%', height: 20 }}>
-                <path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="#c9a84c" strokeWidth="0.6" />
-              </svg>
-            ) : (
-              <div style={{ width: '100%', height: 1, background: 'linear-gradient(90deg,transparent,#c9a84c,transparent)' }} />
-            )}
+          <div className="od-reader-divider" key={block.id || index}>
+            {d.style === 'dots' ? <span>· · · · ·</span> : d.style === 'wave' ? <svg viewBox="0 0 100 10" aria-hidden="true"><path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="#c9a84c" strokeWidth="0.7" /></svg> : <i />}
           </div>
         );
-
       case 'spacer':
-        return null;
-
+        return <div className="od-reader-spacer" key={block.id || index} style={{ height: Math.max(24, Math.min(180, block.h || 60)) }} />;
       default:
         return null;
     }
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 1200, margin: '0 auto', height, background: '#faf8f4' }}>
-      {sorted.map((block, i) => (
-        <div key={block.id || i} style={{
-          position: 'absolute',
-          left: block.x, top: block.y,
-          width: block.w, height: block.h,
-          zIndex: block.zIndex,
-          background: block.bg || 'transparent',
-          color: block.textColor || '#0d0d0d',
-          overflow: 'hidden',
-        }}>
-          {renderContent(block)}
-        </div>
-      ))}
-    </div>
+    <article className="od-reader-story">
+      {sorted.map(renderBlock)}
+    </article>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// LEGACY RENDERER — ancien format de blocs
-// ─────────────────────────────────────────────────────────────────────────────
+// Ancien format : conservé pour les récits historiques déjà enregistrés.
 function LegacyRenderer({ blocks }: { blocks: LegacyBlock[] }) {
-  const renderBlock = (block: LegacyBlock, index: number) => {
-    const font = block.font || 'sans';
-    const padding = block.padding || 'md';
-    const width = block.width || 'full';
-    const bg = block.bg;
-    const d = block.data;
-
-    const bgStyle = !bg ? {} :
-      bg.type === 'color' ? { background: bg.color } :
-      bg.type === 'gradient' ? { background: bg.gradient } : {};
-
-    const isDark = bg?.color === '#0d0d0d' || bg?.color === '#1e3a2f' || bg?.color === '#1a1a2e' ||
-      bg?.gradient?.includes('#0d0d0d') || bg?.gradient?.includes('#1e3a2f');
-    const textColor = isDark ? 'white' : '#1a1a1a';
-
-    const wMap = { full: '100%', half: '50%', third: '33.333%' };
-
-    const containerStyle: React.CSSProperties = {
-      width: wMap[width] || '100%',
-      display: 'inline-block', verticalAlign: 'top',
-      boxSizing: 'border-box',
-      ...bgStyle,
-    };
-
-    const renderContent = () => {
-      switch (block.type) {
-        case 'text':
-          return (
-            <div style={{ padding: PAD_MAP[padding] }}>
-              <div style={{ fontFamily: FONT_MAP[font], fontSize: '1.05rem', lineHeight: 1.8, color: textColor }}
-                dangerouslySetInnerHTML={{ __html: d.html || '' }} />
-            </div>
-          );
-        case 'photo':
-          return d.url ? (
-            <div style={{ position: 'relative' }}>
-              <Img src={d.url} alt={d.caption || ''} style={{ width: '100%', height: width === 'full' ? 560 : 380, objectFit: 'cover', display: 'block' }} />
-              {d.caption && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.78rem', color: '#999', textAlign: 'center', padding: '0.75rem', fontStyle: 'italic' }}>{d.caption}</p>}
-            </div>
-          ) : null;
-        case 'gallery': {
-          const images: string[] = d.images || [];
-          if (!images.length) return null;
-          const cols = Math.min(images.length, 3);
-          return (
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols},1fr)`, gap: 3 }}>
-              {images.map((img, i) => <Img key={i} src={img} style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block' }} />)}
-            </div>
-          );
-        }
-        case 'quote':
-          return (
-            <div style={{ padding: PAD_MAP[padding], position: 'relative' }}>
-              <div style={{ position: 'absolute', top: PAD_MAP[padding], left: '2.5rem', fontFamily: "'Fraunces',serif", fontSize: '6rem', color: 'rgba(201,168,76,0.2)', lineHeight: 1 }}>"</div>
-              <blockquote style={{ margin: 0, position: 'relative', zIndex: 1 }}>
-                <p style={{ fontFamily: FONT_MAP[font], fontSize: 'clamp(1.25rem,3vw,1.75rem)', fontStyle: 'italic', fontWeight: 300, lineHeight: 1.5, color: textColor, marginBottom: d.author ? '1rem' : 0 }}>{d.text}</p>
-                {d.author && <cite style={{ fontFamily: FONT_MAP.sans, fontSize: '0.8rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#c9a84c', fontStyle: 'normal' }}>— {d.author}</cite>}
-              </blockquote>
-            </div>
-          );
-        case 'hotel':
-          return (
-            <div style={{ padding: PAD_MAP[padding] }}>
-              <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#c9a84c', marginBottom: '0.5rem' }}>🏨 Hébergement</p>
-              <p style={{ fontFamily: FONT_MAP.serif, fontSize: '1.5rem', color: textColor, marginBottom: '0.5rem' }}>{d.name}</p>
-              <div style={{ display: 'flex', gap: 12, marginBottom: '0.75rem' }}>
-                {d.price && <span style={{ fontFamily: FONT_MAP.sans, fontSize: '0.82rem', color: '#888' }}>{d.price} / nuit</span>}
-                {d.rating && <span style={{ color: '#c9a84c', fontSize: 13 }}>{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</span>}
-              </div>
-              {d.review && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.88rem', color: isDark ? 'rgba(255,255,255,0.75)' : '#666', lineHeight: 1.7 }}>{d.review}</p>}
-              {d.link && <a href={d.link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', marginTop: '1rem', padding: '0.45rem 1rem', background: '#c9a84c', color: '#0d0d0d', fontFamily: FONT_MAP.sans, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', textDecoration: 'none' }}>Réserver →</a>}
-            </div>
-          );
-        case 'restaurant':
-          return (
-            <div style={{ padding: PAD_MAP[padding], borderLeft: '4px solid #e88c4a' }}>
-              <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#e88c4a', marginBottom: '0.5rem' }}>🍽️ Restaurant</p>
-              <p style={{ fontFamily: FONT_MAP.serif, fontSize: '1.4rem', color: textColor, marginBottom: '0.4rem' }}>{d.name}</p>
-              {(d.cuisine || d.price) && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.82rem', color: '#888', marginBottom: '0.35rem' }}>{[d.cuisine, d.price].filter(Boolean).join(' · ')}</p>}
-              {d.rating && <p style={{ color: '#e88c4a', fontSize: 13, marginBottom: '0.75rem' }}>{'★'.repeat(Number(d.rating))}{'☆'.repeat(5 - Number(d.rating))}</p>}
-              {d.review && <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.88rem', color: isDark ? 'rgba(255,255,255,0.75)' : '#666', lineHeight: 1.7 }}>{d.review}</p>}
-              {d.link && <a href={d.link} target="_blank" rel="noopener noreferrer" style={{ fontFamily: FONT_MAP.sans, fontSize: '0.75rem', color: '#e88c4a', display: 'inline-block', marginTop: 8 }}>Voir sur Maps →</a>}
-            </div>
-          );
-        case 'pros_cons':
-          return (
-            <div style={{ padding: PAD_MAP[padding] }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                <div>
-                  <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#2d7a72', marginBottom: '1rem' }}>✅ Points forts</p>
-                  {(d.pros || []).filter(Boolean).map((p: string, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                      <span style={{ color: '#2d7a72', flexShrink: 0 }}>✓</span>
-                      <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.92rem', color: textColor, lineHeight: 1.6 }}>{p}</p>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#b55435', marginBottom: '1rem' }}>❌ Points faibles</p>
-                  {(d.cons || []).filter(Boolean).map((c: string, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                      <span style={{ color: '#b55435', flexShrink: 0 }}>✗</span>
-                      <p style={{ fontFamily: FONT_MAP.sans, fontSize: '0.92rem', color: textColor, lineHeight: 1.6 }}>{c}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          );
-        case 'divider':
-          return (
-            <div style={{ padding: `${PAD_MAP[padding]} 3rem` }}>
-              {d.style === 'dots' ? (
-                <div style={{ textAlign: 'center', letterSpacing: '0.5em', color: '#c9a84c' }}>· · · · ·</div>
-              ) : d.style === 'wave' ? (
-                <svg viewBox="0 0 100 10" style={{ width: '100%', height: 20 }}>
-                  <path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="#c9a84c" strokeWidth="0.6" />
-                </svg>
-              ) : (
-                <div style={{ height: 1, background: 'linear-gradient(90deg,transparent,#c9a84c,transparent)' }} />
-              )}
-            </div>
-          );
-        default: return null;
-      }
-    };
-
-    return <div key={block.id || index} style={containerStyle}>{renderContent()}</div>;
-  };
-
-  return (
-    <article style={{ background: '#faf8f4' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        {blocks.map((block, i) => renderBlock(block, i))}
-      </div>
-    </article>
-  );
+  const converted = blocks.map((b, i) => ({
+    id: b.id || `legacy-${i}`,
+    type: b.type,
+    data: b.data || {},
+    x: 0, y: 0, w: 100, h: 180,
+    font: b.font || 'sans',
+    bg: b.bg?.type === 'color' ? b.bg.color : b.bg?.gradient || '#fff',
+    textColor: '#25302b', fontSize: 1, zIndex: i,
+  } as CanvasBlock));
+  return <ReaderStoryRenderer blocks={converted} />;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -387,6 +208,7 @@ export default function TripDetail() {
   const [trip, setTrip] = useState<any>(null);
   const [notFound, setNotFound] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportMenu, setExportMenu] = useState(false);
   const [shareToast, setShareToast] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
@@ -443,27 +265,33 @@ export default function TripDetail() {
     setLikeLoading(false);
   };
 
-  // ── Export image ──
+  // ── Export premium ──
+  const printStory = () => {
+    window.print();
+  };
+
   const exportImage = async () => {
     if (!contentRef.current) return;
     setExporting(true);
     try {
       const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(contentRef.current, {
-        scale: 2, useCORS: true, allowTaint: true,
-        backgroundColor: '#faf8f4', logging: false,
-        width: contentRef.current.scrollWidth,
-        height: contentRef.current.scrollHeight,
+      const target = contentRef.current;
+      const canvas = await html2canvas(target, {
+        scale: Math.min(2.5, window.devicePixelRatio || 2), useCORS: true, allowTaint: true,
+        backgroundColor: '#f4f1eb', logging: false,
+        width: target.scrollWidth, height: target.scrollHeight,
+        windowWidth: target.scrollWidth,
       });
       const link = document.createElement('a');
-      link.download = `odyssey-${trip?.slug || 'voyage'}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `${(trip?.title || 'odyssey').toString().toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'odyssey'}-odyssey.png`;
+      link.href = canvas.toDataURL('image/png', 1);
       link.click();
     } catch (e) {
-      console.error('Export error:', e);
-      alert("Erreur lors de l'export. Vérifiez que les images sont en CORS.");
+      console.error('Export image error:', e);
+      alert('Impossible de générer l’image HD. Vous pouvez utiliser l’export PDF à la place.');
+    } finally {
+      setExporting(false);
     }
-    setExporting(false);
   };
 
   // ── Share ──
@@ -484,10 +312,10 @@ export default function TripDetail() {
   // ── Loading ──
   if (notFound) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0d0d0d', gap: 16 }}>
+      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#18352b', gap: 16 }}>
         <p style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', color: '#555', fontWeight: 300 }}>Récit introuvable</p>
         <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', color: '#444' }}>Ce lien est invalide ou le récit a été supprimé.</p>
-        <a href="/" style={{ marginTop: 8, padding: '0.6rem 1.5rem', background: '#c9a84c', color: '#0d0d0d', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <a href="/" style={{ marginTop: 8, padding: '0.6rem 1.5rem', background: '#c9a84c', color: '#18352b', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           ← Retour à l'accueil
         </a>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -497,7 +325,7 @@ export default function TripDetail() {
 
   if (!trip) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0d0d0d', gap: 16 }}>
+      <div style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#18352b', gap: 16 }}>
         <div style={{ width: 36, height: 36, border: '3px solid #1e1e1e', borderTopColor: '#c9a84c', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', color: '#555', letterSpacing: '0.1em' }}>Chargement du récit…</p>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
@@ -515,31 +343,50 @@ export default function TripDetail() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .od-reader-export{background:#f4f1eb;padding:clamp(28px,5vw,70px) 18px 90px}
+        .od-reader-cover{width:min(900px,calc(100% - 0px));margin:0 auto;background:#fff;border:1px solid #e2ddd5;border-radius:24px;padding:clamp(28px,5vw,54px) clamp(22px,6vw,54px) 30px;box-shadow:0 22px 60px rgba(43,43,38,.10);text-align:center;box-sizing:border-box}
+        .od-reader-cover-eyebrow{font:800 10px 'DM Sans',system-ui;letter-spacing:.24em;text-transform:uppercase;color:#a18c57}.od-reader-cover h1{font:400 clamp(2.1rem,5vw,3.4rem)/1.08 'Fraunces',Georgia,serif;letter-spacing:-.025em;color:#17231e;margin:10px auto 8px;max-width:760px}.od-reader-cover-subtitle{margin:0;color:#7d847f;font:14px/1.6 'DM Sans',system-ui}.od-reader-cover>img{display:block;width:100%;height:min(52vw,420px);object-fit:cover;border-radius:16px;margin:26px auto 0}.od-reader-cover-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:22px;padding-top:18px;border-top:1px solid #e7e2d9;text-align:left}.od-reader-author{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0}.od-reader-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#18352b;color:white;font:800 12px 'DM Sans',system-ui;flex:none}.od-reader-avatar img{width:100%;height:100%;object-fit:cover}.od-reader-author small,.od-reader-facts small{display:block;color:#949b96;font:10px 'DM Sans',system-ui;letter-spacing:.05em;margin-bottom:2px}.od-reader-author b,.od-reader-facts b{display:block;color:#34403a;font:700 11px 'DM Sans',system-ui}.od-reader-facts{display:flex;align-items:center;gap:20px}.od-reader-facts span{padding-left:20px;border-left:1px solid #e7e2d9}.od-reader-facts span:first-child{padding-left:0;border-left:0}
+
+        .od-reader-story{width:min(900px,100%);margin:0 auto;background:#fff;border:1px solid #e6dfd3;border-radius:24px;padding:clamp(18px,4vw,54px);box-shadow:0 24px 70px rgba(43,43,38,.10)}
+        .od-reader-block{border:1px solid #e5e0d7;border-radius:18px;overflow:hidden;margin:16px 0;box-shadow:0 7px 22px rgba(43,43,38,.035);box-sizing:border-box}
+        .od-reader-text{padding:clamp(22px,4vw,42px);min-height:100px}.od-reader-text-inner{line-height:1.8;word-break:break-word}.od-reader-text-inner p{margin:0 0 1em}.od-reader-text-inner p:last-child{margin-bottom:0}
+        .od-reader-photo{padding:6px}.od-reader-photo figure{margin:0}.od-reader-photo img{display:block;width:100%;max-height:720px;object-fit:cover;border-radius:14px}.od-reader-photo figcaption{padding:10px 12px 8px;color:#7d847f;font:italic 12px 'DM Sans',system-ui;text-align:center}
+        .od-reader-gallery{padding:6px}.od-reader-gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.od-reader-gallery-grid img{width:100%;height:250px;object-fit:cover;display:block;border-radius:11px}.od-reader-mosaic{display:grid;grid-template-columns:2fr 1fr;gap:5px}.od-reader-mosaic>img,.od-reader-mosaic>div img{width:100%;height:420px;object-fit:cover;display:block;border-radius:11px}.od-reader-mosaic>div{display:grid;grid-template-rows:repeat(3,1fr);gap:5px}.od-reader-mosaic>div img{height:100%}
+        .od-reader-quote{padding:clamp(28px,5vw,52px);position:relative;min-height:150px;display:flex;flex-direction:column;justify-content:center}.od-reader-quote-mark{position:absolute;left:20px;top:-3px;font:100px/1 'Fraunces',Georgia,serif;color:rgba(201,168,76,.20)}.od-reader-quote p{position:relative;margin:0;line-height:1.55;font-style:italic;max-width:720px}.od-reader-quote cite{position:relative;margin-top:14px;font:600 11px 'DM Sans',system-ui;letter-spacing:.1em}
+        .od-reader-place{padding:clamp(20px,4vw,30px);display:flex;gap:18px;align-items:flex-start}.od-reader-place-icon{width:48px;height:48px;border-radius:14px;background:#f4efe2;display:grid;place-items:center;font-size:22px;flex:none}.od-reader-place-main{min-width:0;flex:1}.od-reader-label{display:block;font:800 10px 'DM Sans',system-ui;letter-spacing:.16em;text-transform:uppercase;margin-bottom:7px}.od-reader-place h3{margin:0 0 8px;font-size:clamp(1.25rem,3vw,1.8rem);font-weight:400;line-height:1.15}.od-reader-place-meta{color:#7d847f;font:12px 'DM Sans',system-ui;display:flex;gap:14px;flex-wrap:wrap}.od-stars{color:#c9a84c;letter-spacing:2px}.restaurant-stars{margin-top:8px}.od-reader-place p{color:#626b65;font:13px/1.7 'DM Sans',system-ui;margin:12px 0 0;max-width:700px}.od-reader-place a{display:inline-flex;margin-top:14px;color:#9b7a24;font:700 11px 'DM Sans',system-ui;text-decoration:none;letter-spacing:.05em}.od-reader-place a span{margin-left:5px}.od-reader-restaurant{border-left:3px solid #e88c4a}
+        .od-reader-proscons{padding:clamp(22px,4vw,34px);display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,55px)}.od-reader-proscons>div+div{border-left:1px solid #e7e2d9;padding-left:clamp(20px,4vw,40px)}.od-reader-proscons p{font:13px/1.65 'DM Sans',system-ui;margin:8px 0;display:flex;gap:9px;color:#36413b}.od-reader-proscons p b{flex:none;color:#5b9b78}.od-reader-proscons>div+div p b{color:#c86b6b}.od-good{color:#4d956f}.od-bad{color:#b85d5d}.od-reader-divider{padding:20px 10%;height:24px;display:flex;align-items:center;justify-content:center}.od-reader-divider span{color:#c9a84c;letter-spacing:.45em;font-size:14px}.od-reader-divider svg{width:100%;height:22px}.od-reader-divider i{width:100%;height:1px;background:linear-gradient(90deg,transparent,#c9a84c,transparent)}.od-reader-spacer{border:0!important;box-shadow:none!important;margin:0!important}
+        .od-reader-empty{text-align:center;padding:100px 20px;background:#f4f1eb;color:#737a75}.od-reader-empty p{font:400 30px 'Fraunces',Georgia,serif;color:#4f5b54;margin:0 0 8px}.od-reader-empty span{font:12px 'DM Sans',system-ui}
+        .od-export-wrap{position:relative}.od-export-fab{background:#c9a84c!important;color:#0d0d0d!important;border-color:#c9a84c!important}.od-export-menu{position:absolute;right:58px;top:0;width:340px;background:#fff;border:1px solid #e4dfd6;border-radius:18px;box-shadow:0 22px 65px rgba(28,37,32,.22);overflow:hidden;padding:8px}.od-export-menu-head{padding:13px 14px 11px;border-bottom:1px solid #eee9e1}.od-export-menu-head b{display:block;font:400 18px 'Fraunces',Georgia,serif;color:#18221e}.od-export-menu-head span{display:block;margin-top:3px;font:10px 'DM Sans',system-ui;color:#858c87}.od-export-menu>button{width:100%;border:0;background:#fff;border-radius:12px;padding:12px 9px;display:flex;align-items:center;gap:11px;text-align:left;cursor:pointer}.od-export-menu>button:hover{background:#f7f4ed}.od-export-menu>button>span{width:34px;height:34px;border-radius:10px;background:#f4efe2;color:#9b7a24;display:grid;place-items:center;font-weight:800}.od-export-menu>button div{flex:1}.od-export-menu>button b{display:block;font:700 12px 'DM Sans',system-ui;color:#34403a}.od-export-menu>button small{display:block;font:10px/1.35 'DM Sans',system-ui;color:#8a918c;margin-top:2px}.od-export-menu>button em{font-style:normal;color:#c9a84c}.od-export-menu>button:disabled{opacity:.5}
+        @media(max-width:700px){.od-reader-cover{padding:25px 18px 20px}.od-reader-cover>img{height:260px}.od-reader-cover-footer{align-items:flex-start;flex-direction:column}.od-reader-facts{width:100%;justify-content:space-between;gap:10px}.od-reader-facts span{padding-left:10px}.od-reader-gallery-grid{grid-template-columns:repeat(2,1fr)}.od-reader-gallery-grid img{height:180px}.od-reader-mosaic{grid-template-columns:1fr}.od-reader-mosaic>img,.od-reader-mosaic>div img{height:260px}.od-reader-proscons{grid-template-columns:1fr}.od-reader-proscons>div+div{border-left:0;border-top:1px solid #e7e2d9;padding-left:0;padding-top:22px}.od-export-menu{right:0;top:58px;width:min(340px,calc(100vw - 32px))}}
+        @media print{body{background:#fff!important}.od-export-wrap,.od-top-actions,.fab,.od-toast,.od-export-menu,.od-reader-empty{display:none!important}.od-reader-cover{break-after:page;box-shadow:none!important}.od-reader-export{padding:0!important;background:#fff!important}.od-reader-story{width:100%!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:18mm 15mm!important}.od-reader-block{break-inside:avoid;box-shadow:none!important}.od-reader-photo img{max-height:220mm}.od-reader-gallery-grid img{height:70mm}.od-reader-mosaic>img,.od-reader-mosaic>div img{height:110mm}.od-reader-proscons{break-inside:avoid}}
         .fab:hover{transform:translateY(-2px) scale(1.05)!important;box-shadow:0 8px 24px rgba(0,0,0,0.35)!important}
         .fab{transition:all 0.2s!important}
       `}</style>
 
-      <main style={{ background: '#faf8f4', minHeight: '100vh' }}>
+      <main className="odyssey-page" style={{ background: '#f7f8f5', minHeight: '100vh' }}>
 
         {/* ── Floating action buttons ── */}
         <div style={{ position: 'fixed', top: 80, right: '1.5rem', zIndex: 100, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {/* Like button — principal CTA */}
           <button className="fab" onClick={toggleLike} disabled={likeLoading}
             title={currentUser ? (liked ? 'Retirer des favoris' : 'Ajouter aux favoris') : 'Connectez-vous pour liker'}
-            style={{ width: 48, height: 48, background: liked ? '#c9a84c' : '#0d0d0d', color: liked ? '#0d0d0d' : 'white', border: `1px solid ${liked ? '#c9a84c' : '#2a2a2a'}`, cursor: likeLoading ? 'wait' : 'pointer', display: 'flex', flexDirection:'column', alignItems: 'center', justifyContent: 'center', gap:1, boxShadow: liked ? '0 4px 20px rgba(201,168,76,0.4)' : '0 4px 20px rgba(0,0,0,0.25)', borderRadius: 2, transition:'all 0.2s' }}>
+            style={{ width: 48, height: 48, background: liked ? '#c9a84c' : '#18352b', color: liked ? '#18352b' : 'white', border: `1px solid ${liked ? '#c9a84c' : '#2a2a2a'}`, cursor: likeLoading ? 'wait' : 'pointer', display: 'flex', flexDirection:'column', alignItems: 'center', justifyContent: 'center', gap:1, boxShadow: liked ? '0 4px 20px rgba(201,168,76,0.4)' : '0 4px 20px rgba(0,0,0,0.25)', borderRadius: 2, transition:'all 0.2s' }}>
             <span style={{ fontSize: 18, lineHeight:1, transition:'transform 0.25s cubic-bezier(0.34,1.56,0.64,1)', transform: liked ? 'scale(1.2)' : 'scale(1)', display:'block' }}>{liked ? '♥' : '♡'}</span>
             {likesCount > 0 && <span style={{ fontFamily:"'DM Sans',system-ui", fontSize:'0.55rem', fontWeight:700, lineHeight:1 }}>{likesCount}</span>}
           </button>
           <button className="fab" onClick={shareTrip}
-            style={{ width: 48, height: 48, background: '#0d0d0d', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, boxShadow: '0 4px 20px rgba(0,0,0,0.25)', borderRadius: 2 }}
+            style={{ width: 48, height: 48, background: '#18352b', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, boxShadow: '0 4px 20px rgba(0,0,0,0.25)', borderRadius: 2 }}
             title="Partager">🔗</button>
-          <button className="fab" onClick={exportImage} disabled={exporting}
-            style={{ width: 48, height: 48, background: '#c9a84c', color: '#0d0d0d', border: 'none', cursor: exporting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, boxShadow: '0 4px 20px rgba(201,168,76,0.35)', borderRadius: 2 }}
-            title="Exporter en image">
-            {exporting ? (
-              <div style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#0d0d0d', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-            ) : '⬇️'}
-          </button>
+          <div className="od-export-wrap">
+            <button className="fab od-export-fab" onClick={() => setExportMenu(v => !v)} title="Exporter le récit">↗</button>
+            {exportMenu && (
+              <div className="od-export-menu">
+                <div className="od-export-menu-head"><b>Exporter votre récit</b><span>Une version pensée pour être gardée, imprimée ou partagée.</span></div>
+                <button type="button" onClick={() => { setExportMenu(false); printStory(); }}><span>▣</span><div><b>PDF souvenir</b><small>Ouvre la version imprimable, prête à enregistrer en PDF.</small></div><em>→</em></button>
+                <button type="button" onClick={() => { setExportMenu(false); exportImage(); }} disabled={exporting}><span>▧</span><div><b>Image HD</b><small>Exporte la composition du récit en haute définition.</small></div><em>→</em></button>
+              </div>
+            )}
+          </div>
           <a href="/" className="fab"
             style={{ width: 48, height: 48, background: 'white', border: '1px solid #e6dfd3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, textDecoration: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.08)', borderRadius: 2 }}
             title="Retour">←</a>
@@ -547,7 +394,7 @@ export default function TripDetail() {
 
         {/* ── Toast ── */}
         {shareToast && (
-          <div style={{ position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', background: '#0d0d0d', color: 'white', padding: '0.75rem 1.75rem', fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', letterSpacing: '0.06em', zIndex: 200, animation: 'toastIn 0.3s ease', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', borderRadius: 2 }}>
+          <div style={{ position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', background: '#18352b', color: 'white', padding: '0.75rem 1.75rem', fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', letterSpacing: '0.06em', zIndex: 200, animation: 'toastIn 0.3s ease', boxShadow: '0 8px 32px rgba(0,0,0,0.25)', borderRadius: 2 }}>
             ✓ Lien copié dans le presse-papier
           </div>
         )}
@@ -555,123 +402,42 @@ export default function TripDetail() {
         {/* ══ EXPORTABLE ZONE ══ */}
         <div ref={contentRef}>
 
-          {/* ── Hero cover ── */}
-          <header style={{ position: 'relative', height: '88vh', minHeight: 500, overflow: 'hidden', background: '#0a0a0a' }}>
-            <img
-              src={optimizeImageUrl(trip.cover_image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=2400')}
-              alt={trip.title}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
-            {/* Gradient layers */}
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(5,5,8,0.95) 0%, rgba(5,5,8,0.3) 55%, rgba(5,5,8,0.1) 100%)' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(5,5,8,0.55) 0%, transparent 65%)' }} />
-
-            {/* Content */}
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: 'clamp(2rem,5vw,5rem)', maxWidth: 960 }}>
-
-              {/* Badges */}
-              <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem', flexWrap: 'wrap', animation: 'fadeInUp 0.8s 0.2s both' }}>
-                {trip.category && (
-                  <span style={{ background: '#c9a84c', color: '#0d0d0d', fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', padding: '0.3rem 0.85rem' }}>
-                    {CATS[trip.category] || trip.category}
-                  </span>
-                )}
-                {(trip.city || trip.country) && (
-                  <span style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', color: 'white', fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', padding: '0.3rem 0.85rem' }}>
-                    📍 {[trip.city, trip.country].filter(Boolean).join(', ')}
-                  </span>
-                )}
-                {trip.duration_days && (
-                  <span style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', color: 'white', fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', padding: '0.3rem 0.85rem' }}>
-                    🗓 {trip.duration_days} jours
-                  </span>
-                )}
-                {trip.season && (
-                  <span style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', color: 'white', fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', padding: '0.3rem 0.85rem' }}>
-                    {trip.season}
-                  </span>
-                )}
-              </div>
-
-              {/* Title */}
-              <h1 style={{ fontFamily: "'Fraunces',Georgia,serif", fontSize: 'clamp(2.5rem,7vw,5.5rem)', fontWeight: 300, color: 'white', lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: '1.25rem', textShadow: '0 2px 30px rgba(0,0,0,0.4)', animation: 'fadeInUp 0.8s 0.4s both' }}>
-                {trip.title}
-              </h1>
-
-              {trip.subtitle && (
-                <p style={{ fontFamily: "'Fraunces',serif", fontStyle: 'italic', fontWeight: 300, fontSize: 'clamp(1rem,2.5vw,1.4rem)', color: 'rgba(255,255,255,0.7)', maxWidth: 560, lineHeight: 1.6, marginBottom: '2rem', animation: 'fadeInUp 0.8s 0.5s both' }}>
-                  {trip.subtitle}
-                </p>
-              )}
-
-              {/* Author strip */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, animation: 'fadeInUp 0.8s 0.6s both', flexWrap:'wrap' }}>
-                <a href={trip.profiles?.username ? `/profile/${trip.profiles.username}` : '#'}
-                  style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none' }}
-                  onClick={e => e.stopPropagation()}>
-                  <div style={{ width: 42, height: 42, borderRadius: '50%', overflow:'hidden', background: 'linear-gradient(135deg,#1e3a2f,#c9a84c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.82rem', fontWeight: 700, color: 'white', textTransform: 'uppercase', flexShrink: 0, border: '2px solid rgba(255,255,255,0.2)', transition:'transform 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.transform='scale(1.05)')} onMouseLeave={e => (e.currentTarget.style.transform='scale(1)')}>
-                    {trip.profiles?.avatar_url
-                      ? <img src={trip.profiles.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                      : (trip.profiles?.username?.charAt(0) || 'V')
-                    }
-                  </div>
-                  <div>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.08em', marginBottom: 2 }}>Récit de</p>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.9rem', fontWeight: 500, color: 'white' }}>@{trip.profiles?.username || 'voyageur'}</p>
-                  </div>
-                </a>
-                {trip.budget && (
-                  <>
-                    <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.12)', margin: '0 0.35rem' }} />
-                    <div>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>Budget</p>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', fontWeight: 500, color: 'white' }}>{trip.budget}</p>
-                    </div>
-                  </>
-                )}
-                {trip.travelers > 1 && (
-                  <>
-                    <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.12)', margin: '0 0.35rem' }} />
-                    <div>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>Voyageurs</p>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', fontWeight: 500, color: 'white' }}>{trip.travelers} personnes</p>
-                    </div>
-                  </>
-                )}
-                {/* Likes count inline */}
-                {likesCount > 0 && (
-                  <>
-                    <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.12)', margin: '0 0.35rem' }} />
-                    <div>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 2 }}>Favoris</p>
-                      <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', fontWeight: 500, color: liked ? '#c9a84c' : 'white' }}>♥ {likesCount}</p>
-                    </div>
-                  </>
-                )}
+          {/* ── Cover — même langage visuel que l'aperçu « Construire » ── */}
+          <section className="od-reader-cover">
+            <div className="od-reader-cover-eyebrow">{trip.city || trip.country || 'Odyssey'} · {CATS[trip.category] || trip.category || 'Récit de voyage'}</div>
+            <h1>{trip.title}</h1>
+            <p className="od-reader-cover-subtitle">{trip.subtitle || 'Un voyage à raconter.'}</p>
+            {trip.cover_image && <img src={optimizeImageUrl(trip.cover_image)} alt={trip.title} />}
+            <div className="od-reader-cover-footer">
+              <a href={trip.profiles?.username ? `/profile/${trip.profiles.username}` : '#'} className="od-reader-author">
+                <span className="od-reader-avatar">
+                  {trip.profiles?.avatar_url ? <img src={trip.profiles.avatar_url} alt="" /> : (trip.profiles?.username?.charAt(0) || 'V')}
+                </span>
+                <span><small>Récit de</small><b>@{trip.profiles?.username || 'voyageur'}</b></span>
+              </a>
+              <div className="od-reader-facts">
+                {trip.duration_days && <span><small>Durée</small><b>{trip.duration_days} jours</b></span>}
+                {trip.budget && <span><small>Budget</small><b>{trip.budget}</b></span>}
+                {trip.travelers > 1 && <span><small>Voyageurs</small><b>{trip.travelers}</b></span>}
+                <span><small>Favoris</small><b>{likesCount}</b></span>
               </div>
             </div>
-
-            {/* Watermark */}
-            <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', fontFamily: "'Fraunces',serif", fontSize: '1rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-              Odyssey
-            </div>
-          </header>
+          </section>
 
           {/* ── Content ── */}
           {blocks.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '6rem 2rem', color: '#bbb' }}>
-              <p style={{ fontFamily: "'Fraunces',serif", fontSize: '1.5rem', color: '#ccc', marginBottom: '0.5rem' }}>Récit en cours de rédaction</p>
-              <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem' }}>Le voyageur n'a pas encore ajouté de contenu.</p>
+            <div className="od-reader-empty">
+              <p>Récit en cours de rédaction</p>
+              <span>Le voyageur n'a pas encore ajouté de contenu.</span>
             </div>
-          ) : isCanvas ? (
-            <CanvasRenderer blocks={blocks as CanvasBlock[]} height={trip.canvas_height || 1600} />
           ) : (
-            <LegacyRenderer blocks={blocks as LegacyBlock[]} />
+            <div className="od-reader-export">
+              {isCanvas ? <ReaderStoryRenderer blocks={blocks as CanvasBlock[]} /> : <LegacyRenderer blocks={blocks as LegacyBlock[]} />}
+            </div>
           )}
 
           {/* ── Footer signature ── */}
-          <div style={{ background: '#0d0d0d', padding: '3rem clamp(1.5rem,5vw,4rem)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div style={{ background: '#18352b', padding: '3rem clamp(1.5rem,5vw,4rem)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
             <div>
               <p style={{ fontFamily: "'Fraunces',serif", fontStyle: 'italic', fontSize: '0.95rem', color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Partagé sur</p>
               <p style={{ fontFamily: "'Fraunces',serif", fontSize: '2rem', fontWeight: 300, color: 'white', letterSpacing: '0.05em' }}>Odyssey</p>
@@ -683,9 +449,9 @@ export default function TripDetail() {
                 onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}>
                 🔗 Partager
               </button>
-              <button onClick={exportImage} disabled={exporting}
-                style={{ padding: '0.7rem 1.75rem', background: '#c9a84c', border: 'none', color: '#0d0d0d', cursor: exporting ? 'wait' : 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6, borderRadius: 2 }}>
-                ⬇️ Exporter en image
+              <button onClick={() => setExportMenu(true)}
+                style={{ padding: '0.7rem 1.75rem', background: '#c9a84c', border: 'none', color: '#0d0d0d', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 6, borderRadius: 10 }}>
+                ↗ Exporter mon récit
               </button>
             </div>
           </div>
@@ -694,13 +460,13 @@ export default function TripDetail() {
         {/* ── CTA ── */}
         <div style={{ padding: '3.5rem 2rem', textAlign: 'center', background: 'white', borderTop: '1px solid #e6dfd3' }}>
           <p style={{ fontFamily: "'Fraunces',serif", fontStyle: 'italic', fontSize: '0.9rem', color: '#c9a84c', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>Inspiré par ce voyage ?</p>
-          <p style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.5rem,4vw,2.25rem)', fontWeight: 300, color: '#0d0d0d', marginBottom: '1.75rem', lineHeight: 1.2 }}>
+          <p style={{ fontFamily: "'Fraunces',serif", fontSize: 'clamp(1.5rem,4vw,2.25rem)', fontWeight: 300, color: '#18352b', marginBottom: '1.75rem', lineHeight: 1.2 }}>
             Racontez le vôtre.
           </p>
           <a href="/create"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0.9rem 2.5rem', background: '#0d0d0d', color: 'white', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', textDecoration: 'none', borderRadius: 2, transition: 'background 0.25s' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0.9rem 2.5rem', background: '#18352b', color: 'white', fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', textDecoration: 'none', borderRadius: 2, transition: 'background 0.25s' }}
             onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#c9a84c')}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#0d0d0d')}>
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#18352b')}>
             <span style={{ fontSize: 18 }}>✍️</span> Créer mon récit
           </a>
         </div>

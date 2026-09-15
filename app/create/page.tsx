@@ -236,218 +236,105 @@ type ScalableTemplate = {
 };
 
 const SCALABLE_TEMPLATES: ScalableTemplate[] = [
-
-  // ── 1. JOURNAL DE BORD ────────────────────────────────────────────
+  // Les templates sont volontairement sobres : ils servent de point de départ,
+  // puis l'utilisateur peut enrichir le récit avec la palette "Ajouter".
   {
-    id: 'journal', label: 'Journal de bord', icon: '📓',
-    desc: 'Photo + récit alternés gauche/droite. Un jour par section.',
-    accentColor: '#c9a84c', bgColor: '#0d0d0d', titleH: 500, sectionH: 700,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:420, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:420, bg:'linear-gradient(to top,#0d0d0d 0%,rgba(0,0,0,0.5) 60%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c">Journal de voyage</p>'}, x:80,y:260,w:500,h:36, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.62,zIndex:5 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:4.5rem;line-height:0.9;color:white">Mon<br/><em>Voyage</em></div>'}, x:80,y:300,w:700,h:200, bg:'transparent',textColor:'#fff',font:'serif',fontSize:4.5,zIndex:5 });
-      const n = Math.max(1, Math.floor((canvasH - 500) / 700));
-      for (let i = 0; i < n; i++) {
-        const y = 500 + i*700; const ev = i%2===0;
-        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:700, bg:ev?'#111':'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:Bebas Neue,sans-serif;font-size:4rem;color:rgba(201,168,76,0.15);line-height:1">JOUR ${String(i+1).padStart(2,'0')}</div>`}, x:ev?60:640,y:y+30,w:500,h:80, bg:'transparent',textColor:'rgba(201,168,76,0.15)',font:'display',fontSize:4,zIndex:3 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?0:600,y:y+60,w:560,h:420, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px">Jour ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.8rem;line-height:1.2;color:white;margin-bottom:18px">Titre de l'étape</div><p style="font-family:DM Sans,system-ui;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.6)">Racontez cette journée — les routes, les paysages, les rencontres inattendues.</p>`}, x:ev?620:40,y:y+80,w:520,h:380, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'divider', data:{style:'line'}, x:ev?620:40,y:y+640,w:400,h:24, bg:'transparent',textColor:'rgba(201,168,76,0.3)',font:'sans',fontSize:1,zIndex:3 });
+    id:'postcard', label:'Immersif', icon:'✦',
+    desc:'Une ouverture spectaculaire, puis des moments courts et visuels.',
+    accentColor:'#315a48', bgColor:'#f6f3ed', titleH:620, sectionH:620,
+    generate:(canvasH)=>{
+      const b:any[]=[]; const id=uid;
+      b.push({id:id(),type:'spacer',data:{},x:0,y:0,w:1200,h:canvasH,bg:'#f6f3ed',textColor:'#17372d',font:'sans',fontSize:1,zIndex:1});
+      b.push({id:id(),type:'photo',data:{url:'',caption:''},x:40,y:40,w:1120,h:430,bg:'#dfe5df',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.62rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#315a48">Votre voyage · en quelques images</p>'},x:80,y:500,w:520,h:30,bg:'transparent',textColor:'#315a48',font:'sans',fontSize:.62,zIndex:4});
+      b.push({id:id(),type:'text',data:{html:'<div style="font-family:Fraunces,Georgia,serif;font-weight:400;font-size:4.1rem;line-height:.95;color:#17372d">Un voyage<br/><em>à raconter</em></div>'},x:80,y:535,w:720,h:150,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:4.1,zIndex:4});
+      const n=Math.max(1,Math.floor((canvasH-620)/620));
+      for(let i=0;i<n;i++){
+        const y=620+i*620; const ev=i%2===0;
+        b.push({id:id(),type:'photo',data:{url:'',caption:''},x:ev?60:640,y:y+45,w:500,h:390,bg:'#e1e6e1',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'text',data:{html:`<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#789184;margin-bottom:12px">0${i+1} · Moment</p><div style="font-family:Fraunces,Georgia,serif;font-size:2rem;line-height:1.08;color:#17372d;margin-bottom:16px">Le détail qui reste</div><p style="font-family:DM Sans,system-ui;font-size:.9rem;line-height:1.8;color:#66736c">Racontez ce moment en quelques phrases. Une lumière, une rencontre, une sensation.</p>`},x:ev?620:60,y:y+70,w:500,h:300,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:1,zIndex:3});
       }
       return b;
-    },
+    }
   },
-
-  // ── 2. MAGAZINE NOIR ──────────────────────────────────────────────
   {
-    id: 'noir', label: 'Magazine Noir', icon: '🖤',
-    desc: 'Éditorial sombre, typo monumentale, galeries pleine largeur.',
-    accentColor: '#ffffff', bgColor: '#111', titleH: 680, sectionH: 760,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:12rem;line-height:0.82;color:rgba(255,255,255,0.04)">OD</div>'}, x:-20,y:-20,w:700,h:380, bg:'transparent',textColor:'rgba(255,255,255,0.04)',font:'display',fontSize:12,zIndex:2 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.35)">VOL. 01 · ODYSSEY MAGAZINE</p>'}, x:80,y:60,w:600,h:32, bg:'transparent',textColor:'rgba(255,255,255,0.35)',font:'sans',fontSize:0.6,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:white;text-transform:uppercase">MON<br/>GRAND<br/>VOYAGE</div>'}, x:60,y:110,w:680,h:420, bg:'transparent',textColor:'#fff',font:'display',fontSize:8,zIndex:4 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:680,y:0,w:520,h:680, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'divider', data:{style:'line'}, x:60,y:560,w:500,h:24, bg:'transparent',textColor:'rgba(255,255,255,0.15)',font:'sans',fontSize:1,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.25rem;line-height:1.7;color:rgba(255,255,255,0.55)">Une ligne accroche poétique, précise, inoubliable.</p>'}, x:60,y:600,w:580,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.55)',font:'serif',fontSize:1.25,zIndex:4 });
-      const n = Math.max(1, Math.floor((canvasH - 680) / 760));
-      for (let i = 0; i < n; i++) {
-        const y = 680 + i*760;
-        b.push({ id:id(), type:'gallery', data:{images:[],layout:'grid'}, x:0,y,w:1200,h:320, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:DM Sans,system-ui;font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:10px">Chapitre ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.2rem;line-height:1.15;color:white;margin-bottom:18px">Titre du chapitre</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.5)">Développez ici une partie de votre récit.</p>`}, x:80,y:y+350,w:500,h:320, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'quote', data:{text:'Une citation qui marque ce chapitre du voyage.',author:''}, x:620,y:y+380,w:520,h:200, bg:'rgba(255,255,255,0.03)',textColor:'rgba(255,255,255,0.7)',font:'serif',fontSize:1.3,zIndex:3 });
+    id:'magazine', label:'Éditorial', icon:'▤',
+    desc:'Une composition aérée et structurée, inspirée des beaux magazines.',
+    accentColor:'#315a48', bgColor:'#fbfaf7', titleH:610, sectionH:700,
+    generate:(canvasH)=>{
+      const b:any[]=[]; const id=uid;
+      b.push({id:id(),type:'spacer',data:{},x:0,y:0,w:1200,h:canvasH,bg:'#fbfaf7',textColor:'#17231e',font:'sans',fontSize:1,zIndex:1});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#789184">ODYSSEY · Carnet de voyage</p>'},x:70,y:55,w:500,h:30,bg:'transparent',textColor:'#789184',font:'sans',fontSize:.58,zIndex:3});
+      b.push({id:id(),type:'photo',data:{url:'',caption:''},x:500,y:95,w:630,h:430,bg:'#dfe5df',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+      b.push({id:id(),type:'text',data:{html:'<div style="font-family:Fraunces,Georgia,serif;font-size:4.2rem;line-height:.94;color:#17372d">Les lieux<br/><em>qui comptent</em></div>'},x:70,y:145,w:520,h:210,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:4.2,zIndex:4});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.92rem;line-height:1.8;color:#65716b">Une introduction courte pour donner envie de lire la suite.</p>'},x:75,y:385,w:360,h:120,bg:'transparent',textColor:'#65716b',font:'sans',fontSize:1,zIndex:4});
+      const n=Math.max(1,Math.floor((canvasH-610)/700));
+      for(let i=0;i<n;i++){
+        const y=610+i*700;
+        b.push({id:id(),type:'divider',data:{style:'line'},x:70,y:y+25,w:1060,h:24,bg:'transparent',textColor:'#d5ddd7',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'text',data:{html:`<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#315a48">CHAPITRE 0${i+1}</p><div style="font-family:Fraunces,Georgia,serif;font-size:2.25rem;line-height:1.08;color:#17372d;margin:12px 0 18px">Titre de votre histoire</div><p style="font-family:DM Sans,system-ui;font-size:.9rem;line-height:1.85;color:#66736c">Un espace confortable pour développer le récit, sans surcharge visuelle.</p>`},x:70,y:y+75,w:440,h:310,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:1,zIndex:3});
+        b.push({id:id(),type:'photo',data:{url:'',caption:''},x:600,y:y+70,w:530,h:390,bg:'#e1e6e1',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'quote',data:{text:'Une phrase qui résume ce moment.',author:''},x:600,y:y+480,w:450,h:120,bg:'#edf3ee',textColor:'#315a48',font:'serif',fontSize:1.05,zIndex:3});
       }
       return b;
-    },
+    }
   },
-
-  // ── 3. PANORAMA ───────────────────────────────────────────────────
   {
-    id: 'panorama', label: 'Panorama', icon: '🌅',
-    desc: 'Fond clair, photos pleine largeur, texte centré épuré.',
-    accentColor: '#c9a84c', bgColor: '#faf8f4', titleH: 600, sectionH: 800,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#faf8f4',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:480, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:480, bg:'linear-gradient(to top,#faf8f4 0%,rgba(250,248,244,0.3) 40%,transparent 100%)',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c;text-align:center">Récit de voyage</p>'}, x:300,y:390,w:600,h:32, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.6,zIndex:5 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:3.8rem;line-height:1;color:#0d0d0d;text-align:center">Mon Voyage</div>'}, x:200,y:430,w:800,h:140, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:3.8,zIndex:5 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.15rem;color:#888;line-height:1.6;text-align:center">Un sous-titre poétique pour votre aventure…</p>'}, x:250,y:540,w:700,h:60, bg:'transparent',textColor:'#888',font:'serif',fontSize:1.15,zIndex:5 });
-      const n = Math.max(1, Math.floor((canvasH - 600) / 800));
-      for (let i = 0; i < n; i++) {
-        const y = 600 + i*800;
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y,w:1200,h:480, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;text-align:center;margin-bottom:12px">Étape ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:2.4rem;line-height:1.1;color:#0d0d0d;text-align:center;margin-bottom:20px">Titre du lieu</div><p style="font-family:DM Sans,system-ui;font-size:0.92rem;line-height:1.85;color:#555;text-align:center">Décrivez ce lieu, son ambiance, ce qui vous a touché.</p>`}, x:100,y:y+500,w:1000,h:280, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1,zIndex:3 });
+    id:'journal', label:'Carnet', icon:'✎',
+    desc:'Le format le plus naturel : une suite de journées, de notes et de photos.',
+    accentColor:'#315a48', bgColor:'#f3f0e8', titleH:520, sectionH:650,
+    generate:(canvasH)=>{
+      const b:any[]=[]; const id=uid;
+      b.push({id:id(),type:'spacer',data:{},x:0,y:0,w:1200,h:canvasH,bg:'#f3f0e8',textColor:'#17372d',font:'sans',fontSize:1,zIndex:1});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.6rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#789184">Mon carnet · Quelques jours ailleurs</p><div style="font-family:Fraunces,Georgia,serif;font-size:4rem;line-height:.95;color:#17372d;margin-top:12px">Petits moments,<br/><em>grands souvenirs.</em></div>'},x:70,y:90,w:800,h:220,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:4,zIndex:3});
+      b.push({id:id(),type:'photo',data:{url:'',caption:''},x:790,y:70,w:330,h:350,bg:'#dce4dd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+      const n=Math.max(1,Math.floor((canvasH-520)/650));
+      for(let i=0;i<n;i++){
+        const y=520+i*650;
+        b.push({id:id(),type:'text',data:{html:`<div style="font-family:DM Sans,system-ui;font-size:.62rem;font-weight:800;letter-spacing:.12em;color:#315a48">JOUR ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,Georgia,serif;font-size:2rem;color:#17372d;margin:8px 0 14px">Aujourd'hui, je retiens…</div><p style="font-family:DM Sans,system-ui;font-size:.9rem;line-height:1.85;color:#65716b">Écrivez naturellement. Quelques lignes suffisent pour donner une voix au voyage.</p>`},x:70,y:y+55,w:470,h:300,bg:'#fffaf2',textColor:'#17372d',font:'serif',fontSize:1,zIndex:3});
+        b.push({id:id(),type:'photo',data:{url:'',caption:''},x:620,y:y+35,w:500,h:390,bg:'#dce4dd',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'divider',data:{style:'line'},x:70,y:y+590,w:1050,h:24,bg:'transparent',textColor:'#c8d2ca',font:'sans',fontSize:1,zIndex:2});
       }
       return b;
-    },
+    }
   },
-
-  // ── 4. CARNET NATURE ──────────────────────────────────────────────
   {
-    id: 'nature', label: 'Carnet Nature', icon: '🌿',
-    desc: 'Fond forêt sombre, mosaïques, fiches terrain. Aventure brute.',
-    accentColor: '#4caf7d', bgColor: '#0f1a14', titleH: 560, sectionH: 720,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0f1a14',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:480, bg:'#162a1c',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:480, bg:'linear-gradient(to top,#0f1a14 0%,rgba(15,26,20,0.6) 50%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:#4caf7d">Exploration · Nature</p>'}, x:80,y:300,w:500,h:32, bg:'transparent',textColor:'#4caf7d',font:'sans',fontSize:0.6,zIndex:5 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Fraunces,serif;font-weight:300;font-size:4rem;line-height:0.92;color:white">Dans les<br/><em>profondeurs</em><br/>du monde</div>'}, x:80,y:340,w:700,h:220, bg:'transparent',textColor:'#fff',font:'serif',fontSize:4,zIndex:5 });
-      b.push({ id:id(), type:'divider', data:{style:'dots'}, x:80,y:500,w:200,h:40, bg:'transparent',textColor:'#4caf7d',font:'sans',fontSize:1,zIndex:4 });
-      const n = Math.max(1, Math.floor((canvasH - 560) / 720));
-      for (let i = 0; i < n; i++) {
-        const y = 560 + i*720;
-        b.push({ id:id(), type:'gallery', data:{images:[],layout:'mosaic'}, x:0,y,w:1200,h:360, bg:'#0a1410',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'spacer', data:{}, x:0,y:y+360,w:1200,h:360, bg:'#111d15',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'text', data:{html:`<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px"><div style="width:32px;height:32px;background:#4caf7d;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui;font-weight:700;color:#0d0d0d;font-size:0.85rem">${i+1}</div><p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#4caf7d">Observation ${i+1}</p></div><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.75rem;line-height:1.2;color:white;margin-bottom:16px">Titre de l'exploration</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.85;color:rgba(255,255,255,0.55)">Décrivez ce que vous avez observé, ressenti, découvert.</p>`}, x:80,y:y+390,w:540,h:300, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'text', data:{html:'<div style="padding:20px 24px"><p style="font-family:DM Sans,system-ui;font-size:0.58rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4caf7d;margin-bottom:12px">🌡 Infos terrain</p><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(76,175,125,0.15);padding-bottom:6px"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Altitude</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:white;font-weight:600">— m</span></div><div style="display:flex;justify-content:space-between"><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:rgba(255,255,255,0.4)">Difficulté</span><span style="font-family:DM Sans,system-ui;font-size:0.78rem;color:#4caf7d;font-weight:600">Modérée</span></div></div></div>'}, x:680,y:y+390,w:440,h:270, bg:'rgba(76,175,125,0.06)',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
+    id:'film', label:'Cinéma', icon:'▣',
+    desc:'Une narration visuelle, avec de grandes scènes et peu de texte.',
+    accentColor:'#315a48', bgColor:'#17231e', titleH:650, sectionH:690,
+    generate:(canvasH)=>{
+      const b:any[]=[]; const id=uid;
+      b.push({id:id(),type:'spacer',data:{},x:0,y:0,w:1200,h:canvasH,bg:'#17231e',textColor:'#fff',font:'sans',fontSize:1,zIndex:1});
+      b.push({id:id(),type:'photo',data:{url:'',caption:''},x:0,y:0,w:1200,h:500,bg:'#263a31',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#b9cfbf">UNE HISTOIRE EN IMAGES</p><div style="font-family:Fraunces,Georgia,serif;font-size:4.4rem;line-height:.92;color:#fff;margin-top:12px">Comme une<br/><em>scène de film.</em></div>'},x:70,y:300,w:720,h:230,bg:'transparent',textColor:'#fff',font:'serif',fontSize:4.4,zIndex:4});
+      const n=Math.max(1,Math.floor((canvasH-650)/690));
+      for(let i=0;i<n;i++){
+        const y=650+i*690;
+        b.push({id:id(),type:'photo',data:{url:'',caption:''},x:70,y:y+45,w:1060,h:420,bg:'#263a31',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'text',data:{html:`<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#a9c4b3">SCÈNE ${String(i+1).padStart(2,'0')}</p><div style="font-family:Fraunces,Georgia,serif;font-size:2rem;line-height:1.1;color:#fff;margin:10px 0 12px">Donnez un titre à ce moment</div><p style="font-family:DM Sans,system-ui;font-size:.86rem;line-height:1.8;color:rgba(255,255,255,.62)">Une courte légende ou quelques lignes pour faire vivre la scène.</p>`},x:100,y:y+365,w:700,h:220,bg:'rgba(23,35,30,.92)',textColor:'#fff',font:'serif',fontSize:1,zIndex:3});
       }
       return b;
-    },
+    }
   },
-
-  // ── 5. FILM STRIP ─────────────────────────────────────────────────
   {
-    id: 'film', label: 'Film Strip', icon: '🎞️',
-    desc: 'Bande pellicule à gauche, contenu éditorial à droite. Style cinéma.',
-    accentColor: '#c9a84c', bgColor: '#0a0a0a', titleH: 560, sectionH: 660,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0a0a0a',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      // Bande pellicule gauche — fixe toute la hauteur
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:220,h:canvasH, bg:'#050505',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="display:flex;flex-direction:column;gap:28px;padding:12px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>'}, x:0,y:0,w:24,h:canvasH, bg:'transparent',textColor:'#111',font:'sans',fontSize:0.5,zIndex:3 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="display:flex;flex-direction:column;gap:28px;padding:12px 0;align-items:center">⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛</div>'}, x:196,y:0,w:24,h:canvasH, bg:'transparent',textColor:'#111',font:'sans',fontSize:0.5,zIndex:3 });
-      // Titre unique
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:5.5rem;line-height:0.9;color:#c9a84c;text-transform:uppercase">MON<br/>VOYAGE</div>'}, x:260,y:60,w:680,h:280, bg:'transparent',textColor:'#c9a84c',font:'display',fontSize:5,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.3rem;color:rgba(255,255,255,0.7);line-height:1.6">Racontez votre aventure ici.</p>'}, x:260,y:360,w:500,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.7)',font:'serif',fontSize:1.3,zIndex:4 });
-      b.push({ id:id(), type:'divider', data:{style:'line'}, x:260,y:455,w:400,h:24, bg:'transparent',textColor:'rgba(201,168,76,0.4)',font:'sans',fontSize:1,zIndex:4 });
-      // Photos pellicule gauche — titre zone
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:40,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:246,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      // Sections répétables
-      const n = Math.max(1, Math.floor((canvasH - 560) / 660));
-      for (let i = 0; i < n; i++) {
-        const y = 560 + i*660;
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:y+20,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:26,y:y+226,w:168,h:190, bg:'#222',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:240,y,w:820,h:400, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:4 });
-        b.push({ id:id(), type:'text', data:{html:`<span style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.8rem;letter-spacing:0.18em;text-transform:uppercase;color:#0d0d0d">Scène ${i+1}</span>`}, x:240,y:y+428,w:160,h:36, bg:'#c9a84c',textColor:'#0d0d0d',font:'sans',fontSize:0.9,zIndex:5 });
-        b.push({ id:id(), type:'text', data:{html:'<p style="line-height:1.8;color:rgba(255,255,255,0.75)">Décrivez ce moment — l\'ambiance, la lumière, les sons. Faites revivre la scène.</p>'}, x:240,y:y+490,w:600,h:140, bg:'transparent',textColor:'rgba(255,255,255,0.75)',font:'sans',fontSize:1,zIndex:4 });
-        b.push({ id:id(), type:'quote', data:{text:'Une citation qui illustre ce moment du voyage.',author:''}, x:240,y:y+445,w:720,h:180, bg:'rgba(201,168,76,0.06)',textColor:'#fff',font:'serif',fontSize:1.2,zIndex:4 });
+    id:'roadtrip', label:'Aventure', icon:'↗',
+    desc:'Un parcours vivant pour les road-trips, randonnées et itinéraires.',
+    accentColor:'#315a48', bgColor:'#eef2ee', titleH:600, sectionH:700,
+    generate:(canvasH)=>{
+      const b:any[]=[]; const id=uid;
+      b.push({id:id(),type:'spacer',data:{},x:0,y:0,w:1200,h:canvasH,bg:'#eef2ee',textColor:'#17372d',font:'sans',fontSize:1,zIndex:1});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#315a48">ITINÉRAIRE · ODYSSEY</p><div style="font-family:Fraunces,Georgia,serif;font-size:4.3rem;line-height:.92;color:#17372d;margin-top:12px">La route<br/><em>nous attend.</em></div>'},x:70,y:90,w:650,h:240,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:4.3,zIndex:3});
+      b.push({id:id(),type:'photo',data:{url:'',caption:''},x:730,y:60,w:390,h:400,bg:'#d9e2db',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+      b.push({id:id(),type:'text',data:{html:'<p style="font-family:DM Sans,system-ui;font-size:.9rem;line-height:1.8;color:#65716b">Ajoutez ensuite vos étapes avec la palette : photo, adresse, conseil, récit…</p>'},x:70,y:370,w:520,h:120,bg:'transparent',textColor:'#65716b',font:'sans',fontSize:1,zIndex:3});
+      const n=Math.max(1,Math.floor((canvasH-600)/700));
+      for(let i=0;i<n;i++){
+        const y=600+i*700; const ev=i%2===0;
+        b.push({id:id(),type:'text',data:{html:`<div style="width:42px;height:42px;border-radius:50%;background:#315a48;color:#fff;display:grid;place-items:center;font-family:DM Sans,system-ui;font-weight:800">${i+1}</div>`},x:574,y:y+55,w:52,h:52,bg:'transparent',textColor:'#fff',font:'sans',fontSize:1,zIndex:4});
+        b.push({id:id(),type:'photo',data:{url:'',caption:''},x:ev?60:640,y:y+45,w:480,h:360,bg:'#d9e2db',textColor:'#fff',font:'sans',fontSize:1,zIndex:2});
+        b.push({id:id(),type:'text',data:{html:`<p style="font-family:DM Sans,system-ui;font-size:.58rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#315a48">ÉTAPE 0${i+1}</p><div style="font-family:Fraunces,Georgia,serif;font-size:2rem;line-height:1.1;color:#17372d;margin:10px 0 14px">Votre prochaine étape</div><p style="font-family:DM Sans,system-ui;font-size:.88rem;line-height:1.8;color:#65716b">Racontez ce que l'on découvre ici, comment y aller et pourquoi cela mérite une place dans le récit.</p>`},x:ev?620:60,y:y+75,w:500,h:300,bg:'transparent',textColor:'#17372d',font:'serif',fontSize:1,zIndex:3});
       }
       return b;
-    },
-  },
-
-  // ── 6. MAGAZINE CLAIR ─────────────────────────────────────────────
-  {
-    id: 'magazine', label: 'Magazine Clair', icon: '📰',
-    desc: 'Fond parchemin, typo asymétrique, style éditorial luxe.',
-    accentColor: '#c9a84c', bgColor: '#f5f0e8', titleH: 620, sectionH: 740,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#f5f0e8',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:32rem;line-height:1;color:rgba(0,0,0,0.04);user-select:none">V</div>'}, x:-40,y:-80,w:700,h:700, bg:'transparent',textColor:'rgba(0,0,0,0.04)',font:'display',fontSize:32,zIndex:2 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#c9a84c">— Récit de voyage · Édition 2024</p>'}, x:80,y:60,w:600,h:36, bg:'transparent',textColor:'#c9a84c',font:'sans',fontSize:0.65,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:8rem;line-height:0.88;color:#0d0d0d;text-transform:uppercase">MON<br/>VOYAGE<br/><span style="color:#c9a84c">INCROYABLE</span></div>'}, x:60,y:100,w:700,h:420, bg:'transparent',textColor:'#0d0d0d',font:'display',fontSize:8,zIndex:4 });
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:640,y:0,w:560,h:560, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'divider', data:{style:'line'}, x:60,y:540,w:400,h:24, bg:'transparent',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;line-height:1.65;color:#0d0d0d">Un voyage qui a tout changé. Des paysages à couper le souffle.</p>'}, x:60,y:578,w:760,h:100, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1.4,zIndex:4 });
-      const n = Math.max(1, Math.floor((canvasH - 620) / 740));
-      for (let i = 0; i < n; i++) {
-        const y = 620 + i*740; const ev = i%2===0;
-        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:740, bg:ev?'#f5f0e8':'#fff',textColor:'#0d0d0d',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?60:620,y:y+40,w:440,h:380, bg:'#ddd',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.62rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:#c9a84c;border-top:2px solid #c9a84c;padding-top:8px;margin-bottom:14px">0${i+1} — Section</p><div style="font-family:Fraunces,serif;font-size:2rem;font-weight:300;line-height:1.2;color:#0d0d0d;margin-bottom:18px">Titre de la section</div><p style="line-height:1.85;color:#555;font-size:0.92rem">Racontez cette partie de votre voyage — les impressions, les détails qui font toute la différence.</p>`}, x:ev?560:60,y:y+60,w:500,h:360, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1,zIndex:3 });
-        if (i === n-1) b.push({ id:id(), type:'quote', data:{text:'Chaque lieu nous apprend quelque chose sur nous-mêmes.',author:''}, x:100,y:y+480,w:900,h:180, bg:'transparent',textColor:'#0d0d0d',font:'serif',fontSize:1.8,zIndex:4 });
-      }
-      return b;
-    },
-  },
-
-  // ── 7. CARTE POSTALE ──────────────────────────────────────────────
-  {
-    id: 'postcard', label: 'Carte Postale', icon: '🏷️',
-    desc: 'Grande photo pleine page, titre monumental, ambiance minimaliste.',
-    accentColor: '#c9a84c', bgColor: '#0d0d0d', titleH: 700, sectionH: 680,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:Math.min(canvasH,700), bg:'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:Math.min(canvasH,700)-300,w:1200,h:300, bg:'linear-gradient(to top,rgba(0,0,0,0.92) 0%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:200, bg:'linear-gradient(to bottom,rgba(0,0,0,0.4),transparent)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.65rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Odyssey · Récit de voyage</p>'}, x:60,y:50,w:500,h:36, bg:'transparent',textColor:'rgba(255,255,255,0.6)',font:'sans',fontSize:0.65,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-weight:700;font-size:0.75rem;letter-spacing:0.14em;text-transform:uppercase;color:#0d0d0d;text-align:center">📍 PAYS</p>'}, x:980,y:40,w:170,h:44, bg:'#c9a84c',textColor:'#0d0d0d',font:'sans',fontSize:0.75,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:10rem;line-height:0.85;color:white;text-transform:uppercase;text-shadow:0 4px 40px rgba(0,0,0,0.5)">DESTI<br/>NATION</div>'}, x:50,y:340,w:900,h:320, bg:'transparent',textColor:'#fff',font:'display',fontSize:10,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:Fraunces,serif;font-style:italic;font-weight:300;font-size:1.4rem;color:rgba(255,255,255,0.8);line-height:1.5">Une phrase qui capture l\'essence de votre voyage.</p>'}, x:60,y:580,w:700,h:80, bg:'transparent',textColor:'rgba(255,255,255,0.8)',font:'serif',fontSize:1.4,zIndex:4 });
-      // Sections — fond sombre + photo + texte
-      const n = Math.max(1, Math.floor((canvasH - 700) / 680));
-      for (let i = 0; i < n; i++) {
-        const y = 700 + i*680;
-        b.push({ id:id(), type:'spacer', data:{}, x:0,y,w:1200,h:680, bg:i%2===0?'#0d0d0d':'#111',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:y+40,w:560,h:400, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'text', data:{html:`<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#c9a84c;margin-bottom:14px">Lieu ${i+1}</p><div style="font-family:Fraunces,serif;font-weight:300;font-size:2rem;line-height:1.2;color:white;margin-bottom:18px">Nom de la destination</div><p style="font-family:DM Sans,system-ui;font-size:0.9rem;line-height:1.8;color:rgba(255,255,255,0.6)">Ce lieu vous a marqué pour une raison particulière. Décrivez-la.</p>`}, x:620,y:y+60,w:520,h:360, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
-      }
-      return b;
-    },
-  },
-
-  // ── 8. ROAD TRIP ──────────────────────────────────────────────────
-  {
-    id: 'roadtrip', label: 'Road Trip', icon: '🚗',
-    desc: 'Fond asphalte, km et étapes. Pour les carnets de route.',
-    accentColor: '#e8a020', bgColor: '#0d0d0d', titleH: 580, sectionH: 750,
-    generate: (canvasH) => {
-      const b: any[] = []; const id = uid;
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:canvasH, bg:'#0d0d0d',textColor:'#fff',font:'sans',fontSize:1,zIndex:1 });
-      // Ligne de route verticale centrale
-      b.push({ id:id(), type:'spacer', data:{}, x:598,y:0,w:4,h:canvasH, bg:'linear-gradient(to bottom,transparent,#e8a020 5%,#e8a020 95%,transparent)',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-      // Titre
-      b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:0,y:0,w:1200,h:460, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-      b.push({ id:id(), type:'spacer', data:{}, x:0,y:0,w:1200,h:460, bg:'linear-gradient(to top,#0d0d0d 0%,rgba(0,0,0,0.5) 60%,transparent 100%)',textColor:'#fff',font:'sans',fontSize:1,zIndex:4 });
-      b.push({ id:id(), type:'text', data:{html:'<p style="font-family:DM Sans,system-ui;font-size:0.6rem;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;color:#e8a020">Road Trip · Odyssey</p>'}, x:80,y:280,w:500,h:32, bg:'transparent',textColor:'#e8a020',font:'sans',fontSize:0.6,zIndex:6 });
-      b.push({ id:id(), type:'text', data:{html:'<div style="font-family:Bebas Neue,sans-serif;font-size:5rem;line-height:0.88;color:white;text-transform:uppercase;letter-spacing:0.02em">La Route<br/><span style="color:#e8a020">Sans fin</span></div>'}, x:80,y:320,w:700,h:240, bg:'transparent',textColor:'#fff',font:'display',fontSize:5,zIndex:6 });
-      // Sections — chaque section = un jour de route
-      const n = Math.max(1, Math.floor((canvasH - 580) / 750));
-      for (let i = 0; i < n; i++) {
-        const y = 580 + i*750; const ev = i%2===0;
-        // Marqueur de route (point sur la ligne)
-        b.push({ id:id(), type:'text', data:{html:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><div style="width:28px;height:28px;background:#e8a020;border:3px solid #0d0d0d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',system-ui;font-weight:700;color:#0d0d0d;font-size:0.75rem">${i+1}</div></div>`}, x:572,y:y+20,w:56,h:56, bg:'transparent',textColor:'#fff',font:'sans',fontSize:1,zIndex:6 });
-        b.push({ id:id(), type:'spacer', data:{}, x:0,y:y+80,w:ev?560:640,h:600, bg:ev?'#111':'transparent',textColor:'#fff',font:'sans',fontSize:1,zIndex:2 });
-        b.push({ id:id(), type:'photo', data:{url:'',caption:''}, x:ev?0:640,y:y+80,w:560,h:380, bg:'#1a1a1a',textColor:'#fff',font:'sans',fontSize:1,zIndex:3 });
-        b.push({ id:id(), type:'text', data:{html:`<div style="font-family:Bebas Neue,sans-serif;font-size:3.5rem;line-height:1;color:rgba(232,160,32,0.15);margin-bottom:8px">JOUR ${String(i+1).padStart(2,'0')}</div><div style="font-family:Fraunces,serif;font-weight:300;font-size:1.8rem;line-height:1.2;color:white;margin-bottom:16px">Titre de l'étape</div><p style="font-family:DM Sans,system-ui;font-size:0.88rem;line-height:1.8;color:rgba(255,255,255,0.6)">Racontez la route, les haltes, les panoramas. Chaque kilomètre a son histoire.</p><div style="margin-top:16px;display:flex;gap:20px"><span style="font-family:DM Sans,system-ui;font-size:0.72rem;color:#e8a020">📍 Départ : —</span><span style="font-family:DM Sans,system-ui;font-size:0.72rem;color:#e8a020">🏁 — km</span></div>`}, x:ev?640:40,y:y+100,w:520,h:380, bg:'transparent',textColor:'#fff',font:'serif',fontSize:1,zIndex:3 });
-      }
-      return b;
-    },
+    }
   },
 ];
 
@@ -460,228 +347,93 @@ function TemplateModal({ onApply, onClose }: {
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [canvasH, setCanvasH] = useState(2500);
-  const [customH, setCustomH] = useState('');
-  const [hovered, setHovered] = useState<string | null>(null);
 
-  const tpl = SCALABLE_TEMPLATES.find(t => t.id === selected);
+  // On conserve les IDs et générateurs existants pour ne rien casser côté données,
+  // mais on ne présente que 5 directions visuelles, plus simples à comprendre.
+  const STYLE_IDS = ['postcard','magazine','journal','film','roadtrip'];
+  const styles = STYLE_IDS.map(id => SCALABLE_TEMPLATES.find(t => t.id === id)).filter(Boolean) as ScalableTemplate[];
+  const tpl = styles.find(t => t.id === selected) || null;
   const sectionCount = tpl ? Math.max(1, Math.floor((canvasH - tpl.titleH) / tpl.sectionH)) : 0;
   const finalH = tpl ? tpl.titleH + sectionCount * tpl.sectionH : canvasH;
 
+  const styleInfo: Record<string,{label:string;desc:string;use:string;emoji:string}> = {
+    postcard:{label:'Immersif',desc:'Une grande image, un titre fort et beaucoup d’espace.',use:'Idéal pour un voyage visuel',emoji:'✦'},
+    magazine:{label:'Éditorial',desc:'Une mise en page élégante, structurée et contemporaine.',use:'Idéal pour raconter avec du texte',emoji:'▤'},
+    journal:{label:'Carnet',desc:'Photos et récits alternés, comme un vrai carnet de voyage.',use:'Idéal pour raconter jour après jour',emoji:'✎'},
+    film:{label:'Cinéma',desc:'Des images fortes et une ambiance de film de voyage.',use:'Idéal pour les souvenirs marquants',emoji:'▣'},
+    roadtrip:{label:'Aventure',desc:'Une composition dynamique pensée pour les étapes et les découvertes.',use:'Idéal pour road-trip et itinéraires',emoji:'↗'},
+  };
+
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      onClick={onClose}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(8px)' }} />
-      <div style={{ position: 'relative', width: '94vw', maxWidth: 1100, background: '#111', border: '1px solid #2a2a2a', borderRadius: 8, overflow: 'hidden', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}
-        onClick={e => e.stopPropagation()}>
-
-        {/* Header */}
-        <div style={{ padding: '1.25rem 2rem', borderBottom: '1px solid #1e1e1e', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+    <div className="od-style-modal" onClick={onClose}>
+      <div className="od-style-backdrop" />
+      <div className="od-style-dialog" onClick={e=>e.stopPropagation()}>
+        <header className="od-style-header">
           <div>
-            <h2 style={{ fontFamily: "'Fraunces',serif", fontSize: '1.4rem', fontWeight: 300, color: 'white', marginBottom: 3 }}>
-              {selected ? `② Choisir le rythme — ${tpl?.label}` : '① Choisir un template'}
-            </h2>
-            <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#555' }}>
-              {selected ? 'Une couverture forte · des chapitres qui se répètent naturellement' : '8 styles visuels · tout reste modifiable après utilisation'}
-            </p>
+            <p className="od-eyebrow">L'apparence de votre récit</p>
+            <h2>{tpl ? tpl.label : 'Choisissez un style'}</h2>
+            <p>{tpl ? 'Une fois appliqué, vous pourrez toujours modifier chaque élément.' : 'Choisissez une ambiance plutôt qu’un modèle compliqué.'}</p>
           </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            {selected && (
-              <button type="button" onClick={() => setSelected(null)}
-                style={{ padding: '0.4rem 1rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#888', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', borderRadius: 3 }}>
-                ← Retour
-              </button>
-            )}
-            <button type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#555', fontSize: 22, lineHeight: 1, padding: '4px 8px' }}>×</button>
+          <button type="button" className="od-style-close" onClick={onClose}>×</button>
+        </header>
+
+        {!tpl ? (
+          <div className="od-style-grid">
+            {styles.map(t=>{
+              const info=styleInfo[t.id];
+              return <button key={t.id} type="button" className="od-style-card" onClick={()=>{setSelected(t.id);setCanvasH(2500)}}>
+                <div className={`od-style-preview od-style-preview-${t.id}`} style={{background:t.bgColor}}>
+                  <div className="od-style-preview-photo" />
+                  <div className="od-style-preview-copy">
+                    <span style={{background:t.accentColor}} />
+                    <b>{info.label}</b><i />
+                  </div>
+                  <div className="od-style-preview-blocks"><span/><span/><span/></div>
+                </div>
+                <div className="od-style-card-copy">
+                  <div><strong>{info.emoji} {info.label}</strong><small>{info.use}</small></div>
+                  <p>{info.desc}</p>
+                  <span className="od-style-choose">Choisir <b>→</b></span>
+                </div>
+              </button>;
+            })}
           </div>
-        </div>
-
-        {/* Body */}
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-
-          {/* ── ÉTAPE 1 : grille 4×2 ── */}
-          {!selected && (
-            <div style={{ padding: '1.5rem 2rem', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.85rem' }}>
-              {SCALABLE_TEMPLATES.map(t => (
-                <div key={t.id}
-                  onMouseEnter={() => setHovered(t.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  onClick={() => { setSelected(t.id); setCanvasH(2500); setCustomH(''); }}
-                  style={{ cursor: 'pointer', border: `2px solid ${hovered === t.id ? t.accentColor : '#2a2a2a'}`, borderRadius: 5, overflow: 'hidden', transition: 'all 0.2s', transform: hovered === t.id ? 'translateY(-3px)' : 'none', boxShadow: hovered === t.id ? `0 8px 24px ${t.accentColor}22` : 'none' }}>
-                  {/* Miniature */}
-                  <div style={{ height: 120, background: t.bgColor, position: 'relative', overflow: 'hidden' }}>
-                    {/* Zone titre */}
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 4, justifyContent: 'center', zIndex: 2 }}>
-                      <div style={{ width: 28, height: 2, background: t.accentColor, borderRadius: 1 }} />
-                      <div style={{ width: '80%', height: 10, background: t.id === 'panorama' || t.id === 'magazine' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)', borderRadius: 1 }} />
-                      <div style={{ width: '55%', height: 7, background: t.id === 'panorama' || t.id === 'magazine' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.3)', borderRadius: 1 }} />
-                    </div>
-                    {/* Zones sections */}
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '62%', display: 'flex', flexDirection: 'column', gap: 2, padding: '3px 0' }}>
-                      {[0,1,2].map(i => (
-                        <div key={i} style={{ flex: 1, display: 'flex', gap: 2, padding: '0 8px', opacity: 0.7 }}>
-                          {(t.id === 'journal' || t.id === 'postcard' || t.id === 'roadtrip') && <>
-                            <div style={{ flex: i%2===0?1:2, background: `${t.accentColor}25`, borderRadius: 1 }} />
-                            <div style={{ flex: i%2===0?2:1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
-                          </>}
-                          {(t.id === 'noir' || t.id === 'film') && <>
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }} />
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 1 }} />
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.07)', borderRadius: 1 }} />
-                          </>}
-                          {t.id === 'panorama' && <div style={{ flex: 1, background: 'rgba(0,0,0,0.08)', borderRadius: 1 }} />}
-                          {t.id === 'magazine' && <>
-                            <div style={{ flex: 1, background: 'rgba(0,0,0,0.07)', borderRadius: 1 }} />
-                            <div style={{ flex: 1, background: `${t.accentColor}20`, borderRadius: 1 }} />
-                          </>}
-                          {t.id === 'nature' && <>
-                            <div style={{ flex: 2, background: `${t.accentColor}20`, borderRadius: 1 }} />
-                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.04)', borderRadius: 1 }} />
-                          </>}
-                        </div>
-                      ))}
-                    </div>
-                    {/* Hover overlay */}
-                    <div style={{ position: 'absolute', inset: 0, background: `${t.accentColor}20`, opacity: hovered === t.id ? 1 : 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5 }}>
-                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.68rem', fontWeight: 700, color: '#0d0d0d', background: t.accentColor, padding: '0.35rem 0.9rem', letterSpacing: '0.1em', textTransform: 'uppercase', borderRadius: 2 }}>Choisir →</span>
-                    </div>
-                  </div>
-                  {/* Infos */}
-                  <div style={{ padding: '0.65rem 0.85rem', background: '#161616' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                      <span style={{ fontSize: 14 }}>{t.icon}</span>
-                      <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.8rem', fontWeight: 600, color: '#e0e0e0' }}>{t.label}</span>
-                    </div>
-                    <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: '#555', lineHeight: 1.45 }}>{t.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* ── ÉTAPE 2 : sélecteur de taille ── */}
-          {selected && tpl && (
-            <div style={{ padding: '1.75rem 2rem' }}>
-
-              {/* Rappel du template */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1.75rem', padding: '0.9rem 1.25rem', background: '#1a1a1a', borderRadius: 5, border: `1px solid ${tpl.accentColor}33` }}>
-                <span style={{ fontSize: 22 }}>{tpl.icon}</span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', fontWeight: 600, color: 'white', marginBottom: 2 }}>{tpl.label}</p>
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.7rem', color: '#555' }}>{tpl.desc}</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', color: '#555', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Section</p>
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.85rem', color: tpl.accentColor, fontWeight: 600 }}>{tpl.sectionH}px</p>
-                </div>
+        ) : (
+          <div className="od-style-config">
+            <button type="button" className="od-style-back" onClick={()=>setSelected(null)}>← Tous les styles</button>
+            <div className="od-style-selected">
+              <div className={`od-style-preview od-style-preview-large od-style-preview-${tpl.id}`} style={{background:tpl.bgColor}}>
+                <div className="od-style-preview-photo" />
+                <div className="od-style-preview-copy"><span style={{background:tpl.accentColor}}/><b>{styleInfo[tpl.id].label}</b><i/></div>
+                <div className="od-style-preview-blocks"><span/><span/><span/></div>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', alignItems: 'start' }}>
-                <div>
-                  {/* Boutons rapides */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.75rem' }}>Rythme du récit</p>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-                    {HEIGHT_OPTIONS.map(h => (
-                      <button key={h} type="button" onClick={() => { setCanvasH(h); setCustomH(''); }}
-                        style={{ padding: '0.5rem 1rem', border: '1.5px solid', borderRadius: 3, cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.15s',
-                          borderColor: canvasH === h && !customH ? tpl.accentColor : '#2a2a2a',
-                          background: canvasH === h && !customH ? `${tpl.accentColor}18` : '#1a1a1a',
-                          color: canvasH === h && !customH ? tpl.accentColor : '#666' }}>
-                        {h >= 1000 ? `${h/1000}k` : h}px
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Slider */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Ajuster le rythme</p>
-                  <input type="range" min={1000} max={6000} step={100} value={canvasH}
-                    onChange={e => { setCanvasH(Number(e.target.value)); setCustomH(''); }}
-                    style={{ width: '100%', accentColor: tpl.accentColor, marginBottom: 4 }} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', color: '#444' }}>1 000 px</span>
-                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.65rem', color: tpl.accentColor, fontWeight: 600 }}>{canvasH} px</span>
-                    <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.58rem', color: '#444' }}>6 000 px</span>
-                  </div>
-
-                  {/* Valeur personnalisée */}
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#555', marginBottom: '0.5rem' }}>Longueur avancée</p>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input type="number" min={800} max={10000} step={100}
-                      placeholder="ex : 3800"
-                      value={customH}
-                      onChange={e => { setCustomH(e.target.value); if (Number(e.target.value) >= 800) setCanvasH(Number(e.target.value)); }}
-                      style={{ flex: 1, padding: '0.6rem 0.85rem', background: '#1a1a1a', border: `1px solid ${customH ? tpl.accentColor : '#2a2a2a'}`, color: '#e0e0e0', fontFamily: "'DM Sans',system-ui", fontSize: '0.88rem', outline: 'none', borderRadius: 3 }} />
-                    {customH && (
-                      <button type="button" onClick={() => { setCustomH(''); setCanvasH(2500); }}
-                        style={{ padding: '0.6rem 0.85rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', borderRadius: 3, fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem' }}>
-                        ✕
-                      </button>
-                    )}
-                  </div>
+              <div className="od-style-settings">
+                <p className="od-style-kicker">Votre rythme</p>
+                <h3>{styleInfo[tpl.id].label}</h3>
+                <p>{styleInfo[tpl.id].desc}</p>
+                <label>Longueur du récit <strong>{finalH}px</strong>
+                  <input type="range" min={1500} max={6000} step={100} value={canvasH} onChange={e=>setCanvasH(Number(e.target.value))}/>
+                </label>
+                <div className="od-style-lengths">
+                  {[1800,2500,3500,5000].map(h=><button key={h} type="button" className={canvasH===h?'active':''} onClick={()=>setCanvasH(h)}>{h/1000}k</button>)}
                 </div>
-
-                {/* Schéma proportionnel */}
-                <div style={{ width: 72, flexShrink: 0 }}>
-                  <div style={{ width: 72, background: '#0d0d0d', border: `1px solid ${tpl.accentColor}44`, borderRadius: 3, overflow: 'hidden' }}>
-                    {/* Titre */}
-                    <div style={{ height: Math.max(18, Math.round(tpl.titleH / finalH * 260)), background: `${tpl.accentColor}22`, borderBottom: `1px solid ${tpl.accentColor}55`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 7, color: tpl.accentColor, fontFamily: "'DM Sans',system-ui", letterSpacing: '0.08em', textTransform: 'uppercase', writingMode: 'horizontal-tb' }}>TITRE</span>
-                    </div>
-                    {/* Sections */}
-                    {Array.from({ length: sectionCount }).map((_, i) => (
-                      <div key={i} style={{ height: Math.max(14, Math.round(tpl.sectionH / finalH * 260)), background: i%2===0?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 6, color: 'rgba(255,255,255,0.25)', fontFamily: "'DM Sans',system-ui" }}>§{i+1}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.52rem', color: '#555', textAlign: 'center', marginTop: 5 }}>{finalH}px</p>
-                </div>
-              </div>
-
-              {/* Résumé */}
-              <div style={{ marginTop: '1.5rem', padding: '1rem 1.25rem', background: '#1a1a1a', border: '1px solid #2a2a2a', borderRadius: 4, display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 10, height: 10, background: tpl.accentColor, borderRadius: 1 }} />
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>1 couverture ({tpl.titleH}px)</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', color: 'white' }}>
-                    <span style={{ color: tpl.accentColor, fontWeight: 700 }}>{sectionCount} section{sectionCount > 1 ? 's' : ''}</span> × {tpl.sectionH}px
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 10, height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }} />
-                  <span style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.72rem', color: '#666' }}>Composition : {finalH}px</span>
-                </div>
+                <div className="od-style-note">✦ {styleInfo[tpl.id].use}</div>
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: '1rem 2rem', borderTop: '1px solid #1e1e1e', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontFamily: "'DM Sans',system-ui", fontSize: '0.68rem', color: '#444' }}>
-            {selected ? '⚠️ Utiliser ce style remplace la composition actuelle' : `${SCALABLE_TEMPLATES.length} templates · taille au choix de 1 000 à 6 000 px`}
-          </p>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" onClick={onClose}
-              style={{ padding: '0.45rem 1.25rem', background: 'transparent', border: '1px solid #2a2a2a', color: '#666', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.75rem', borderRadius: 3 }}>
-              Annuler
-            </button>
-            {selected && tpl && (
-              <button type="button"
-                onClick={() => { onApply(tpl.generate(finalH), finalH); onClose(); }}
-                style={{ padding: '0.45rem 1.75rem', background: tpl.accentColor, color: '#0d0d0d', border: 'none', cursor: 'pointer', fontFamily: "'DM Sans',system-ui", fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', borderRadius: 3 }}>
-                Appliquer →
-              </button>
-            )}
           </div>
-        </div>
+        )}
+
+        <footer className="od-style-footer">
+          <span>{tpl ? `${sectionCount} section${sectionCount>1?'s':''} · composition automatique` : `${styles.length} styles · simples à comprendre`}</span>
+          <div>
+            <button type="button" className="od-ghost" onClick={onClose}>Annuler</button>
+            {tpl && <button type="button" className="od-primary" onClick={()=>{onApply(tpl.generate(finalH),finalH);onClose()}}>Utiliser ce style →</button>}
+          </div>
+        </footer>
       </div>
     </div>
   );
 }
-
 
 function Stars({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
@@ -1686,14 +1438,14 @@ export default function CreateTrip() {
       .od-template-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,35,30,.34);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px}.od-template-modal{width:min(1080px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;background:#faf9f6;border:1px solid rgba(23,35,30,.10);border-radius:24px;box-shadow:0 30px 90px rgba(23,35,30,.22)}.od-template-head{padding:24px 28px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #e8e4dc}.od-template-kicker{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8b938d;font-weight:800}.od-template-head h2{font-family:Georgia,serif;font-weight:400;font-size:29px;letter-spacing:-.025em;color:#17231e;margin:5px 0 5px}.od-template-head p{font-size:12px;color:#7c847f;margin:0}.od-template-head-actions{display:flex;gap:8px;align-items:center}.od-template-back,.od-template-close,.od-template-cancel{border:1px solid #ded9d0;background:#fff;color:#68716c;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:700}.od-template-close{width:36px;height:36px;padding:0;font-size:20px;font-weight:400}.od-template-grid{padding:22px 26px 26px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;overflow:auto}.od-template-card{border:1px solid #e3ded5;border-radius:17px;overflow:hidden;background:#fff;padding:0;text-align:left;cursor:pointer;transition:.18s;box-shadow:0 4px 18px rgba(23,35,30,.035)}.od-template-card:hover{transform:translateY(-3px);border-color:#b8c8bd;box-shadow:0 14px 30px rgba(23,35,30,.10)}.od-template-preview{height:154px;position:relative;overflow:hidden}.od-template-preview-title{position:absolute;top:0;left:0;right:0;height:52%;padding:18px 15px;display:flex;flex-direction:column;justify-content:center;gap:7px}.od-template-preview-title span{width:25px;height:3px;border-radius:3px}.od-template-preview-title b{width:78%;height:12px;border-radius:4px}.od-template-preview-title i{width:50%;height:7px;border-radius:4px}.od-template-preview-content{position:absolute;left:0;right:0;bottom:6px}.od-template-use{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.94);color:#17372d;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:800;opacity:0;transform:translateY(-4px);transition:.18s}.od-template-card:hover .od-template-use{opacity:1;transform:none}.od-template-info{padding:13px 14px 14px}.od-template-info>div{display:flex;align-items:center;gap:7px}.od-template-info strong{font-size:12px;color:#26322c}.od-template-icon{font-size:15px}.od-template-info p{font-size:10px;line-height:1.45;color:#89908b;margin:6px 0 0}.od-template-config{padding:24px 28px;overflow:auto}.od-template-selected{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #e4dfd6;background:#fff;border-radius:16px}.od-template-selected-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:19px}.od-template-selected>div:nth-child(2){flex:1}.od-template-selected strong{display:block;font-size:13px;color:#26322c}.od-template-selected span{display:block;font-size:10px;color:#89908b;margin-top:4px}.od-template-mini-page{width:54px;border:1px solid #ddd8cf;border-radius:7px;overflow:hidden}.od-template-settings{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:20px}.od-template-setting-block{background:#fff;border:1px solid #e4dfd6;border-radius:16px;padding:17px}.od-setting-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.11em;font-weight:800;color:#6d7771;margin-bottom:12px}.od-template-chips{display:flex;gap:6px;flex-wrap:wrap}.od-template-chips button{border:1px solid #e1ddd5;background:#faf9f6;color:#6d7771;border-radius:999px;padding:8px 12px;font-size:10px;font-weight:700}.od-template-chips button.active{background:#e3eee7;border-color:#b9d0c2;color:#17372d}.od-template-range{width:100%;margin:18px 0 5px;accent-color:#315a48}.od-range-meta{display:flex;justify-content:space-between;font-size:9px;color:#9a9f9b}.od-range-meta strong{color:#315a48}.od-custom-row{display:flex;align-items:center;gap:8px}.od-custom-row input{width:100%;border:1px solid #dfdad2;background:#faf9f6;border-radius:11px;padding:11px 12px;outline:none;font-size:12px;color:#26322c}.od-custom-row span{font-size:11px;color:#8b918c}.od-template-summary{display:flex;align-items:center;gap:24px;margin-top:14px;padding:14px 17px;background:#edf3ee;border-radius:15px}.od-template-summary div{display:flex;align-items:baseline;gap:5px}.od-template-summary b{font-family:Georgia,serif;font-size:21px;font-weight:400;color:#17372d}.od-template-summary span{font-size:10px;color:#6d7771}.od-template-summary p{font-size:10px;color:#748078;line-height:1.5;margin:0 0 0 auto;max-width:440px}.od-template-footer{display:flex;justify-content:space-between;align-items:center;padding:15px 24px;border-top:1px solid #e8e4dc;background:#fff}.od-template-footer>span{font-size:10px;color:#939994}.od-template-footer>div{display:flex;gap:8px}.od-template-apply{border:0;border-radius:11px;padding:11px 16px;font-size:11px;font-weight:800}.od-template-apply span{margin-left:7px}.od-floating-add-trigger{position:fixed;left:24px;bottom:24px;z-index:940;border:1px solid #d9d4cb;background:rgba(23,55,45,.97);color:#fff;border-radius:999px;padding:12px 17px 12px 12px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;box-shadow:0 12px 32px rgba(23,55,45,.22);backdrop-filter:blur(14px)}.od-floating-add-trigger:hover{transform:translateY(-2px)}.od-floating-add-trigger span{width:25px;height:25px;border-radius:50%;background:#e4eee8;color:#17372d;display:grid;place-items:center;font-size:16px;line-height:1}.od-floating-add{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:950;width:min(520px,calc(100vw - 32px));background:rgba(255,255,255,.97);border:1px solid #ded9d0;border-radius:20px;box-shadow:0 20px 60px rgba(23,35,30,.18);backdrop-filter:blur(18px);padding:10px}.od-floating-add-head{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 10px}.od-floating-add-head strong{display:block;font-size:12px;color:#26322c}.od-floating-add-head span{display:block;font-size:9px;color:#929893;margin-top:3px}.od-floating-add-head button{width:28px;height:28px;border:0;background:#f3f1ed;color:#68716c;border-radius:9px;font-size:16px}.od-floating-add-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.od-floating-add-grid button{min-width:0;border:1px solid #e7e2da;background:#faf9f6;border-radius:12px;padding:9px 7px;text-align:left;display:flex;align-items:center;gap:7px;cursor:pointer}.od-floating-add-grid button:hover{background:#edf3ee;border-color:#c5d5ca}.od-floating-add-grid button>span{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:#e6eee9;display:grid;place-items:center;font-size:13px;color:#315a48}.od-floating-add-grid b{display:block;font-size:9px;color:#34403a}.od-floating-add-grid small{display:block;font-size:8px;color:#959b96;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
       /* ── Builder 2.0 : palette inspirée Canva / Pinterest ─────────────── */
-      .od-builder-add-popover{width:min(650px,calc(100vw - 32px));left:18px;top:58px;max-height:min(76vh,680px);overflow:hidden;border:1px solid #dfe5df;border-radius:22px;box-shadow:0 28px 80px rgba(25,45,36,.18);background:rgba(255,255,255,.98);backdrop-filter:blur(20px);animation:odUp .22s ease both}
+      .od-builder-add-popover{position:fixed!important;z-index:1800!important;width:min(650px,calc(100vw - 32px));left:max(16px,calc(50vw - 600px));top:76px;max-height:calc(100vh - 96px);overflow:hidden;border:1px solid #dfe5df;border-radius:22px;box-shadow:0 28px 80px rgba(25,45,36,.18);background:rgba(255,255,255,.98);backdrop-filter:blur(20px);animation:odUp .22s ease both}
       .od-builder-add-head{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 20px 14px;background:linear-gradient(180deg,#fff,#fbfcfa);border-bottom:1px solid #edf0ec}
       .od-builder-add-head>div{display:flex;flex-direction:column;gap:3px}.od-builder-add-kicker{font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#7c8b83}.od-builder-add-head strong{font-family:Georgia,serif;font-size:21px;font-weight:400;color:#203129;letter-spacing:-.02em}.od-builder-add-head small{font-size:10px;color:#8b938d;margin-top:2px}.od-builder-add-close{width:30px;height:30px;border:1px solid #e3e7e3;background:#f7f8f6;color:#68736d;border-radius:10px;font-size:17px;line-height:1}
       .od-builder-add-tabs{display:flex;gap:5px;padding:10px 16px 8px;border-bottom:1px solid #edf0ec;overflow:auto}.od-builder-add-tabs button{border:0;background:transparent;color:#89918c;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:800;white-space:nowrap}.od-builder-add-tabs button:hover{background:#f2f5f2;color:#456154}.od-builder-add-tabs button.active{background:#17372d;color:white;box-shadow:0 5px 14px rgba(23,55,45,.14)}
       .od-builder-recommended{margin:12px 14px 4px;padding:12px;border:1px solid #dce9e1;background:linear-gradient(135deg,#f4f8f5,#fbfaf7);border-radius:17px}.od-builder-recommended>div:first-child{display:flex;align-items:center;gap:7px;margin-bottom:9px}.od-builder-recommended>div:first-child>span{width:23px;height:23px;border-radius:8px;background:#e0eee6;color:#315a48;display:grid;place-items:center;font-size:12px}.od-builder-recommended b{font-size:10px;color:#315a48}.od-builder-recommended small{font-size:9px;color:#89918c;margin-left:4px}.od-builder-recommended-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}.od-builder-recommended .od-builder-add-card{background:#fff}
       .od-builder-add-grid{padding:10px 14px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:7px;overflow:auto;max-height:calc(min(76vh,680px) - 155px)}
       .od-builder-add-card{position:relative;min-width:0;border:1px solid #e6e9e5;background:#fbfcfa;border-radius:15px;padding:11px 30px 11px 10px;text-align:left;display:flex;align-items:center;gap:9px;cursor:pointer;transition:transform .16s,box-shadow .16s,border-color .16s,background .16s}.od-builder-add-card:hover{transform:translateY(-2px);border-color:#b9cfc1;background:#fff;box-shadow:0 9px 22px rgba(23,55,45,.08)}.od-builder-add-card:active{transform:translateY(0)}.od-builder-add-card-icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#eaf0eb;color:#315a48;display:grid;place-items:center;font-size:14px;font-weight:800}.od-builder-add-card-copy{min-width:0}.od-builder-add-card-copy b{display:block;font-size:10px;color:#2e3a34;line-height:1.25}.od-builder-add-card-copy small{display:block;margin-top:3px;font-size:8.5px;color:#929994;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.od-builder-add-card-plus{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:15px;color:#b1bab4;transition:.16s}.od-builder-add-card:hover .od-builder-add-card-plus{color:#315a48}
-      @media(max-width:700px){.od-builder-add-popover{left:10px;top:55px;width:calc(100vw - 20px);max-height:78vh}.od-builder-add-grid{grid-template-columns:1fr 1fr}.od-builder-add-head{padding:15px}.od-builder-recommended{margin:9px}.od-builder-recommended-grid{grid-template-columns:1fr}.od-builder-add-card-copy small{display:none}}
+      @media(max-width:700px){.od-builder-add-popover{left:10px;top:68px;width:calc(100vw - 20px);max-height:calc(100vh - 82px)}.od-builder-add-grid{grid-template-columns:1fr 1fr}.od-builder-add-head{padding:15px}.od-builder-recommended{margin:9px}.od-builder-recommended-grid{grid-template-columns:1fr}.od-builder-add-card-copy small{display:none}.od-style-grid{grid-template-columns:1fr;padding:16px}.od-style-header{padding:19px}.od-style-header h2{font-size:24px}.od-style-selected{grid-template-columns:1fr}.od-style-preview-large{height:230px}.od-style-config{padding:16px}.od-style-footer{padding:12px 16px}.od-style-footer>span{display:none}}
       @media(max-width:460px){.od-builder-add-grid{grid-template-columns:1fr}.od-builder-add-card{padding:10px}.od-builder-add-head strong{font-size:18px}}
 
       @media(max-width:900px){.od-template-grid{grid-template-columns:repeat(2,1fr)}.od-template-settings{grid-template-columns:1fr}.od-template-summary{flex-wrap:wrap}.od-template-summary p{width:100%;max-width:none;margin:0}.od-floating-add-grid{grid-template-columns:repeat(2,1fr)}}
@@ -1701,6 +1453,7 @@ export default function CreateTrip() {
       .od-add-zone{border:1px dashed #c7c1b7;border-radius:18px;padding:18px;text-align:center;margin-top:22px;background:#faf8f4}.od-add-zone button{border:0;background:#17372d;color:white;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:800}.od-add-zone p{margin:8px 0 0;font-size:11px;color:#8b918d}
       .od-inspector-new{width:300px;flex:none;background:white;border-left:1px solid #e4dfd6;overflow:auto}.od-inspector-new-head{padding:17px 16px;border-bottom:1px solid #eee9e1;display:flex;align-items:center;justify-content:space-between}.od-inspector-new-head p{font-size:10px;color:#999f9a;margin:0 0 3px}.od-inspector-new-head h3{font-family:Georgia,serif;font-size:18px;font-weight:400;margin:0}.od-close-soft{border:1px solid #edd0cb;background:#fff7f5;color:#b44b3f;border-radius:9px;padding:7px 9px;font-size:10px;font-weight:700}.od-inspector-new-body{padding:14px}.od-inspector-section{padding:0 0 17px;margin-bottom:16px;border-bottom:1px solid #eee9e1}.od-inspector-section-title{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}.od-inspector-section-title span{font-size:11px;font-weight:800;color:#435048}.od-inspector-section-title small{font-size:10px;color:#969c97}.od-layout-pills,.od-align-row,.od-font-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.od-layout-pills button,.od-align-row button,.od-font-row button{border:1px solid #e2ddd5;background:#faf9f6;color:#68716c;border-radius:8px;padding:8px 5px;font-size:10px}.od-layout-pills button.active,.od-align-row button.active,.od-font-row button.active{background:#e2eee7;border-color:#b9d0c1;color:#17372d;font-weight:800}.od-align-row{margin-top:7px}.od-collapse-title{width:100%;border:0;background:none;display:flex;justify-content:space-between;padding:0;color:#435048;font-size:11px;font-weight:800}.od-color-row{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}.od-color-row button{width:27px;height:27px;border:2px solid #e0dbd2;border-radius:7px}.od-color-row button.active{border-color:#17372d;box-shadow:0 0 0 2px #dce9e1}.od-font-row{margin-top:9px}.od-z-row{display:flex;align-items:center;gap:8px}.od-z-row button{width:30px;height:30px;border:1px solid #e1ddd5;background:#faf9f6;border-radius:8px}.od-z-row span{font-size:11px;color:#68716c;min-width:25px;text-align:center}.od-advanced-toggle{width:100%;border:0;background:none;text-align:left;color:#315a48;font-size:11px;font-weight:800;padding:2px 0}.od-advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.od-advanced-grid label{display:block}.od-advanced-grid label span{display:block;font-size:9px;color:#929892;text-transform:uppercase;margin-bottom:4px}.od-advanced-grid input{width:100%;border:1px solid #e1ddd5;border-radius:8px;padding:7px;background:#faf9f6;color:#34403a}.od-advanced-full{grid-column:1/-1}
       .od-popover{position:absolute;z-index:1000;background:white;border:1px solid #e1ddd5;border-radius:18px;box-shadow:0 25px 70px rgba(28,37,32,.2)}.od-add-popover{width:360px}.od-popover-head{display:flex;justify-content:space-between;padding:16px 17px;border-bottom:1px solid #eee9e1}.od-popover-head strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400}.od-popover-head span{display:block;font-size:10px;color:#8a918c;margin-top:3px}.od-popover-head button{border:0;background:none;color:#777;font-size:18px}.od-pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}.od-pop-item{border:1px solid #e7e2da;background:#fbfaf7;border-radius:12px;padding:11px;display:flex;gap:9px;text-align:left}.od-pop-item:hover{background:#f0f6f2;border-color:#aec6b7}.od-pop-icon{width:30px;height:30px;border-radius:9px;background:#e7eee9;display:grid;place-items:center}.od-pop-item b{display:block;font-size:11px;color:#34403a}.od-pop-item small{display:block;font-size:9px;color:#929892;margin-top:2px;line-height:1.3}
+      .od-style-modal{position:fixed;inset:0;z-index:2400;display:grid;place-items:center;padding:22px}.od-style-backdrop{position:absolute;inset:0;background:rgba(20,27,23,.58);backdrop-filter:blur(12px)}.od-style-dialog{position:relative;width:min(980px,96vw);max-height:90vh;overflow:hidden;background:#faf9f6;border:1px solid rgba(255,255,255,.55);border-radius:26px;box-shadow:0 35px 110px rgba(0,0,0,.28);display:flex;flex-direction:column}.od-style-header{padding:24px 28px 18px;display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid #e8e3db}.od-style-header h2{margin:2px 0 5px;font-family:Georgia,serif;font-size:30px;font-weight:400;color:#17372d}.od-style-header>div>p:last-child{margin:0;color:#7b837e;font-size:12px}.od-style-close{width:36px;height:36px;border:1px solid #e1ddd5;border-radius:50%;background:white;color:#66706a;font-size:22px;cursor:pointer}.od-style-grid{padding:22px 28px 28px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;overflow:auto}.od-style-card{padding:0;text-align:left;border:1px solid #e3dfd7;background:white;border-radius:19px;overflow:hidden;cursor:pointer;transition:.2s;box-shadow:0 5px 18px rgba(35,45,39,.04)}.od-style-card:hover{transform:translateY(-3px);border-color:#adc1b6;box-shadow:0 14px 35px rgba(35,45,39,.11)}.od-style-preview{height:155px;position:relative;overflow:hidden}.od-style-preview-large{height:330px;border-radius:20px}.od-style-preview-photo{position:absolute;left:10%;right:10%;top:12%;height:48%;border-radius:8px;background:linear-gradient(135deg,rgba(23,55,45,.2),rgba(255,255,255,.55));box-shadow:0 8px 20px rgba(0,0,0,.08)}.od-style-preview-copy{position:absolute;left:9%;right:9%;top:15%;display:flex;flex-direction:column;gap:7px;z-index:2}.od-style-preview-copy span{width:28px;height:3px;border-radius:3px}.od-style-preview-copy b{font-family:Georgia,serif;font-size:18px;font-weight:400;color:#25372f}.od-style-preview-copy i{display:block;width:46%;height:5px;border-radius:5px;background:rgba(37,55,47,.16)}.od-style-preview-blocks{position:absolute;left:9%;right:9%;bottom:10%;height:25%;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:6px}.od-style-preview-blocks span{border-radius:6px;background:rgba(37,55,47,.1)}.od-style-preview-postcard .od-style-preview-photo{left:0;right:0;top:0;height:72%;border-radius:0;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(0,0,0,.18))}.od-style-preview-postcard .od-style-preview-copy{top:auto;bottom:20%;color:white}.od-style-preview-postcard .od-style-preview-copy b{color:white}.od-style-preview-film .od-style-preview-photo{left:5%;right:5%;height:58%;border-radius:2px;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(255,255,255,.15),rgba(0,0,0,.18))}.od-style-preview-film{background:#1b211e!important}.od-style-preview-film .od-style-preview-copy b{color:white}.od-style-preview-journal .od-style-preview-photo{left:8%;right:54%;height:68%;top:13%}.od-style-preview-journal .od-style-preview-copy{left:53%;top:18%;right:8%}.od-style-preview-journal .od-style-preview-blocks{left:53%;right:8%;bottom:12%}.od-style-preview-magazine .od-style-preview-photo{left:52%;right:8%;height:62%;top:13%}.od-style-preview-magazine .od-style-preview-copy{left:8%;right:50%}.od-style-preview-roadtrip .od-style-preview-blocks{grid-template-columns:1fr 1.5fr 1fr}.od-style-card-copy{padding:15px 16px 16px}.od-style-card-copy>div{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.od-style-card-copy strong{font-size:14px;color:#17372d}.od-style-card-copy small{font-size:9px;color:#89918c;text-align:right}.od-style-card-copy p{margin:8px 0 11px;color:#747c77;font-size:11px;line-height:1.5}.od-style-choose{font-size:10px;font-weight:800;color:#315a48}.od-style-choose b{font-size:14px}.od-style-config{padding:20px 28px 26px;overflow:auto}.od-style-back{border:0;background:none;padding:0;color:#65706a;font-size:11px;font-weight:800;cursor:pointer;margin-bottom:16px}.od-style-selected{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:center}.od-style-settings{padding:10px 5px}.od-style-kicker{text-transform:uppercase;letter-spacing:.16em;font-size:9px;color:#9a8a5a;font-weight:800;margin:0 0 6px}.od-style-settings h3{font-family:Georgia,serif;font-size:30px;font-weight:400;color:#17372d;margin:0 0 7px}.od-style-settings>p:not(.od-style-kicker){font-size:12px;line-height:1.6;color:#737b76;margin:0 0 26px}.od-style-settings label{display:block;font-size:11px;font-weight:800;color:#3a4841}.od-style-settings label strong{float:right;color:#17372d}.od-style-settings input[type=range]{width:100%;margin:13px 0}.od-style-lengths{display:flex;gap:6px}.od-style-lengths button{flex:1;border:1px solid #ded9d0;background:white;border-radius:9px;padding:9px 6px;font-size:11px;color:#737b76;cursor:pointer}.od-style-lengths button.active{background:#17372d;border-color:#17372d;color:white}.od-style-note{margin-top:18px;padding:12px 13px;background:#edf3ee;border-radius:11px;color:#315a48;font-size:10px;font-weight:700}.od-style-footer{padding:14px 28px;border-top:1px solid #e8e3db;display:flex;justify-content:space-between;align-items:center;gap:12px}.od-style-footer>span{font-size:10px;color:#8b928e}.od-style-footer>div{display:flex;gap:8px}.od-style-footer .od-primary{border:0;border-radius:11px;padding:11px 15px}.od-style-footer .od-ghost{border:1px solid #ded9d0;border-radius:11px;padding:10px 14px;background:white;color:#68716c}
       .od-media-modal{position:relative;width:min(760px,94vw);max-height:88vh;overflow:hidden;background:white;border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.od-media-head{padding:20px 22px 15px;display:flex;justify-content:space-between;border-bottom:1px solid #eee9e1}.od-media-head h3{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:0 0 4px}.od-media-head span{font-size:11px;color:#888f8a}.od-media-head button{border:0;background:none;font-size:22px;color:#777}.od-media-tabs{display:flex;border-bottom:1px solid #eee9e1;padding:0 18px}.od-media-tabs button{border:0;background:none;padding:11px 12px;color:#8a918c;font-size:11px;font-weight:800}.od-media-tabs button.active{color:#17372d;border-bottom:2px solid #17372d}.od-url-panel input{border:1px solid #e1ddd5;background:#faf9f6;border-radius:11px;padding:12px}.od-media-foot{padding:13px 18px;border-top:1px solid #eee9e1;display:flex;justify-content:space-between}.od-media-import-body{padding:28px 24px 20px;text-align:center}.od-media-dropzone{width:100%;min-height:220px;border:1.5px dashed #cfc9bf;border-radius:16px;background:#faf9f6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#263b33}.od-media-dropzone:hover:not(:disabled){border-color:#17372d;background:#f5f3ed}.od-media-dropzone:disabled{opacity:.65;cursor:wait}.od-media-drop-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e9e5dc;font-size:28px}.od-media-dropzone strong{font-size:14px}.od-media-dropzone small,.od-media-help,.od-media-url-body small{font-size:11px;color:#858c87}.od-media-help{margin:10px 0 0}.od-media-url-body{padding:28px 24px;display:flex;flex-direction:column;gap:10px}.od-media-url-body label{font-size:12px;font-weight:700;color:#34443d}.od-media-url-body input{border:1px solid #dcd7cf;background:#faf9f6;border-radius:11px;padding:13px 14px;font-size:13px;outline:none}.od-media-url-body input:focus{border-color:#17372d}.od-media-url-body .od-primary{align-self:flex-start;margin-top:5px}.od-media-error{margin:0 24px 16px;padding:12px 14px;border-radius:10px;background:#fff1ef;border:1px solid #f0c9c3;color:#9b3d32;font-size:11px;line-height:1.5}
       .od-publish-shell{max-width:980px;margin:0 auto;padding:46px 28px 80px}.od-publish-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}.od-preview{background:white;border:1px solid #e2ddd5;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px rgba(46,49,43,.06)}.od-preview-cover{height:270px;position:relative;background:#ddd}.od-preview-cover img{width:100%;height:100%;object-fit:cover}.od-preview-cover>div{position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(0,0,0,.7))}.od-preview-title{position:absolute;left:24px;right:24px;bottom:22px;color:white}.od-preview-title h2{font-family:Georgia,serif;font-weight:400;font-size:29px;margin:0 0 5px}.od-preview-title p{font-size:12px;color:#ddd;margin:0}.od-preview-meta{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.od-meta-item small{display:block;text-transform:uppercase;letter-spacing:.1em;font-size:9px;color:#999f9a;font-weight:700;margin-bottom:4px}.od-meta-item strong{font-size:12px;color:#34403a}.od-ready{background:#17372d;color:white;border-radius:22px;padding:25px}.od-ready h3{font-family:Georgia,serif;font-size:24px;font-weight:400;margin:0 0 7px}.od-ready p{font-size:12px;line-height:1.6;color:#c9d8d0;margin:0 0 20px}.od-ready-list{display:grid;gap:8px;margin-bottom:22px}.od-ready-list div{display:flex;gap:8px;align-items:center;font-size:11px;color:#e3eee8}.od-ready-list i{font-style:normal;width:19px;height:19px;border-radius:50%;background:#315a48;display:grid;place-items:center}.od-full-button{width:100%;border:0;border-radius:12px;padding:12px;background:#f4f1eb;color:#17372d;font-weight:800;font-size:12px}
       .od-preview-mode{position:fixed;inset:0;z-index:2500;background:rgba(20,27,23,.72);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:30px}.od-phone{width:min(430px,92vw);height:min(88vh,820px);background:#fff;border-radius:32px;overflow:auto;box-shadow:0 30px 100px rgba(0,0,0,.35);position:relative}.od-phone-bar{position:sticky;top:0;z-index:10;padding:13px 16px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid #eee9e1;display:flex;justify-content:space-between}.od-phone-bar span{font-size:10px;font-weight:800;color:#69716c}.od-phone-bar button{border:0;background:none;color:#17372d;font-size:11px;font-weight:800}.od-phone-body{padding:0 0 35px}.od-phone-cover img{width:100%;height:300px;object-fit:cover}.od-phone-cover-copy{padding:24px}.od-phone-cover-copy small{color:#a18c57;text-transform:uppercase;letter-spacing:.16em;font-size:9px;font-weight:800}.od-phone-cover-copy h2{font-family:Georgia,serif;font-weight:400;font-size:30px;line-height:1.08;margin:8px 0}.od-phone-cover-copy p{font-size:12px;color:#7c847f;line-height:1.6}.od-phone-block{margin:14px 16px;border:1px solid #e7e2da;border-radius:15px;overflow:hidden;min-height:80px}.od-phone-block>div{height:100%}
