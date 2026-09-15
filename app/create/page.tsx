@@ -29,6 +29,9 @@ interface Metadata {
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CANVAS_W = 1200;
 
+// Image de couverture utilisée automatiquement lorsqu'aucune image n'est choisie.
+const DEFAULT_COVER_IMAGE = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200';
+
 const COUNTRIES = ['Afghanistan','Afrique du Sud','Albanie','Algérie','Allemagne','Argentine','Arménie','Australie','Autriche','Azerbaïdjan','Belgique','Bolivie','Brésil','Bulgarie','Cambodge','Cameroun','Canada','Chili','Chine','Colombie','Corée du Sud','Costa Rica','Croatie','Cuba','Danemark','Égypte','Émirats Arabes Unis','Espagne','États-Unis','Éthiopie','Finlande','France','Géorgie','Ghana','Grèce','Guatemala','Hongrie','Inde','Indonésie','Irlande','Islande','Israël','Italie','Jamaïque','Japon','Jordanie','Kazakhstan','Kenya','Laos','Liban','Luxembourg','Madagascar','Malaisie','Maldives','Maroc','Maurice','Mexique','Mongolie','Myanmar','Namibie','Népal','Nicaragua','Nigéria','Norvège','Nouvelle-Zélande','Oman','Ouganda','Pakistan','Panama','Pays-Bas','Pérou','Philippines','Pologne','Portugal','Qatar','Roumanie','Royaume-Uni','Russie','Rwanda','Sénégal','Serbie','Singapour','Slovénie','Sri Lanka','Suède','Suisse','Tanzanie','Thaïlande','Tunisie','Turquie','Ukraine','Uruguay','Venezuela','Vietnam'];
 const CATEGORIES = [{value:'aventure',label:'🏔️ Aventure'},{value:'plage',label:'🏖️ Plage'},{value:'culture',label:'🏛️ Culture'},{value:'gastronomie',label:'🍷 Gastronomie'},{value:'nature',label:'🌿 Nature'},{value:'road-trip',label:'🚗 Road Trip'},{value:'citytrip',label:'🌆 City Trip'},{value:'backpack',label:'🎒 Backpack'},{value:'luxe',label:'✨ Luxe'},{value:'famille',label:'👨‍👩‍👧 Famille'}];
 const SEASONS = ['Printemps','Été','Automne','Hiver'];
@@ -1120,8 +1123,7 @@ function AddPalette({ onAdd, onClose, onOpenMedia }: {
   );
 }
 
-function MediaLibraryModal({ supabase, onSelect, onClose, onUpload, purpose }: {
-  supabase: ReturnType<typeof createClientComponentClient>;
+function MediaImportModal({ onSelect, onClose, onUpload, purpose }: {
   onSelect: (url: string) => void;
   onClose: () => void;
   onUpload: (file: File) => Promise<string | null>;
@@ -1339,6 +1341,8 @@ export default function CreateTrip() {
   const [subtitle, setSubtitle] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [blocks, setBlocks] = useState<CanvasBlock[]>([]);
+  // Hauteur de composition conservée dans Supabase, comme dans l'ancienne version.
+  const [canvasH, setCanvasH] = useState(2500);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [mediaPurpose, setMediaPurpose] = useState<'cover'|'photo'|'gallery'|null>(null);
@@ -1379,7 +1383,17 @@ export default function CreateTrip() {
         country:trip.country||'',city:trip.city||'',travelers:String(trip.travelers||1),
         duration:String(trip.duration_days||''),budget:trip.budget||'',category:trip.category||'',season:trip.season||''
       });
-      if(Array.isArray(trip.content)) setBlocks(trip.content as CanvasBlock[]);
+      if(Array.isArray(trip.content)) {
+        const contentBlocks = trip.content as CanvasBlock[];
+        setBlocks(contentBlocks);
+        const computedHeight = Math.max(
+          1500,
+          ...contentBlocks.map((b:any) => Number(b.y || 0) + Number(b.h || 0) + 60)
+        );
+        setCanvasH(Number(trip.canvas_height) || computedHeight);
+      } else {
+        setCanvasH(Number(trip.canvas_height) || 2500);
+      }
       setStep(2); setEditLoading(false);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1435,8 +1449,15 @@ export default function CreateTrip() {
     const data=dataOverride ?? d.data;
     const lastBottom=blocks.length ? Math.max(...blocks.map(b=>b.y+b.h))+34 : 60;
     const w=Math.min(d.w,1080);
-    const b:CanvasBlock={id:uid(),type,data,x:Math.round((CANVAS_W-w)/2),y:lastBottom,w,h:d.h,font:'sans',bg:type==='photo'||type==='gallery'?'#eee':'#fff',textColor:'#17231e',fontSize:type==='text'?1.05:1,zIndex:5};
-    setBlocks(prev=>[...prev,b]); setSelectedId(b.id); setShowAddMenu(false);
+    const b:CanvasBlock={
+      id:uid(),type,data,x:Math.round((CANVAS_W-w)/2),y:lastBottom,w,h:d.h,
+      font:'sans',bg:type==='photo'||type==='gallery'?'#eee':'#fff',
+      textColor:'#17231e',fontSize:type==='text'?1.05:1,zIndex:5
+    };
+    setBlocks(prev=>[...prev,b]);
+    setCanvasH(prev=>Math.max(prev,b.y+b.h+60));
+    setSelectedId(b.id);
+    setShowAddMenu(false);
   };
 
   const updateBlock=useCallback((updated:CanvasBlock)=>{
@@ -1451,6 +1472,8 @@ export default function CreateTrip() {
       [ordered[idx],ordered[ni]]=[ordered[ni],ordered[idx]];
       let y=60;
       const next=ordered.map(b=>{const n={...b,y};y+=b.h+(b.type==='divider'?26:34);return n;});
+      const nextHeight=Math.max(1500,...next.map(b=>b.y+b.h+60));
+      setCanvasH(prevH=>Math.max(prevH,nextHeight));
       return prev.map(b=>next.find(n=>n.id===b.id)||b);
     });
   };
@@ -1473,15 +1496,17 @@ export default function CreateTrip() {
   const applyTemplate=(newBlocks:any[],newH:number)=>{
     // Templates keep the legacy coordinates expected by the reader.
     const withIds=newBlocks.map(b=>({...b,id:uid()}));
-    setBlocks(withIds); setSelectedId(null);
+    setBlocks(withIds); setCanvasH(newH); setSelectedId(null);
     setActiveTemplate('style personnalisé');
     notify(`Style appliqué · ${Math.round(newH)} px de composition.`,'success');
   };
 
   const canProceed=step===0 ? Boolean(meta.country) : step===1 ? Boolean(title.trim()) : true;
 
-  // Slug legacy-compatible: generated from the title, unique per author.
-  // Same title is therefore allowed for different users, but not twice for the same user.
+  // Slug historique : titre nettoyé + suffixe aléatoire de 7 caractères.
+  // Exemple : "Voyage en Bolivie" -> "voyage-en-bolivie-ublai3z".
+  // L'unicité est vérifiée par utilisateur afin de permettre le même titre
+  // chez plusieurs utilisateurs sans collision pour un même utilisateur.
   const slugify = (value:string) => value
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .toLowerCase().trim()
@@ -1489,17 +1514,25 @@ export default function CreateTrip() {
     .slice(0,90) || 'recit';
 
   const getUniqueSlug = async (rawTitle:string, authorId:string, currentId?:string|null) => {
-    const base=slugify(rawTitle);
-    let candidate=base;
-    let suffix=2;
-    while(true){
-      let query=supabase.from('trips').select('id').eq('author_id',authorId).eq('slug',candidate).limit(1);
-      if(currentId) query=query.neq('id',currentId);
-      const {data,error}=await query.maybeSingle();
+    const base = slugify(rawTitle);
+
+    for(let attempt=0; attempt<20; attempt++){
+      const candidate = `${base}-${uid()}`;
+      let query = supabase
+        .from('trips')
+        .select('id')
+        .eq('author_id', authorId)
+        .eq('slug', candidate)
+        .limit(1);
+
+      if(currentId) query = query.neq('id', currentId);
+
+      const {data,error} = await query.maybeSingle();
       if(error) throw error;
       if(!data) return candidate;
-      candidate=`${base}-${suffix++}`;
     }
+
+    throw new Error('Impossible de générer un slug unique.');
   };
 
   const publishTrip=async()=>{
@@ -1511,38 +1544,81 @@ export default function CreateTrip() {
       const cleanTitle=title.trim();
       if(!cleanTitle){notify('Ajoutez un titre à votre récit.');return;}
 
-      // On update, keep the existing slug when the title has not changed.
-      // If the title changed, regenerate it while keeping uniqueness per author.
+      // Slug dérivé du titre et unique uniquement pour le même auteur.
+      // Deux utilisateurs différents peuvent donc avoir le même slug.
       let slug:string;
       if(editTripId){
         const {data:existing,error:existingError}=await supabase
-          .from('trips').select('id,title,slug').eq('id',editTripId).eq('author_id',user.id).maybeSingle();
+          .from('trips')
+          .select('id,title,slug')
+          .eq('id',editTripId)
+          .eq('author_id',user.id)
+          .maybeSingle();
+
         if(existingError) throw existingError;
-        if(!existing){notify('Récit introuvable ou accès refusé.');return;}
-        slug = existing.title === cleanTitle && existing.slug ? existing.slug : await getUniqueSlug(cleanTitle,user.id,editTripId);
+        if(!existing){
+          notify('Récit introuvable ou accès refusé.');
+          return;
+        }
+
+        slug = existing.title === cleanTitle && existing.slug
+          ? existing.slug
+          : await getUniqueSlug(cleanTitle,user.id,editTripId);
       }else{
         slug = await getUniqueSlug(cleanTitle,user.id);
       }
 
-      const payload:any={
-        title:cleanTitle, slug, subtitle:subtitle.trim(), cover_image:coverUrl||null,
-        country:meta.country, city:meta.city||null, travelers:Number(meta.travelers)||1,
-        duration_days:meta.duration?Number(meta.duration):null, budget:meta.budget||null,
-        category:meta.category||null, season:meta.season||null, content:blocks,
+      // Métadonnées Supabase remises sur le format de l'ancienne version.
+      const tripPayload = {
+        title: cleanTitle,
+        slug,
+        subtitle: subtitle.trim(),
+        cover_image: coverUrl || DEFAULT_COVER_IMAGE,
+        country: meta.country,
+        city: meta.city || null,
+        duration_days: meta.duration ? Number(meta.duration) : null,
+        travelers: Number(meta.travelers) || 1,
+        budget: meta.budget || null,
+        category: meta.category || null,
+        season: meta.season || null,
+
+        is_published: true,
+        published_at: new Date().toISOString(),
+
+        content: blocks.map(b => ({ ...b })),
+        canvas: true,
+        canvas_height: canvasH,
+        total_size_mb: 0,
       };
+
       if(editTripId){
-        const {error}=await supabase.from('trips').update(payload).eq('id',editTripId).eq('author_id',user.id);
-        if(error)throw error;
+        const {error}=await supabase
+          .from('trips')
+          .update(tripPayload)
+          .eq('id',editTripId)
+          .eq('author_id',user.id);
+
+        if(error) throw error;
         setPublishedId(editTripId);
       }else{
-        const {data,error}=await supabase.from('trips').insert({...payload,author_id:user.id}).select('id').single();
-        if(error)throw error;
+        const {data,error}=await supabase
+          .from('trips')
+          .insert({...tripPayload,author_id:user.id})
+          .select('id,slug')
+          .single();
+
+        if(error) throw error;
         setPublishedId(data?.id||null);
       }
-      setPublished(true); notify(editTripId?'Votre récit a été mis à jour.':'Votre récit est publié.','success');
+
+      setPublished(true);
+      notify(editTripId?'Votre récit a été mis à jour.':'Votre récit est publié.','success');
     }catch(e:any){
-      console.error(e); notify(e?.message||'La publication a échoué.');
-    }finally{setLoading(false);}
+      console.error(e);
+      notify(e?.message||'La publication a échoué.');
+    }finally{
+      setLoading(false);
+    }
   };
 
   const field=(label:string,value:string,onChange:(v:string)=>void,placeholder:string,type='text')=>(
@@ -1569,10 +1645,14 @@ export default function CreateTrip() {
       .od-builder{display:flex;min-height:0;flex:1;overflow:hidden}.od-builder-main{flex:1;min-width:0;overflow:auto;background:#e9e6df}.od-builder-toolbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;background:rgba(244,242,237,.9);backdrop-filter:blur(12px);border-bottom:1px solid #dcd7ce}.od-toolbar-left{display:flex;align-items:center;gap:8px}.od-toolbar-title{font-family:Georgia,serif;font-size:17px}.od-toolbar-count{font-size:11px;color:#89908b}.od-toolbar-actions{display:flex;gap:6px}.od-toolbar-actions button{border:1px solid #ddd8cf;background:white;color:#66706a;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:700}.od-toolbar-actions .main{background:#17372d;color:white;border-color:#17372d}
       .od-story{width:min(900px,calc(100% - 40px));margin:30px auto 100px;background:#fff;border-radius:4px;box-shadow:0 22px 55px rgba(43,43,38,.15);padding:48px 54px}.od-story-cover{text-align:center;padding:10px 0 48px;border-bottom:1px solid #e7e2d9;margin-bottom:30px}.od-story-cover .eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#a18c57;font-weight:700}.od-story-cover h2{font-family:Georgia,serif;font-weight:400;font-size:40px;line-height:1.08;margin:10px auto 8px;max-width:700px}.od-story-cover p{margin:0;color:#7d847f;font-size:14px}.od-story-cover img{width:100%;max-height:400px;object-fit:cover;border-radius:16px;margin-top:26px;display:block}.od-story-empty{text-align:center;padding:80px 30px;color:#919892}.od-story-empty b{display:block;font-family:Georgia,serif;font-size:24px;color:#5e6861;margin-bottom:8px}.od-story-empty span{font-size:12px}
       .od-story-card{position:relative;border:1px solid #e4dfd6;border-radius:18px;overflow:visible;margin:18px 0;min-height:80px;box-shadow:0 7px 22px rgba(43,43,38,.04);transition:.18s}.od-story-card.selected{border-color:#9bb5a5;box-shadow:0 0 0 4px rgba(154,181,165,.13),0 12px 30px rgba(43,43,38,.08)}.od-story-card.drag-over{border-color:#17372d}.od-story-card-top{position:absolute;left:10px;right:10px;top:-13px;height:26px;display:flex;justify-content:space-between;align-items:center;z-index:8;opacity:0;pointer-events:none;transition:.18s}.od-story-card:hover .od-story-card-top,.od-story-card.selected .od-story-card-top{opacity:1;pointer-events:auto}.od-story-card-top>span{background:#17372d;color:white;border-radius:8px;padding:5px 8px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.od-story-card-top>div{display:flex;gap:3px}.od-story-card-top button{width:26px;height:26px;border:1px solid #ddd8cf;background:white;border-radius:7px;color:#68716c}.od-story-card-content{min-height:100px;height:100%;padding:6px}
+
+      .od-template-overlay{position:fixed;inset:0;z-index:1000;background:rgba(23,35,30,.34);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px}.od-template-modal{width:min(1080px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;background:#faf9f6;border:1px solid rgba(23,35,30,.10);border-radius:24px;box-shadow:0 30px 90px rgba(23,35,30,.22)}.od-template-head{padding:24px 28px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #e8e4dc}.od-template-kicker{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8b938d;font-weight:800}.od-template-head h2{font-family:Georgia,serif;font-weight:400;font-size:29px;letter-spacing:-.025em;color:#17231e;margin:5px 0 5px}.od-template-head p{font-size:12px;color:#7c847f;margin:0}.od-template-head-actions{display:flex;gap:8px;align-items:center}.od-template-back,.od-template-close,.od-template-cancel{border:1px solid #ded9d0;background:#fff;color:#68716c;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:700}.od-template-close{width:36px;height:36px;padding:0;font-size:20px;font-weight:400}.od-template-grid{padding:22px 26px 26px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;overflow:auto}.od-template-card{border:1px solid #e3ded5;border-radius:17px;overflow:hidden;background:#fff;padding:0;text-align:left;cursor:pointer;transition:.18s;box-shadow:0 4px 18px rgba(23,35,30,.035)}.od-template-card:hover{transform:translateY(-3px);border-color:#b8c8bd;box-shadow:0 14px 30px rgba(23,35,30,.10)}.od-template-preview{height:154px;position:relative;overflow:hidden}.od-template-preview-title{position:absolute;top:0;left:0;right:0;height:52%;padding:18px 15px;display:flex;flex-direction:column;justify-content:center;gap:7px}.od-template-preview-title span{width:25px;height:3px;border-radius:3px}.od-template-preview-title b{width:78%;height:12px;border-radius:4px}.od-template-preview-title i{width:50%;height:7px;border-radius:4px}.od-template-preview-content{position:absolute;left:0;right:0;bottom:6px}.od-template-use{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.94);color:#17372d;padding:6px 9px;border-radius:999px;font-size:9px;font-weight:800;opacity:0;transform:translateY(-4px);transition:.18s}.od-template-card:hover .od-template-use{opacity:1;transform:none}.od-template-info{padding:13px 14px 14px}.od-template-info>div{display:flex;align-items:center;gap:7px}.od-template-info strong{font-size:12px;color:#26322c}.od-template-icon{font-size:15px}.od-template-info p{font-size:10px;line-height:1.45;color:#89908b;margin:6px 0 0}.od-template-config{padding:24px 28px;overflow:auto}.od-template-selected{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #e4dfd6;background:#fff;border-radius:16px}.od-template-selected-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:19px}.od-template-selected>div:nth-child(2){flex:1}.od-template-selected strong{display:block;font-size:13px;color:#26322c}.od-template-selected span{display:block;font-size:10px;color:#89908b;margin-top:4px}.od-template-mini-page{width:54px;border:1px solid #ddd8cf;border-radius:7px;overflow:hidden}.od-template-settings{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;margin-top:20px}.od-template-setting-block{background:#fff;border:1px solid #e4dfd6;border-radius:16px;padding:17px}.od-setting-label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.11em;font-weight:800;color:#6d7771;margin-bottom:12px}.od-template-chips{display:flex;gap:6px;flex-wrap:wrap}.od-template-chips button{border:1px solid #e1ddd5;background:#faf9f6;color:#6d7771;border-radius:999px;padding:8px 12px;font-size:10px;font-weight:700}.od-template-chips button.active{background:#e3eee7;border-color:#b9d0c2;color:#17372d}.od-template-range{width:100%;margin:18px 0 5px;accent-color:#315a48}.od-range-meta{display:flex;justify-content:space-between;font-size:9px;color:#9a9f9b}.od-range-meta strong{color:#315a48}.od-custom-row{display:flex;align-items:center;gap:8px}.od-custom-row input{width:100%;border:1px solid #dfdad2;background:#faf9f6;border-radius:11px;padding:11px 12px;outline:none;font-size:12px;color:#26322c}.od-custom-row span{font-size:11px;color:#8b918c}.od-template-summary{display:flex;align-items:center;gap:24px;margin-top:14px;padding:14px 17px;background:#edf3ee;border-radius:15px}.od-template-summary div{display:flex;align-items:baseline;gap:5px}.od-template-summary b{font-family:Georgia,serif;font-size:21px;font-weight:400;color:#17372d}.od-template-summary span{font-size:10px;color:#6d7771}.od-template-summary p{font-size:10px;color:#748078;line-height:1.5;margin:0 0 0 auto;max-width:440px}.od-template-footer{display:flex;justify-content:space-between;align-items:center;padding:15px 24px;border-top:1px solid #e8e4dc;background:#fff}.od-template-footer>span{font-size:10px;color:#939994}.od-template-footer>div{display:flex;gap:8px}.od-template-apply{border:0;border-radius:11px;padding:11px 16px;font-size:11px;font-weight:800}.od-template-apply span{margin-left:7px}.od-floating-add-trigger{position:fixed;left:24px;bottom:24px;z-index:940;border:1px solid #d9d4cb;background:rgba(23,55,45,.97);color:#fff;border-radius:999px;padding:12px 17px 12px 12px;display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;box-shadow:0 12px 32px rgba(23,55,45,.22);backdrop-filter:blur(14px)}.od-floating-add-trigger:hover{transform:translateY(-2px)}.od-floating-add-trigger span{width:25px;height:25px;border-radius:50%;background:#e4eee8;color:#17372d;display:grid;place-items:center;font-size:16px;line-height:1}.od-floating-add{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:950;width:min(520px,calc(100vw - 32px));background:rgba(255,255,255,.97);border:1px solid #ded9d0;border-radius:20px;box-shadow:0 20px 60px rgba(23,35,30,.18);backdrop-filter:blur(18px);padding:10px}.od-floating-add-head{display:flex;justify-content:space-between;align-items:center;padding:7px 8px 10px}.od-floating-add-head strong{display:block;font-size:12px;color:#26322c}.od-floating-add-head span{display:block;font-size:9px;color:#929893;margin-top:3px}.od-floating-add-head button{width:28px;height:28px;border:0;background:#f3f1ed;color:#68716c;border-radius:9px;font-size:16px}.od-floating-add-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.od-floating-add-grid button{min-width:0;border:1px solid #e7e2da;background:#faf9f6;border-radius:12px;padding:9px 7px;text-align:left;display:flex;align-items:center;gap:7px;cursor:pointer}.od-floating-add-grid button:hover{background:#edf3ee;border-color:#c5d5ca}.od-floating-add-grid button>span{width:28px;height:28px;flex:0 0 28px;border-radius:9px;background:#e6eee9;display:grid;place-items:center;font-size:13px;color:#315a48}.od-floating-add-grid b{display:block;font-size:9px;color:#34403a}.od-floating-add-grid small{display:block;font-size:8px;color:#959b96;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      @media(max-width:900px){.od-template-grid{grid-template-columns:repeat(2,1fr)}.od-template-settings{grid-template-columns:1fr}.od-template-summary{flex-wrap:wrap}.od-template-summary p{width:100%;max-width:none;margin:0}.od-floating-add-grid{grid-template-columns:repeat(2,1fr)}}
+      @media(max-width:560px){.od-template-overlay{padding:10px}.od-template-modal{max-height:96vh;border-radius:20px}.od-template-head{padding:18px}.od-template-head h2{font-size:24px}.od-template-head p{font-size:11px;max-width:260px}.od-template-back{display:none}.od-template-grid{padding:14px;grid-template-columns:1fr 1fr;gap:9px}.od-template-preview{height:125px}.od-template-info{padding:10px}.od-template-info p{display:none}.od-template-config{padding:14px}.od-template-selected{align-items:flex-start}.od-template-mini-page{display:none}.od-template-footer{padding:12px 14px}.od-template-footer>span{display:none}.od-template-footer>div{width:100%}.od-template-cancel,.od-template-apply{flex:1}.od-floating-add-trigger{left:50%;bottom:12px;transform:translateX(-50%);padding:10px 15px 10px 10px}.od-floating-add{bottom:12px;width:calc(100vw - 20px);padding:8px}.od-floating-add-grid button{padding:8px}.od-floating-add-grid small{display:none}}
       .od-add-zone{border:1px dashed #c7c1b7;border-radius:18px;padding:18px;text-align:center;margin-top:22px;background:#faf8f4}.od-add-zone button{border:0;background:#17372d;color:white;border-radius:12px;padding:12px 18px;font-size:12px;font-weight:800}.od-add-zone p{margin:8px 0 0;font-size:11px;color:#8b918d}
       .od-inspector-new{width:300px;flex:none;background:white;border-left:1px solid #e4dfd6;overflow:auto}.od-inspector-new-head{padding:17px 16px;border-bottom:1px solid #eee9e1;display:flex;align-items:center;justify-content:space-between}.od-inspector-new-head p{font-size:10px;color:#999f9a;margin:0 0 3px}.od-inspector-new-head h3{font-family:Georgia,serif;font-size:18px;font-weight:400;margin:0}.od-close-soft{border:1px solid #edd0cb;background:#fff7f5;color:#b44b3f;border-radius:9px;padding:7px 9px;font-size:10px;font-weight:700}.od-inspector-new-body{padding:14px}.od-inspector-section{padding:0 0 17px;margin-bottom:16px;border-bottom:1px solid #eee9e1}.od-inspector-section-title{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}.od-inspector-section-title span{font-size:11px;font-weight:800;color:#435048}.od-inspector-section-title small{font-size:10px;color:#969c97}.od-layout-pills,.od-align-row,.od-font-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.od-layout-pills button,.od-align-row button,.od-font-row button{border:1px solid #e2ddd5;background:#faf9f6;color:#68716c;border-radius:8px;padding:8px 5px;font-size:10px}.od-layout-pills button.active,.od-align-row button.active,.od-font-row button.active{background:#e2eee7;border-color:#b9d0c1;color:#17372d;font-weight:800}.od-align-row{margin-top:7px}.od-collapse-title{width:100%;border:0;background:none;display:flex;justify-content:space-between;padding:0;color:#435048;font-size:11px;font-weight:800}.od-color-row{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}.od-color-row button{width:27px;height:27px;border:2px solid #e0dbd2;border-radius:7px}.od-color-row button.active{border-color:#17372d;box-shadow:0 0 0 2px #dce9e1}.od-font-row{margin-top:9px}.od-z-row{display:flex;align-items:center;gap:8px}.od-z-row button{width:30px;height:30px;border:1px solid #e1ddd5;background:#faf9f6;border-radius:8px}.od-z-row span{font-size:11px;color:#68716c;min-width:25px;text-align:center}.od-advanced-toggle{width:100%;border:0;background:none;text-align:left;color:#315a48;font-size:11px;font-weight:800;padding:2px 0}.od-advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.od-advanced-grid label{display:block}.od-advanced-grid label span{display:block;font-size:9px;color:#929892;text-transform:uppercase;margin-bottom:4px}.od-advanced-grid input{width:100%;border:1px solid #e1ddd5;border-radius:8px;padding:7px;background:#faf9f6;color:#34403a}.od-advanced-full{grid-column:1/-1}
-      .od-popover{position:absolute;z-index:1000;background:white;border:1px solid #e1ddd5;border-radius:18px;box-shadow:0 25px 70px rgba(28,37,32,.2)}.od-add-popover{left:18px;top:62px;width:360px}.od-popover-head{display:flex;justify-content:space-between;padding:16px 17px;border-bottom:1px solid #eee9e1}.od-popover-head strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400}.od-popover-head span{display:block;font-size:10px;color:#8a918c;margin-top:3px}.od-popover-head button{border:0;background:none;color:#777;font-size:18px}.od-pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}.od-pop-item{border:1px solid #e7e2da;background:#fbfaf7;border-radius:12px;padding:11px;display:flex;gap:9px;text-align:left}.od-pop-item:hover{background:#f0f6f2;border-color:#aec6b7}.od-pop-icon{width:30px;height:30px;border-radius:9px;background:#e7eee9;display:grid;place-items:center}.od-pop-item b{display:block;font-size:11px;color:#34403a}.od-pop-item small{display:block;font-size:9px;color:#929892;margin-top:2px;line-height:1.3}
-      .od-media-modal{position:relative;width:min(760px,94vw);max-height:88vh;overflow:hidden;background:white;border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.od-media-head{padding:20px 22px 15px;display:flex;justify-content:space-between;border-bottom:1px solid #eee9e1}.od-media-head h3{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:0 0 4px}.od-media-head span{font-size:11px;color:#888f8a}.od-media-head button{border:0;background:none;font-size:22px;color:#777}.od-media-tabs{display:flex;border-bottom:1px solid #eee9e1;padding:0 18px}.od-media-tabs button{border:0;background:none;padding:11px 12px;color:#8a918c;font-size:11px;font-weight:800}.od-media-tabs button.active{color:#17372d;border-bottom:2px solid #17372d}.od-media-grid{padding:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:50vh;overflow:auto}.od-media-grid button{padding:0;border:0;border-radius:9px;overflow:hidden;aspect-ratio:1;background:#eee}.od-media-grid img{width:100%;height:100%;object-fit:cover}.od-media-empty{padding:60px;text-align:center;color:#858c87;font-size:12px}.od-media-empty div{font-size:34px;margin-bottom:9px}.od-media-empty b{display:block;color:#4f5b54;margin-bottom:5px}.od-media-empty span{display:block}.od-url-panel{padding:24px;display:flex;flex-direction:column;gap:12px}.od-url-note b{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400;margin-bottom:4px}.od-url-note span{font-size:11px;color:#858c87}.od-url-panel input{border:1px solid #e1ddd5;background:#faf9f6;border-radius:11px;padding:12px}.od-media-foot{padding:13px 18px;border-top:1px solid #eee9e1;display:flex;justify-content:space-between}.od-media-import-body{padding:28px 24px 20px;text-align:center}.od-media-dropzone{width:100%;min-height:220px;border:1.5px dashed #cfc9bf;border-radius:16px;background:#faf9f6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#263b33}.od-media-dropzone:hover:not(:disabled){border-color:#17372d;background:#f5f3ed}.od-media-dropzone:disabled{opacity:.65;cursor:wait}.od-media-drop-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e9e5dc;font-size:28px}.od-media-dropzone strong{font-size:14px}.od-media-dropzone small,.od-media-help,.od-media-url-body small{font-size:11px;color:#858c87}.od-media-help{margin:10px 0 0}.od-media-url-body{padding:28px 24px;display:flex;flex-direction:column;gap:10px}.od-media-url-body label{font-size:12px;font-weight:700;color:#34443d}.od-media-url-body input{border:1px solid #dcd7cf;background:#faf9f6;border-radius:11px;padding:13px 14px;font-size:13px;outline:none}.od-media-url-body input:focus{border-color:#17372d}.od-media-url-body .od-primary{align-self:flex-start;margin-top:5px}.od-media-error{margin:0 24px 16px;padding:12px 14px;border-radius:10px;background:#fff1ef;border:1px solid #f0c9c3;color:#9b3d32;font-size:11px;line-height:1.5}
+      .od-popover{position:absolute;z-index:1000;background:white;border:1px solid #e1ddd5;border-radius:18px;box-shadow:0 25px 70px rgba(28,37,32,.2)}.od-add-popover{width:360px}.od-popover-head{display:flex;justify-content:space-between;padding:16px 17px;border-bottom:1px solid #eee9e1}.od-popover-head strong{display:block;font-family:Georgia,serif;font-size:18px;font-weight:400}.od-popover-head span{display:block;font-size:10px;color:#8a918c;margin-top:3px}.od-popover-head button{border:0;background:none;color:#777;font-size:18px}.od-pop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}.od-pop-item{border:1px solid #e7e2da;background:#fbfaf7;border-radius:12px;padding:11px;display:flex;gap:9px;text-align:left}.od-pop-item:hover{background:#f0f6f2;border-color:#aec6b7}.od-pop-icon{width:30px;height:30px;border-radius:9px;background:#e7eee9;display:grid;place-items:center}.od-pop-item b{display:block;font-size:11px;color:#34403a}.od-pop-item small{display:block;font-size:9px;color:#929892;margin-top:2px;line-height:1.3}
+      .od-media-modal{position:relative;width:min(760px,94vw);max-height:88vh;overflow:hidden;background:white;border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.od-media-head{padding:20px 22px 15px;display:flex;justify-content:space-between;border-bottom:1px solid #eee9e1}.od-media-head h3{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:0 0 4px}.od-media-head span{font-size:11px;color:#888f8a}.od-media-head button{border:0;background:none;font-size:22px;color:#777}.od-media-tabs{display:flex;border-bottom:1px solid #eee9e1;padding:0 18px}.od-media-tabs button{border:0;background:none;padding:11px 12px;color:#8a918c;font-size:11px;font-weight:800}.od-media-tabs button.active{color:#17372d;border-bottom:2px solid #17372d}.od-url-panel input{border:1px solid #e1ddd5;background:#faf9f6;border-radius:11px;padding:12px}.od-media-foot{padding:13px 18px;border-top:1px solid #eee9e1;display:flex;justify-content:space-between}.od-media-import-body{padding:28px 24px 20px;text-align:center}.od-media-dropzone{width:100%;min-height:220px;border:1.5px dashed #cfc9bf;border-radius:16px;background:#faf9f6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#263b33}.od-media-dropzone:hover:not(:disabled){border-color:#17372d;background:#f5f3ed}.od-media-dropzone:disabled{opacity:.65;cursor:wait}.od-media-drop-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e9e5dc;font-size:28px}.od-media-dropzone strong{font-size:14px}.od-media-dropzone small,.od-media-help,.od-media-url-body small{font-size:11px;color:#858c87}.od-media-help{margin:10px 0 0}.od-media-url-body{padding:28px 24px;display:flex;flex-direction:column;gap:10px}.od-media-url-body label{font-size:12px;font-weight:700;color:#34443d}.od-media-url-body input{border:1px solid #dcd7cf;background:#faf9f6;border-radius:11px;padding:13px 14px;font-size:13px;outline:none}.od-media-url-body input:focus{border-color:#17372d}.od-media-url-body .od-primary{align-self:flex-start;margin-top:5px}.od-media-error{margin:0 24px 16px;padding:12px 14px;border-radius:10px;background:#fff1ef;border:1px solid #f0c9c3;color:#9b3d32;font-size:11px;line-height:1.5}
       .od-publish-shell{max-width:980px;margin:0 auto;padding:46px 28px 80px}.od-publish-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}.od-preview{background:white;border:1px solid #e2ddd5;border-radius:22px;overflow:hidden;box-shadow:0 15px 45px rgba(46,49,43,.06)}.od-preview-cover{height:270px;position:relative;background:#ddd}.od-preview-cover img{width:100%;height:100%;object-fit:cover}.od-preview-cover>div{position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(0,0,0,.7))}.od-preview-title{position:absolute;left:24px;right:24px;bottom:22px;color:white}.od-preview-title h2{font-family:Georgia,serif;font-weight:400;font-size:29px;margin:0 0 5px}.od-preview-title p{font-size:12px;color:#ddd;margin:0}.od-preview-meta{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.od-meta-item small{display:block;text-transform:uppercase;letter-spacing:.1em;font-size:9px;color:#999f9a;font-weight:700;margin-bottom:4px}.od-meta-item strong{font-size:12px;color:#34403a}.od-ready{background:#17372d;color:white;border-radius:22px;padding:25px}.od-ready h3{font-family:Georgia,serif;font-size:24px;font-weight:400;margin:0 0 7px}.od-ready p{font-size:12px;line-height:1.6;color:#c9d8d0;margin:0 0 20px}.od-ready-list{display:grid;gap:8px;margin-bottom:22px}.od-ready-list div{display:flex;gap:8px;align-items:center;font-size:11px;color:#e3eee8}.od-ready-list i{font-style:normal;width:19px;height:19px;border-radius:50%;background:#315a48;display:grid;place-items:center}.od-full-button{width:100%;border:0;border-radius:12px;padding:12px;background:#f4f1eb;color:#17372d;font-weight:800;font-size:12px}
       .od-preview-mode{position:fixed;inset:0;z-index:2500;background:rgba(20,27,23,.72);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:30px}.od-phone{width:min(430px,92vw);height:min(88vh,820px);background:#fff;border-radius:32px;overflow:auto;box-shadow:0 30px 100px rgba(0,0,0,.35);position:relative}.od-phone-bar{position:sticky;top:0;z-index:10;padding:13px 16px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid #eee9e1;display:flex;justify-content:space-between}.od-phone-bar span{font-size:10px;font-weight:800;color:#69716c}.od-phone-bar button{border:0;background:none;color:#17372d;font-size:11px;font-weight:800}.od-phone-body{padding:0 0 35px}.od-phone-cover img{width:100%;height:300px;object-fit:cover}.od-phone-cover-copy{padding:24px}.od-phone-cover-copy small{color:#a18c57;text-transform:uppercase;letter-spacing:.16em;font-size:9px;font-weight:800}.od-phone-cover-copy h2{font-family:Georgia,serif;font-weight:400;font-size:30px;line-height:1.08;margin:8px 0}.od-phone-cover-copy p{font-size:12px;color:#7c847f;line-height:1.6}.od-phone-block{margin:14px 16px;border:1px solid #e7e2da;border-radius:15px;overflow:hidden;min-height:80px}.od-phone-block>div{height:100%}
       .od-loading{height:100vh;display:grid;place-items:center;align-content:center;gap:12px;background:#f4f1eb;color:#727a75}.od-spinner{width:28px;height:28px;border:3px solid #dce4de;border-top-color:#17372d;border-radius:50%;animation:odSpin .8s linear infinite}.od-toast{position:fixed;top:82px;left:50%;transform:translateX(-50%);z-index:3000;background:#17372d;color:white;border-radius:13px;padding:12px 15px;box-shadow:0 16px 35px rgba(0,0,0,.18);font-size:12px;display:flex;align-items:center;gap:9px;max-width:min(90vw,500px)}
@@ -1656,7 +1736,7 @@ export default function CreateTrip() {
               <div className="od-cover-drop" onDragOver={e=>e.preventDefault()} onDrop={async e=>{e.preventDefault();const f=e.dataTransfer.files?.[0];if(f){const u=await uploadFile(f);if(u)setCoverUrl(u)}}}>
                 {coverUrl?<><img src={coverUrl} alt="Couverture"/><div className="od-cover-overlay"/><div className="od-cover-copy"><h2>{title||'Votre titre'}</h2><p>{subtitle||destination||'Un voyage à raconter'}</p></div><button className="od-ghost" type="button" style={{position:'absolute',right:14,top:14,zIndex:3}} onClick={()=>setCoverUrl('')}>Changer</button></>:
                 uploading?<div className="od-upload"><div className="od-upload-icon">↗</div><p>Envoi de votre photo…</p></div>:
-                <div className="od-upload"><div className="od-upload-icon">＋</div><label>Ajouter une photo<input type="file" accept="image/*" onChange={async e=>{const f=e.target.files?.[0];if(!f)return;const u=await uploadFile(f);if(u)setCoverUrl(u)}}/></label><p style={{fontSize:11,color:'#949b96',marginTop:10}}>Glissez-déposez ici · JPG, PNG ou WebP</p></div>}
+                <div className="od-upload"><div className="od-upload-icon">＋</div><label>Ajouter une photo<input type="file" accept="image/*" onChange={async e=>{const f=e.target.files?.[0];if(!f)return;const u=await uploadFile(f);if(u)setCoverUrl(u)}}/></label><p style={{fontSize:11,color:'#949b96',marginTop:10}}>Glissez-déposez ici · JPG, PNG ou WebP · image par défaut si rien n'est choisi</p></div>}
               </div>
               {!coverUrl&&<div style={{marginTop:10}}>{field('Ou utiliser une URL',coverUrl,v=>setCoverUrl(optimizeImageUrl(v)),'https://images.unsplash.com/…')}</div>}
             </div>
@@ -1680,11 +1760,12 @@ export default function CreateTrip() {
               </div>
             </div>
             {showAddMenu&&<AddPalette onClose={()=>setShowAddMenu(false)} onAdd={addBlock} onOpenMedia={type=>{addBlock(type);setTimeout(()=>setMediaPurpose(type),0)}}/>}
+            {!showAddMenu&&<button type="button" className="od-floating-add-trigger" onClick={()=>setShowAddMenu(true)}><span>＋</span> Ajouter</button>}
             <div className="od-story">
               <div className="od-story-cover">
                 <div className="eyebrow">{destination||'Odyssey'} · {currentCategory||'Récit de voyage'}</div>
                 <h2>{title||'Votre voyage'}</h2><p>{subtitle||'Ajoutez vos souvenirs et racontez ce qui vous a marqué.'}</p>
-                {coverUrl&&<img src={coverUrl} alt="Couverture"/>}
+                <img src={coverUrl || DEFAULT_COVER_IMAGE} alt="Couverture"/>
               </div>
               {storyBlocks.length===0?<div className="od-story-empty"><b>Votre carnet commence ici.</b><span>Ajoutez une photo, un texte ou un lieu avec le bouton «＋ Ajouter».</span></div>:
                 storyBlocks.map((b,i)=><StoryBlockCard key={b.id} block={b} selected={selectedId===b.id} onSelect={()=>setSelectedId(b.id)} onUpdate={updateBlock} onDelete={()=>deleteBlock(b.id)} onUpload={uploadFile} onMoveUp={()=>moveBlock(b.id,-1)} onMoveDown={()=>moveBlock(b.id,1)}/>)
@@ -1700,7 +1781,7 @@ export default function CreateTrip() {
           <h1 className="od-h1">Voyez ce que vos lecteurs vont voir.</h1>
           <p className="od-lead">Votre récit est prêt. Vous pouvez encore revenir modifier chaque élément avant de le partager.</p>
           <div className="od-publish-grid">
-            <div className="od-preview"><div className="od-preview-cover">{coverUrl&&<img src={coverUrl} alt=""/>}<div/><div className="od-preview-title"><h2>{title||'Sans titre'}</h2><p>{subtitle||destination||'Un voyage à raconter'}</p></div></div>
+            <div className="od-preview"><div className="od-preview-cover"><img src={coverUrl || DEFAULT_COVER_IMAGE} alt=""/><div/><div className="od-preview-title"><h2>{title||'Sans titre'}</h2><p>{subtitle||destination||'Un voyage à raconter'}</p></div></div>
               <div className="od-preview-meta">{[{l:'Destination',v:destination||'—'},{l:'Catégorie',v:currentCategory||'—'},{l:'Durée',v:meta.duration?`${meta.duration} jours`:'—'},{l:'Voyageurs',v:meta.travelers||'1'},{l:'Budget',v:meta.budget||'—'},{l:'Éléments',v:String(blocks.length)}].map(x=><div className="od-meta-item" key={x.l}><small>{x.l}</small><strong>{x.v}</strong></div>)}</div>
             </div>
             <div className="od-ready"><h3>Prêt à voyager ?</h3><p>{editTripId?'Vos modifications seront enregistrées dans le récit existant.':'Votre récit sera public et pourra être découvert par les visiteurs d’Odyssey.'}</p>
@@ -1715,14 +1796,14 @@ export default function CreateTrip() {
         <div className="od-phone" onClick={e=>e.stopPropagation()}>
           <div className="od-phone-bar"><span>APERÇU LECTEUR</span><button type="button" onClick={()=>setShowPreview(false)}>Fermer ×</button></div>
           <div className="od-phone-body">
-            <div className="od-phone-cover">{coverUrl&&<img src={coverUrl} alt=""/>}<div className="od-phone-cover-copy"><small>{destination||'Odyssey'}</small><h2>{title||'Votre voyage'}</h2><p>{subtitle||'Un voyage à raconter.'}</p></div></div>
+            <div className="od-phone-cover"><img src={coverUrl || DEFAULT_COVER_IMAGE} alt=""/><div className="od-phone-cover-copy"><small>{destination||'Odyssey'}</small><h2>{title||'Votre voyage'}</h2><p>{subtitle||'Un voyage à raconter.'}</p></div></div>
             {storyBlocks.map(b=><div className="od-phone-block" key={b.id} style={{background:b.bg||'#fff',color:b.textColor}}><BlockContent block={b} onChange={()=>{}} onUpload={uploadFile}/></div>)}
             {!storyBlocks.length&&<div style={{padding:30,textAlign:'center',color:'#8a918c',fontSize:12}}>Ajoutez du contenu pour voir l'aperçu.</div>}
           </div>
         </div>
       </div>}
 
-      {mediaPurpose&&<MediaLibraryModal supabase={supabase} onSelect={selectMedia} onUpload={uploadFile} purpose={mediaPurpose} onClose={()=>setMediaPurpose(null)}/>}
+      {mediaPurpose&&<MediaImportModal onSelect={selectMedia} onUpload={uploadFile} purpose={mediaPurpose} onClose={()=>setMediaPurpose(null)}/>}
       {showConfirmTemplate&&<TemplateModal onApply={applyTemplate} onClose={()=>setShowConfirmTemplate(false)}/>}
       {toast&&<div className="od-toast"><span>{toast.kind==='success'?'✓':'!'}</span><span>{toast.msg}</span><button type="button" onClick={()=>setToast(null)} style={{background:'transparent',border:0,color:'white',opacity:.65}}>×</button></div>}
       {confirmLeave&&<div className="od-modal" onClick={()=>setConfirmLeave(false)}><div className="od-modal-card" onClick={e=>e.stopPropagation()}><h3>Quitter ce récit ?</h3><p>Les modifications non publiées seront perdues. Vous pourrez revenir plus tard uniquement si vous avez déjà publié le récit.</p><div className="od-modal-actions"><button className="od-ghost" type="button" onClick={()=>setConfirmLeave(false)}>Continuer à créer</button><button className="od-primary" style={{background:'#b44b3f'}} type="button" onClick={()=>window.location.href='/'}>Quitter</button></div></div></div>}
